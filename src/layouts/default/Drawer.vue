@@ -40,6 +40,8 @@
 
       <default-list :items="items3" />
 
+      <default-drawer-logout />
+
       <v-divider class="mx-3 mb-2" />
 
       <default-drawer-back />
@@ -68,6 +70,10 @@
       DefaultDrawerBack: () => import(
         /* webpackChunkName: "default-drawer-header" */
         './widgets/DrawerBack'
+      ),
+      DefaultDrawerLogout: () => import(
+        /* webpackChunkName: "default-drawer-header" */
+        './widgets/DrawerLogout'
       ),
       DefaultList: () => import(
         /* webpackChunkName: "default-list" */

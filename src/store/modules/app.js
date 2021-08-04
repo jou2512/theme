@@ -1,6 +1,5 @@
 // Pathify
 import { make } from 'vuex-pathify'
-import { authService } from '../../Firebase/init'
 
 // Data
 const state = {
@@ -36,9 +35,17 @@ const state = {
   ],
   items2: [
     {
+      title: ' ',
+      icon: ' ',
+    },
+    {
       title: 'Resultate',
       icon: 'mdi-newspaper',
       to: '/',
+    },
+    {
+      title: ' ',
+      icon: ' ',
     },
     {
       title: 'Dokumente',
@@ -56,14 +63,6 @@ const state = {
       title: 'Einstellungen',
       icon: 'mdi-cog',
       to: '/',
-    },
-    {
-      title: 'Logout',
-      icon: 'mdi-logout',
-      to: '/start/',
-      logout: () => {
-        authService.logout()
-      },
     },
   ],
 }

@@ -9,7 +9,6 @@
     class="py-1"
     v-bind="$attrs"
     v-on="$listeners"
-    @click="logout()"
   >
     <v-list-item-icon
       v-if="!item.icon"
@@ -51,20 +50,6 @@
         const matches = this.item.title.match(/\b(\w)/g)
 
         return matches.join('')
-      },
-    },
-
-    methods: {
-      async logout () {
-        return Promise.resolve()
-          .then(() => {
-            if (this.item.logout) {
-              console.log('1')
-              return this.item.logout()
-            } else {
-              return console.log('fksjfkasd')
-            }
-          })
       },
     },
   }
