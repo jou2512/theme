@@ -1,7 +1,7 @@
 <template>
   <v-list-item
     class="mb-0 justify-space-between pl-3"
-    :to="'/components/profile/'"
+    :to="'/profile/'"
   >
     <v-list-item-avatar>
       <v-img

@@ -26,18 +26,18 @@ const router = new Router({
       defaultroute('Dashboard'),
 
       // Pages
-      defaultroute('UserProfile', null, 'components/profile'),
+      defaultroute('UserProfile', null, 'profile'),
 
       // Components
-      defaultroute('Notifications', null, 'components/notifications'),
-      defaultroute('Icons', null, 'components/icons'),
-      defaultroute('Typography', null, 'components/typography'),
+      defaultroute('Notifications', null, 'notifications'),
+      defaultroute('Icons', null, 'upcoming'),
+      defaultroute('Typography', null, 'fahrten'),
 
       // Tables
-      defaultroute('Regular Tables', null, 'tables/regular'),
+      defaultroute('Regular Tables', null, 'kalender'),
 
       // Maps
-      defaultroute('Google Maps', null, 'maps/google'),
+      defaultroute('Google Maps', null, 'resultate'),
     ]), layout('webout', [
       weboutroute('Start'),
       weboutroute('confirmation', null, 'confirmation/:id'),

@@ -15,22 +15,22 @@ const state = {
     {
       title: 'Notifications',
       icon: 'mdi-inbox',
-      to: '/',
+      to: '/notifications',
     },
     {
       title: 'Upcoming',
       icon: 'mdi-clipboard-list',
-      to: '/',
+      to: '/upcoming',
     },
     {
       title: 'Fahrten',
       icon: 'mdi-car-side',
-      to: '/',
+      to: '/fahrten',
     },
     {
       title: 'Kalender',
       icon: 'mdi-calendar',
-      to: '/',
+      to: '/kalender',
     },
   ],
   items2: [
@@ -41,7 +41,7 @@ const state = {
     {
       title: 'Resultate',
       icon: 'mdi-newspaper',
-      to: '/',
+      to: '/resultate',
     },
     {
       title: ' ',
@@ -50,19 +50,19 @@ const state = {
     {
       title: 'Dokumente',
       icon: 'mdi-file-pdf',
-      to: '/',
+      to: '/dokumente',
     },
     {
       title: 'Shop',
       icon: 'mdi-shopping',
-      to: '/',
+      to: '/shop',
     },
   ],
   items3: [
     {
       title: 'Einstellungen',
       icon: 'mdi-cog',
-      to: '/',
+      to: '/einstellungen',
     },
   ],
 }
