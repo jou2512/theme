@@ -1,5 +1,5 @@
 <template>
-  <section class="mb-12 text-center">
+  <section class="mb-12 text-center white--text">
     <h1
       class="mb-2 text-h3"
       v-text="heading"
