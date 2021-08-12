@@ -1,0 +1,33 @@
+<svg id="Komponente_53_1" data-name="Komponente 53 – 1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="152" height="66" viewBox="0 0 152 66">
+  <defs>
+    <linearGradient id="linear-gradient" x1="0.5" x2="0.5" y2="1" gradientUnits="objectBoundingBox">
+      <stop offset="0" stop-color="#707070"/>
+      <stop offset="1" stop-color="#334363"/>
+    </linearGradient>
+    <filter id="Ellipse_21">
+      <feOffset dy="3" input="SourceAlpha"/>
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feFlood flood-opacity="0.471" result="color"/>
+      <feComposite operator="out" in="SourceGraphic" in2="blur"/>
+      <feComposite operator="in" in="color"/>
+      <feComposite operator="in" in2="SourceGraphic"/>
+    </filter>
+  </defs>
+  <g id="Komponente_51_1" data-name="Komponente 51 – 1" transform="translate(64 4)">
+    <path id="Pfad_10" data-name="Pfad 10" d="M29,3.029s.435,23.895,7.685,44.395A102.62,102.62,0,0,0,58,82H0A102.62,102.62,0,0,0,21.315,47.423C28.565,26.923,29,3.029,29,3.029Z" transform="translate(82 0) rotate(90)" fill="url(#linear-gradient)"/>
+  </g>
+  <g id="Komponente_52_1" data-name="Komponente 52 – 1">
+    <g id="Gruppe_80" data-name="Gruppe 80" transform="translate(-11.5 -122)">
+      <g id="Rechteck_62" data-name="Rechteck 62" transform="translate(11.5 122)" fill="#334363" stroke="#fff" stroke-width="1">
+        <rect width="66" height="66" rx="10" stroke="none"/>
+        <rect x="0.5" y="0.5" width="65" height="65" rx="9.5" fill="none"/>
+      </g>
+      <g id="Gruppe_81" data-name="Gruppe 81">
+        <g id="Gruppe_82" data-name="Gruppe 82">
+          <text id="date" data-name="01" transform="translate(20.5 165)" fill="#e0e0e0" font-size="40" font-family="BritannicBold, Britannic"><tspan x="0" y="0">01</tspan></text>
+          <text id="day" transform="translate(23.5 178)" fill="#e0e0e0" font-size="15" font-family="Castellar"><tspan x="0" y="0">Mon</tspan></text>
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>

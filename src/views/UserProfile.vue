@@ -318,6 +318,7 @@
                   >
                     <v-checkbox
                       v-model="user.auto"
+                      disabled
                       label="Ich besitze ein Auto"
                     />
                   </v-col>
@@ -328,6 +329,7 @@
                   >
                     <v-checkbox
                       v-model="user.fechten"
+                      disabled
                       label="Ich fechte persönlich"
                     />
                   </v-col>
