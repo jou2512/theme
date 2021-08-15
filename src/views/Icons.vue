@@ -10,7 +10,9 @@
       style="height: 200px"
     />
     <v-container>
-      <v-row justify="center">
+      <v-row
+        justify="center"
+      >
         <v-col
           class="text-center"
           align-self="center"
@@ -18,7 +20,9 @@
           md="8"
         >
           <v-card>
-            <v-card-title class="text-center text-h3 font-weight-black">
+            <v-card-title
+              class="text-center text-h3 font-weight-black"
+            >
               Upcoming
             </v-card-title>
             <v-card-subtitle
@@ -29,10 +33,18 @@
                   cols="12"
                   md="3"
                 >
-                  <span class="text-h4">Datum</span>
+                  <span
+                    class="text-h4"
+                  >
+                    Datum
+                  </span>
                 </v-col>
                 <v-col>
-                  <span class="text-h4">Event</span>
+                  <span
+                    class="text-h4"
+                  >
+                    Event
+                  </span>
                 </v-col>
               </v-row>
               <v-divider />
@@ -80,9 +92,14 @@
                             color="#334563"
                             @click="changeText"
                           >
-                            <v-card-title class="text-h4  white--text">
-                              {{ event.title }} <v-spacer />
-                              <span class="font-weight-thin text-subtitle-2 grey--text text--secondary">
+                            <v-card-title
+                              class="text-h4  white--text"
+                            >
+                              {{ event.title }}
+                              <v-spacer />
+                              <span
+                                class="font-weight-thin text-subtitle-2 grey--text text--secondary"
+                              >
                                 <v-icon
                                   v-if="event.foryou"
                                   color="green"
@@ -95,9 +112,17 @@
                             <v-card-text
                               class="text-left"
                             >
-                              <span class="text-body-1">{{ event.description }}</span>
+                              <span
+                                class="text-body-1"
+                              >
+                                {{ event.description }}
+                              </span>
                               <br>
-                              <span class="text-caption">{{ event.caption }}</span>
+                              <span
+                                class="text-caption"
+                              >
+                                {{ event.caption }}
+                              </span>
                             </v-card-text>
                           </v-card>
                         </v-col>
@@ -110,13 +135,22 @@
                             class="elevation-8 mx-4"
                             color="#334563"
                           >
-                            <v-card-title class="text-h5  white--text">
-                              Test Pist
+                            <v-card-title
+                              class="text-h5  white--text"
+                            >
+                              Test
+                              Pist
                             </v-card-title>
                             <v-card-text
                               class="text-left"
                             >
-                              U14 / U17 / U20 in Biel
+                              U14
+                              /
+                              U17
+                              /
+                              U20
+                              in
+                              Biel
                             </v-card-text>
                           </v-card>
                         </v-col>
@@ -128,7 +162,8 @@
                   v-if="events.length == 0"
                   class="blck--text text-center font-weight-black text-h4"
                 >
-                  Keine Neugigkeiten
+                  Keine
+                  Neugigkeiten
                 </div>
               </v-card>
             </v-card-text>
@@ -138,12 +173,13 @@
           class="d-flex justify-center"
         >
           <v-card
-            class=""
             min-width="350px"
             max-width="400px"
             max-height="611px"
           >
-            <v-card-title class="text-center text-h3 font-weight-black">
+            <v-card-title
+              class="text-center text-h3 font-weight-black"
+            >
               Filter
             </v-card-title>
             <v-card-subtitle
@@ -162,14 +198,16 @@
                     :disabled="!my"
                     @click="my = !my"
                   >
-                    Alle Events
+                    Alle
+                    Events
                   </v-btn>
                   <v-btn
                     class="rounded-r rounded-l-0 elevation-3"
                     :disabled="my"
                     @click="my = !my"
                   >
-                    Meine Events
+                    Meine
+                    Events
                   </v-btn>
                 </v-col>
               </v-row>
@@ -183,7 +221,9 @@
                 color="transparent"
                 max-height="500px"
               >
-                <v-subheader :inset="inset">
+                <v-subheader
+                  :inset="inset"
+                >
                   Datum
                 </v-subheader>
                 <v-container>
@@ -202,7 +242,9 @@
                         persistent
                         width="290px"
                       >
-                        <template v-slot:activator="{ on, attrs }">
+                        <template
+                          v-slot:activator="{ on, attrs }"
+                        >
                           <v-text-field
                             v-model="daterange.start"
                             label="von"
@@ -244,7 +286,11 @@
                       class="text-center pa-0"
                       align-self="center"
                     >
-                      <span class="black--text font-weight-black">&mdash;</span>
+                      <span
+                        class="black--text font-weight-black"
+                      >
+                        &mdash;
+                      </span>
                     </v-col>
                     <v-col
                       class="text-center pa-0 pr-2"
@@ -257,7 +303,9 @@
                         persistent
                         width="290px"
                       >
-                        <template v-slot:activator="{ on, attrs }">
+                        <template
+                          v-slot:activator="{ on, attrs }"
+                        >
                           <v-text-field
                             v-model="daterange.end"
                             label="bis"
@@ -303,18 +351,24 @@
                   class="py-0"
                   fluid
                 >
-                  <v-subheader :inset="inset">
+                  <v-subheader
+                    :inset="inset"
+                  >
                     {{ filter.title }}
                   </v-subheader>
 
                   <v-list>
-                    <template v-for="item in filter.filteritems">
+                    <template
+                      v-for="item in filter.filteritems"
+                    >
                       <v-tooltip
                         v-if="item.tooltip"
                         :key="item.tag"
                         top
                       >
-                        <template v-slot:activator="{ on, attrs }">
+                        <template
+                          v-slot:activator="{ on, attrs }"
+                        >
                           <v-list-item
                             :key="item.tag"
                             class="mt-n5"
@@ -326,11 +380,15 @@
                             </v-list-item-action>
 
                             <v-list-item-content>
-                              <v-list-item-title>{{ item.name }}</v-list-item-title>
+                              <v-list-item-title>
+                                {{ item.name }}
+                              </v-list-item-title>
                             </v-list-item-content>
                           </v-list-item>
                         </template>
-                        <span>{{ item.tooltip }}</span>
+                        <span>
+                          {{ item.tooltip }}
+                        </span>
                       </v-tooltip>
                       <v-list-item
                         v-else
@@ -344,7 +402,9 @@
                         </v-list-item-action>
 
                         <v-list-item-content>
-                          <v-list-item-title>{{ item.name }}</v-list-item-title>
+                          <v-list-item-title>
+                            {{ item.name }}
+                          </v-list-item-title>
                         </v-list-item-content>
                       </v-list-item>
                     </template>
@@ -472,7 +532,9 @@
   }
 </script>
 
-<style lang="sass">
+<style
+  lang="sass"
+>
   .pointer
     cursor: pointer
 
@@ -492,5 +554,4 @@
   .v-application--is-ltr .v-timeline--dense:not(.v-timeline--reverse):before
     left: calc( var(--timeline-opposite-item-width) + (96px - var(--timeline-line-width)) / 2 )
     width: var(--timeline-line-width)
-
 </style>

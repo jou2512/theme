@@ -1,106 +1,275 @@
 <template>
   <v-container
-    id="typography-view"
+    id="alerts"
     fluid
     tag="section"
   >
     <view-intro
-      heading="Typography"
-      link="styles/typography"
+      heading="Fahrten"
+      link="components/alerts"
+      style="height: 200px"
     />
-
-    <v-row
-      align="center"
-      justify="center"
-    >
-      <v-col cols="12">
-        <material-card
-          color="success"
-          full-header
+    <v-container>
+      <v-row justify="center">
+        <v-col
+          class="text-center"
+          align-self="center"
+          cols="12"
+          md="3"
         >
-          <template #heading>
-            <div class="pa-6 white--text">
-              <div class="text-h4 font-weight-light">
-                Material Dashboard Heading
-              </div>
-
-              <div class="text-subtitle-1">
-                Created using the Roboto Font Family
-              </div>
-            </div>
-          </template>
-
-          <v-card-text class="text--primary">
-            <v-row
-              v-for="([name, text, component], key, i) in typography"
-              :key="i"
-              align="center"
-            >
-              <v-col
-                cols="1"
-                md="3"
-                class="text-caption font-weight-regular text--disabled"
-                v-text="name"
+          <v-card
+            class="mt-4 text-center"
+            color="grey lighten-3"
+            max-width="300px"
+            height="525px"
+          >
+            <v-card-title>
+              <v-text-field
+                label="Search..."
+                append-icon="mdi-magnify"
+                color="green"
+                hide-details
+                solo
+                flat
+                rounded
+                clearable
               />
-
-              <v-col cols="8">
-                <component
-                  :is="component"
-                  :class="key"
+            </v-card-title>
+            <v-card-subtitle
+              class="pt-5 pb-0"
+            >
+              <v-divider />
+            </v-card-subtitle>
+            <v-card-text
+              class="py-0"
+              color="transparent"
+            >
+              <v-card
+                class="overflow-y-auto py-0 elevation-0"
+                color="transparent"
+                height="500px"
+              >
+                <v-list
+                  :key="componentKey"
+                  class="pt-1 mr-1"
+                  color="transparent"
+                  three-line
                 >
-                  <span
-                    v-if="key !== 'blockquote'"
-                    v-text="text"
-                  />
+                  <v-list-item-group
+                    v-model="selectedItem"
+                    mandatory
+                    color="#7069E4"
+                  >
+                    <template
+                      v-for="(item, index) in items"
+                    >
+                      <v-subheader
+                        v-if="item.header"
+                        :key="item.header"
+                        v-text="item.header"
+                      />
 
-                  <p
+                      <v-divider
+                        v-else-if="item.divider"
+                        :key="index"
+                        class="my-2"
+                        :inset="item.inset"
+                      />
+
+                      <v-list-item
+                        v-else
+                        :key="item.title"
+                        class="py-0"
+                        selectable
+                      >
+                        <v-list-item-avatar>
+                          <v-img :src="item.avatar" />
+                        </v-list-item-avatar>
+
+                        <v-list-item-content
+                          class="pb-0"
+                        >
+                          <v-list-item-title
+                            class="text-left font-weight-black text-subtitle-1"
+                            v-html="item.title"
+                          />
+                          <v-list-item-subtitle
+                            class="text-left pt-n1"
+                            v-html="item.subtitle"
+                          />
+                        </v-list-item-content>
+                      </v-list-item>
+                    </template>
+                  </v-list-item-group>
+                </v-list>
+              </v-card>
+            </v-card-text>
+          </v-card>
+        </v-col>
+        <v-col
+          class="text-center"
+          align-self="center"
+          cols="12"
+          md="5"
+        >
+          <v-card>
+            <v-card-title>
+              <v-list>
+                <v-list-item
+                  v-if="componentKey>0"
+                >
+                  <v-list-item-avatar>
+                    <v-img src="https://cdn.vuetifyjs.com/images/lists/1.jpg" />
+                  </v-list-item-avatar>
+                  <v-list-item-content>
+                    <v-list-item-title
+                      class="text-left font-weight-black text-subtitle-1 grey--text"
+                      v-html="items[selectedItem].title"
+                    />
+                    <v-list-item-subtitle
+                      class="text-left pt-n1"
+                      v-html="items[selectedItem].tag"
+                    />
+                  </v-list-item-content>
+                </v-list-item>
+              </v-list>
+            </v-card-title>
+            <v-card-subtitle>
+              <v-divider
+                class="my-2"
+              />
+            </v-card-subtitle>
+            <v-card-text>
+              <v-list>
+                <v-container
+                  v-for="{ id, text, userPhotoURL, userName, userId } in messages"
+                  :key="id"
+                >
+                  <v-list-item
+                    v-if="userId === user.uid ? true : false"
+                  >
+                    <v-list-item-avatar>
+                      <v-img :src="userPhotoURL" />
+                    </v-list-item-avatar>
+                    <v-list-item-content>
+                      <v-list-item-title
+                        class="text-left font-weight-black text-subtitle-1 grey--text"
+                        v-html="text"
+                      />
+                      <v-list-item-subtitle
+                        class="text-left pt-n1"
+                        v-html="userName"
+                      />
+                    </v-list-item-content>
+                  </v-list-item>
+                  <v-list-item
                     v-else
-                    v-text="text"
-                  />
-
-                  <template v-if="key === 'small'">
-                    <br>
-
-                    <small>Use 'small' tag for the headers</small>
-                  </template>
-                </component>
-              </v-col>
-            </v-row>
-          </v-card-text>
-        </material-card>
-      </v-col>
-    </v-row>
+                  >
+                    <v-list-item-avatar>
+                      <v-img :src="userPhotoURL" />
+                    </v-list-item-avatar>
+                    <v-list-item-content>
+                      <v-list-item-title
+                        class="text-left font-weight-black text-subtitle-1 blue--text"
+                        v-html="text"
+                      />
+                      <v-list-item-subtitle
+                        class="text-left pt-n1"
+                        v-html="userName"
+                      />
+                    </v-list-item-content>
+                  </v-list-item>
+                </v-container>
+              </v-list>
+              <div
+                ref="bottom"
+                class="mt-10"
+              />
+            </v-card-text>
+            <v-card-actions>
+              <v-form @submit.prevent="send">
+                <v-row>
+                  <v-col
+                    cols="12"
+                    md="8"
+                  >
+                    <v-text-field
+                      v-model="message"
+                    />
+                  </v-col>
+                  <v-col
+                    md="4"
+                  >
+                    <v-btn type="submit">
+                      Send
+                    </v-btn>
+                  </v-col>
+                </v-row>
+              </v-form>
+            </v-card-actions>
+          </v-card>
+        </v-col>
+      </v-row>
+    </v-container>
   </v-container>
 </template>
 
 <script>
-  // Data
-  const leader = 'I will be the leader of a company that ends up being worth billions of dollars, because I got the answers. I understand culture. I am the nucleus. I think that’s a responsibility that I have, to push possibilities, to show people, this is the level that things could be at.'
-  const leaderShort = leader.slice(0, 105) + '...'
-  const material = 'The Life of Material Dashboard'
-  const small = 'Header with small subtitle'
+  import { ref, watch, nextTick } from '@vue/composition-api'
+  import { useAuth, useChat, useUsers } from '../Firebase/init'
 
   export default {
-    name: 'TypographyView',
+    name: 'Fahrtenview',
 
-    data: () => ({
-      typography: {
-        'text-h1': ['Heading 1', material, 'h1'],
-        'text-h2': ['Heading 2', material, 'h2'],
-        'text-h3': ['Heading 3', material, 'h3'],
-        'text-h4': ['Heading 4', material, 'h4'],
-        'text-h5': ['Heading 5', material, 'h5'],
-        'text-h6': ['Heading 6', material, 'h6'],
-        '': ['Paragraph', leader, 'p'],
-        blockquote: ['Quote', leader, 'blockquote'],
-        'text--secondary': ['Muted Text', leaderShort, 'p'],
-        'primary--text': ['Primary Text', leaderShort, 'p'],
-        'info--text': ['Info Text', leaderShort, 'p'],
-        'success--text': ['Success Text', leaderShort, 'p'],
-        'warning--text': ['Warning Text', leaderShort, 'p'],
-        'error--text': ['Error Text', leaderShort, 'p'],
-        small: ['Small Tag', small, 'h2'],
-      },
-    }),
+    setup () {
+      const { messages, sendMessage } = useChat()
+      const bottom = ref(null)
+
+      const componentKey = ref(0)
+
+      const forceRender = () => {
+        componentKey.value += 1
+      }
+
+      const { items } = useUsers()
+      console.log(items.value)
+
+      setTimeout(() => {
+        console.log(items.value[0].title)
+        forceRender()
+      }, 1000)
+
+      watch(
+        messages,
+        () => {
+          nextTick(() => {
+            bottom.value.scrollIntoView({ behavior: 'smooth' })
+          })
+        },
+        items,
+        () => {
+          nextTick(() => {
+            console.log(items.value.length)
+          })
+        },
+      )
+      const message = ref('')
+      const send = () => {
+        sendMessage(message.value)
+        message.value = ''
+      }
+
+      const selectedItem = ref(1)
+
+      const { user, isLogin, signOut, signIn } = useAuth()
+      return { user, isLogin, signOut, signIn, bottom, messages, message, send, selectedItem, items, componentKey }
+    },
   }
 </script>
+
+<style lang="sass">
+  .pointer
+    cursor: pointer
+  .v-list--three-line .v-list-item, .v-list-item--three-line
+    min-height: 70px
+</style>
