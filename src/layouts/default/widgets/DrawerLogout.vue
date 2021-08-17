@@ -1,7 +1,7 @@
 <template>
   <v-list-item
     class="mb-0 justify-space-between pl-3 pointer"
-    @click="back"
+    @click="$store.dispatch('app/back')"
   >
     <v-list-item-icon
       class="my-2 align-self-center"
@@ -18,9 +18,6 @@
 </template>
 
 <script>
-  // Utilities
-  import 'firebase/auth'
-  import { authService } from '../../../Firebase/init'
 
   export default {
     name: 'DefaultDrawerLogout',
@@ -28,13 +25,5 @@
     data: () => ({
       icon: 'mdi-logout',
     }),
-
-    methods: {
-      back () {
-        console.log('done')
-        authService.logout()
-        this.$router.push('/start/')
-      },
-    },
   }
 </script>

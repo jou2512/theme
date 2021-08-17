@@ -9,6 +9,7 @@ import {
 } from '@/util/routes'
 import 'firebase/auth'
 import db, { authService } from '../Firebase/init'
+import store from '../store/index'
 
 Vue.use(Router)
 
@@ -38,6 +39,10 @@ const router = new Router({
 
       // Maps
       defaultroute('Google Maps', null, 'resultate'),
+
+      defaultroute('Users', null, 'users'),
+      defaultroute('Events', null, 'events'),
+      defaultroute('Chats', null, 'chats'),
     ]), layout('webout', [
       weboutroute('Start'),
       weboutroute('confirmation', null, 'confirmation/:id'),
@@ -46,6 +51,30 @@ const router = new Router({
 })
 
 router.beforeEach((to, from, next) => {
+  const calldata = () => {
+    const cityRef = db.collection('users').doc(authService.user.uid)
+    const usersCollection = db.collection('users')
+
+    const promise1 = cityRef.get()
+    const promise2 = usersCollection.limit(100).get()
+
+    return Promise.all([promise1, promise2]).then((values) => {
+      store.state.userfirebase.infos = values[0].data()
+      const user = values[1].docs.map(doc => ({ id: doc.id, ...doc.data() }))
+      for (let i = 0; i < values[1].docs.length; i++) {
+        store.state.userfirebase.mitglieder[i] = {
+          ID: i,
+          avatar: 'https://cdn.vuetifyjs.com/images/lists/1.jpg',
+          title: user[i].privat.firstName + ' ' + user[i].privat.nachName,
+          subtitle: 'today',
+          email: user[i].login.email,
+          tag: 'person',
+        }
+      }
+      store.state.userfirebase.get = 1
+    })
+  }
+
   if (to.path === '/start/confirmation/') {
     next('/start/')
   } else {
@@ -69,8 +98,14 @@ router.beforeEach((to, from, next) => {
         } else {
           authService.authenticated().then(() => {
             if (authService.user) {
-              console.log(from.fullPath)
-              to.path.endsWith('/') ? next() : next(trailingSlash(to.path))
+              if (store.state.userfirebase.get === 0) {
+                calldata().then(() => {
+                  console.log('ndasfsdfasd')
+                  to.path.endsWith('/') ? next() : next(trailingSlash(to.path))
+                })
+              } else {
+                to.path.endsWith('/') ? next() : next(trailingSlash(to.path))
+              }
             } else {
               next('/start/')
             }

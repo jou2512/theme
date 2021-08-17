@@ -1,5 +1,9 @@
 // Pathify
 import { make } from 'vuex-pathify'
+import 'firebase/auth'
+import { authService } from '../../Firebase/init'
+import router from '../../router/index'
+import store from '../../store/index'
 
 // Data
 const state = {
@@ -65,6 +69,23 @@ const state = {
       to: '/einstellungen',
     },
   ],
+  admintool: [
+    {
+      title: 'Users',
+      icon: 'mdi-account',
+      to: '/users',
+    },
+    {
+      title: 'Events',
+      icon: 'mdi-calendar-plus',
+      to: '/events',
+    },
+    {
+      title: 'Chats',
+      icon: 'mdi-chat-plus',
+      to: '/chats',
+    },
+  ],
 }
 
 const mutations = make.mutations(state)
@@ -73,6 +94,12 @@ const actions = {
   ...make.actions(state),
   init: async ({ dispatch }) => {
     //
+  },
+  back: async (state) => {
+    console.log('done')
+    store.state.userfirebase.get = 0
+    authService.logout()
+    router.push('/start/')
   },
 }
 

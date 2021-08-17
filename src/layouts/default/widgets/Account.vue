@@ -24,6 +24,11 @@
       flat
       nav
     >
+      <v-list-item
+        to="/profile/"
+      >
+        <v-list-item-title v-text="'Profile'" />
+      </v-list-item>
       <template v-for="(p, i) in profile">
         <v-divider
           v-if="p.divider"
@@ -31,14 +36,18 @@
           class="mb-2 mt-2"
         />
 
-        <app-bar-item
+        <v-list-item
           v-else
           :key="`item-${i}`"
-          to="/"
         >
           <v-list-item-title v-text="p.title" />
-        </app-bar-item>
+        </v-list-item>
       </template>
+      <v-list-item
+        @click="$store.dispatch('app/back')"
+      >
+        <v-list-item-title v-text="'Log out'" />
+      </v-list-item>
     </v-list>
   </v-menu>
 </template>
@@ -49,10 +58,8 @@
 
     data: () => ({
       profile: [
-        { title: 'Profile' },
         { title: 'Settings' },
         { divider: true },
-        { title: 'Log out' },
       ],
     }),
   }

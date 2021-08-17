@@ -22,7 +22,7 @@
             class="mt-4 text-center"
           >
             <v-card-title>
-              <h1>Neugigkeiten</h1>
+              <span class="grey--text text-h3"><span class="font-weight-black black--text">{{ notificationsLength }}</span> - Neugigkeiten</span>
             </v-card-title>
 
             <v-card-subtitle
@@ -34,7 +34,7 @@
             <v-card-text>
               <v-list>
                 <v-card
-                  v-for="(item, i) in news"
+                  v-for="(item, i) in notifications"
                   :key="i"
                   color="#334563"
                   class="mt-4"
@@ -60,7 +60,7 @@
                       <v-list-item-action>
                         <v-btn
                           icon
-                          @click="deletNews(i)"
+                          @click="delet(i)"
                         >
                           <v-icon
                             color="grey"
@@ -74,7 +74,7 @@
                 </v-card>
               </v-list>
               <div
-                v-if="news.length == 0"
+                v-if="notifications.length == 0"
                 class="blck--text text-center font-weight-black text-h4"
               >
                 Keine Neugigkeiten
@@ -88,39 +88,35 @@
 </template>
 
 <script>
+  import { sync } from 'vuex-pathify'
+  import { mapGetters } from 'vuex'
+
   export default {
     name: 'NotificationsView',
 
     data: () => ({
-      news: [
-        { type: 'message', message: 'Andrina hat dir geschrieben', to: '/' },
-        { type: 'important', message: 'Neues Ranglisten System wird eingeführt', to: '/' },
-        { type: 'message', message: 'Alexa hat dir geschrieben', to: '/' },
-        { type: 'info', message: 'Die Brassards finden wieder statt', to: '/' },
-        { type: 'important', message: 'Covid-19 Imfung wird ab jetzt vorausgesetzt', to: '/' },
-        { type: 'events', message: 'weisswurst essen am 30.6.21', to: '/' },
-      ],
-      icons: {
-        message: 'mdi-message-outline',
-        important: 'mdi-alert-decagram',
-        info: 'mdi-alert-circle-outline',
-        events: 'mdi-newspaper',
-      },
+      //
     }),
 
     computed: {
       parsedDirection () {
         return this.direction.split(' ')
       },
+      ...sync('notifications', [
+        'notifications',
+        'icons',
+      ]),
+      ...mapGetters('notifications', [
+        'notificationsLength',
+      ]),
     },
 
     methods: {
-      deletNews (newsIndex) {
-        this.news.splice(newsIndex, 1)
-        console.log(this.news)
-      },
       to (to) {
         this.$router.push(to)
+      },
+      delet (index) {
+        this.$store.commit({ type: 'notifications/deletNotification', notificationIndex: index })
       },
     },
   }

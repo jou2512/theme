@@ -13,18 +13,28 @@
         text
         v-bind="attrs"
         v-on="on"
+        :disabled="notificationsLength===0"
       >
         <v-badge
+          v-if="notificationsLength>0"
           bordered
           color="red"
           overlap
         >
-          <template v-slot:badge>
-            <span>5</span>
+          <template
+            v-slot:badge
+          >
+            <span>{{ notificationsLength }}</span>
           </template>
 
           <v-icon>mdi-bell</v-icon>
         </v-badge>
+
+        <v-icon
+          v-else
+        >
+          mdi-bell
+        </v-icon>
       </v-btn>
     </template>
 
@@ -37,26 +47,43 @@
         :key="i"
         link
       >
-        <v-list-item-content>
-          <v-list-item-title>{{ n }} </v-list-item-title>
-        </v-list-item-content>
+        <template>
+          <v-list-item-icon>
+            <v-icon>
+              {{ icons[n.type] }}
+            </v-icon>
+          </v-list-item-icon>
+          <v-list-item-content>
+            <v-list-item-title>{{ n.message }} </v-list-item-title>
+          </v-list-item-content>
+        </template>
       </app-bar-item>
     </v-list>
   </v-menu>
 </template>
 
 <script>
+  import { get } from 'vuex-pathify'
+  import { mapGetters } from 'vuex'
+
   export default {
     name: 'DefaultNotifications',
 
     data: () => ({
-      notifications: [
-        'Mike John Responded to your email',
-        'You have 5 new tasks',
-        'You\'re now friends with Andrew',
-        'Another Notification',
-        'Another one',
-      ],
+      //
     }),
+
+    computed: {
+      parsedDirection () {
+        return this.direction.split(' ')
+      },
+      ...get('notifications', [
+        'notifications',
+        'icons',
+      ]),
+      ...mapGetters('notifications', [
+        'notificationsLength',
+      ]),
+    },
   }
 </script>

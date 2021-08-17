@@ -40,7 +40,6 @@
                 <v-text-field
                   v-model="password"
                   required
-                  :rules="passwordRules"
                   label="Password"
                   :type="showPassword ? '' : 'password'"
                   prepend-icon="mdi-lock"
@@ -57,6 +56,13 @@
 
                 <span class="text-caption grey--text text--darken-1 pointer">
                   passwort vergessen
+                </span>
+                <v-divider
+                  v-if="errorlog"
+                  class="my-2"
+                />
+                <span class="text-caption red--text text--darken-1 font-weight-bold">
+                  {{ errorlog }}
                 </span>
               </v-card-text>
             </v-window-item>
@@ -82,16 +88,24 @@
                   @click:append="showPassword = !showPassword"
                 />
                 <v-text-field
+                  v-model="passwordcheck"
                   label="Confirm Password"
-                  :type="showPassword ? '' : 'password'"
+                  :type="showPassword1 ? '' : 'password'"
                   required
-                  :rules="passwordRules"
+                  :error-messages="pascheck()"
                   prepend-icon="mdi-lock"
-                  :append-icon="!showPassword ? 'mdi-eye' : 'mdi-eye-off'"
-                  @click:append="showPassword = !showPassword"
+                  :append-icon="!showPassword1 ? 'mdi-eye' : 'mdi-eye-off'"
+                  @click:append="showPassword1 = !showPassword1"
                 />
                 <span class="text-caption grey--text text--darken-1">
                   Please enter a password for your account
+                </span>
+                <v-divider
+                  v-if="error"
+                  class="my-2"
+                />
+                <span class="text-caption red--text text--darken-1 font-weight-bold">
+                  {{ error }}
                 </span>
               </v-card-text>
             </v-window-item>
@@ -207,12 +221,26 @@
         (v) => !!v || 'E-mail is required',
         (v) => /.+@.+\..+/.test(v) || 'E-mail must be valid',
       ],
-      passwordRules: [(v) => !!v || 'Password is required'],
-      checkbox: false,
-      showPassword: false,
-      isEditing: true,
+      passwordRules: [
+        (v) => !!v || 'Password is required',
+        (v) => v.length > 5 || 'Password muss mindestens 6 Zeichen haben',
+        (v) => /\d/.test(v) || 'Password muss mindestens eine Nummer enthalten',
+        (v) => /[a-z]/.test(v) || 'Password muss mindestens eine Kleinbuchstabe enthalten',
+        (v) => /[A-Z]/.test(v) || 'Password muss mindestens eine Grossbuchstabe enthalten',
+        (v) => /[!@#$%^&*)(+=._-]/.test(v) || 'Password muss mindestens ein Sonderzeichen enthalten',
+      ],
       email: '',
       password: '',
+      passwordcheck: '',
+      passwordRulecheck: [
+        (v) => this.pascheck(v) || 'Password muss übereinstimmen',
+      ],
+      checkbox: false,
+      showPassword: false,
+      showPassword1: false,
+      isEditing: true,
+      error: '',
+      errorlog: '',
     }),
 
     computed: {
@@ -244,6 +272,9 @@
       resetValidation () {
         this.$refs.form.resetValidation()
       },
+      pascheck () {
+        return this.passwordcheck === this.password ? '' : 'Password muss übereinstimmen'
+      },
       async weiter () {
         const path = '/start/confirmation/' + firebase.auth().currentUser.uid
         this.$router.push(path)
@@ -264,6 +295,7 @@
               auto: false,
             },
             login: {
+              admin: false,
               completed: false,
               email: this.email,
               telefon: '',
@@ -281,6 +313,7 @@
           this.step = 3
         } catch (error) {
           console.log(error)
+          this.error = error.message
         }
       },
       log () {
@@ -295,6 +328,7 @@
           })
         }).catch((error) => {
           console.log(error)
+          this.errorlog = error.message
         })
       },
     },

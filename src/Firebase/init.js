@@ -95,13 +95,25 @@ const chatCollection = firestore.collection('messages')
 export function useChat () {
   const messages = ref([])
   const chat = ref(null)
+  const chattype = ref(null)
 
   const assignChat = chatinfo => {
-    chat.value = chatinfo
-    chatCollection.doc(chatinfo).collection('messages').orderBy('createdAt', 'desc').limit(100).onSnapshot(snapshot => {
-      messages.value = snapshot.docs
-        .map(doc => ({ id: doc.id, ...doc.data() }))
-        .reverse()
+    var docref = chatCollection.doc(chatinfo)
+    docref.get().then((doc) => {
+      if (doc.exists) {
+        console.log('Document data:', doc.data())
+        chattype.value = doc.data().type
+        chat.value = chatinfo
+        docref.collection('messages').orderBy('createdAt', 'desc').limit(100).onSnapshot(snapshot => {
+          messages.value = snapshot.docs
+            .map(doc => ({ id: doc.id, ...doc.data() }))
+            .reverse()
+          console.log(messages.value)
+        })
+      } else {
+          // doc.data() will be undefined in this case
+          console.log('No such document!')
+      }
     })
     /*
     chatCollection.where('users', 'array-contains', chatinfo[0]).where('type', '==', chatinfo[1]).get().then(result => {
@@ -114,6 +126,21 @@ export function useChat () {
       })
     })  */
   }
+
+  /*
+  const getchattype = chatinfo => {
+    var docref = chatCollection.doc(chatinfo)
+    docref.get().then((doc) => {
+      if (doc.exists) {
+        console.log('Document data1:', doc.data())
+        chattype.value = doc.data().type
+      } else {
+          // doc.data() will be undefined in this case
+          console.log('No such document 1!')
+      }
+    })
+  }
+  */
 
 /*  const unsubscribe = chatQuery.onSnapshot(snapshot => {
     console.log(snapshot)
@@ -150,7 +177,7 @@ export function useChat () {
     })
   }
 
-  return { assignChat, messages, sendMessage, createChat }
+  return { chattype, assignChat, messages, sendMessage, createChat }
 }
 
 export { timestamp }

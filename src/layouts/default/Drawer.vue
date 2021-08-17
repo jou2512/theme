@@ -28,6 +28,16 @@
 
       <default-drawer-profile />
 
+      <v-divider
+        v-if="admin"
+        class="mx-3 mb-2"
+      />
+
+      <default-list
+        v-if="admin"
+        :items="admintool"
+      />
+
       <v-divider class="mx-3 mb-2" />
 
       <default-list :items="items" />
@@ -82,6 +92,9 @@
     },
 
     computed: {
+      ...get('userfirebase', [
+        'infos@login@admin',
+      ]),
       ...get('user', [
         'dark',
         'gradient',
@@ -91,7 +104,7 @@
         'items',
         'items2',
         'items3',
-        'version',
+        'admintool',
       ]),
       ...sync('app', [
         'drawer',
