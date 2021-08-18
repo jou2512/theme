@@ -74,6 +74,7 @@
                       <v-col>
                         <v-text-field
                           v-model="username"
+                          color="blue"
                           :rules="usernameRules"
                           :counter="15"
                           label="Username"
@@ -86,7 +87,8 @@
                       <v-col>
                         <v-text-field
                           v-model="vorname"
-                          :rules="emailRules"
+                          color="blue"
+                          :rules="nameRules"
                           label="Vorname"
                           required
                           outlined
@@ -96,7 +98,8 @@
                       <v-col>
                         <v-text-field
                           v-model="familienname"
-                          :rules="emailRules"
+                          color="blue"
+                          :rules="nameRules"
                           label="Familienname"
                           required
                           outlined
@@ -171,7 +174,8 @@
                               <v-col>
                                 <v-text-field
                                   v-model="kinder[i-1].vorname"
-                                  :rules="emailRules"
+                                  color="blue"
+                                  :rules="nameRules"
                                   label="Vorname"
                                   required
                                   outlined
@@ -191,13 +195,14 @@
                                   <template v-slot:activator="{ on, attrs }">
                                     <v-text-field
                                       v-model="info[i-1].date"
-                                      label="Birthday date"
-                                      prepend-icon="mdi-calendar"
                                       readonly
+                                      color="blue"
+                                      label="Birthday"
+                                      prepend-icon="mdi-calendar"
                                       v-bind="attrs"
                                       required
                                       v-on="on"
-                                      @click="setmenuon(i)"
+                                      @focus="setmenuon(i)"
                                     />
                                   </template>
                                   <v-date-picker
@@ -243,6 +248,7 @@
                                   <template v-slot:activator="{ on, attrs }">
                                     <v-text-field
                                       v-model="date"
+                                      color="blue"
                                       label="Birthday date"
                                       prepend-icon="mdi-calendar"
                                       readonly
@@ -300,6 +306,7 @@
                                   <template v-slot:activator="{ on, attrs }">
                                     <v-text-field
                                       v-model="date"
+                                      color="blue"
                                       label="Birthday date"
                                       prepend-icon="mdi-calendar"
                                       readonly
@@ -357,7 +364,8 @@
                       <v-col>
                         <v-text-field
                           v-model="strasse"
-                          :rules="emailRules"
+                          color="blue"
+                          :rules="streetRules"
                           label="Strasse"
                           required
                           outlined
@@ -367,7 +375,8 @@
                       <v-col>
                         <v-text-field
                           v-model="hausnummer"
-                          :rules="emailRules"
+                          color="blue"
+                          :rules="nummerRules"
                           label="Hausnummer"
                           required
                           outlined
@@ -379,7 +388,8 @@
                       <v-col>
                         <v-text-field
                           v-model="ort"
-                          :rules="emailRules"
+                          color="blue"
+                          :rules="ortRules"
                           label="Ort"
                           required
                           outlined
@@ -389,7 +399,9 @@
                       <v-col>
                         <v-text-field
                           v-model="postleitzahl"
-                          :rules="usernameRules "
+                          color="blue"
+                          :rules="plzRules "
+                          :counter="5"
                           label="Postleitzahl"
                           required
                           outlined
@@ -450,9 +462,70 @@
       valid3: true,
       usernameRules: [
         v => !!v || 'Username is required',
+        v => !(/[^a-zA-Z\s0-9]/.test(v)) || 'Username darf keine Sonderzeichen enthalten',
+        v => {
+          if (/\d/g.test(v)) {
+            return (v.match(/\d/g).length <= 4 && v.match(/\d/g).length > 0) || 'Username darf maximal 4 zahlen enthalten'
+          }
+          return true
+        },
+        v => (v.length <= 15) || 'Maximal 15 Zeichen',
+        v => {
+          if (/[A-z]/g.test(v)) {
+            return (v.match(/[A-z]/g).length >= 3) || 'Username min. 3 Buchstaben enthalten'
+          }
+          return 'Username muss mindestens 5 Buchstaben enthalten'
+        },
       ],
-      emailRules: [
-        v => !!v || 'Username is required',
+      nameRules: [
+        v => !!v || 'Name is required',
+        v => !(/[^a-zA-Z\s]/.test(v)) || 'Nur Buchstaben sind zugelassen',
+        v => {
+          if (/[A-z]/g.test(v)) {
+            return (v.match(/[A-z]/g).length >= 3) || 'mindestens 3 Buchstaben'
+          }
+          return true
+        },
+      ],
+      streetRules: [
+        v => !!v || 'Street is required',
+        v => !(/[^a-zA-Z\s]/.test(v)) || 'Nur Buchstaben sind zugelassen',
+        v => {
+          if (/[A-z]/g.test(v)) {
+            return (v.match(/[A-z]/g).length >= 3) || 'mindestens 3 Buchstaben'
+          }
+          return true
+        },
+      ],
+      nummerRules: [
+        v => !!v || 'Housenumber is required',
+        v => !(/[^a-zA-Z\s0-9]/.test(v)) || 'Nur Zahlen und ein max. 1 Buchstabe',
+        v => {
+          if (/[A-z]/g.test(v)) {
+            return (v.match(/[A-z]/g).length <= 1) || 'max. 1 Buchstabe'
+          }
+          return true
+        },
+      ],
+      ortRules: [
+        v => !!v || 'field is required',
+        v => !(/[^a-zA-Z\s]/.test(v)) || 'Nur Buchstaben sind zugelassen',
+        v => {
+          if (/[A-z]/g.test(v)) {
+            return (v.match(/[A-z]/g).length >= 3) || 'mindestens 3 Buchstaben'
+          }
+          return true
+        },
+      ],
+      plzRules: [
+        v => !!v || 'Postcode is required',
+        v => !(/[^0-9]/.test(v)) || 'Nur Zahlen sind zugelassen',
+        v => {
+          if (/\d/g.test(v)) {
+            return v.match(/\d/g).length <= 5 || 'Nur PLZ mit max 5 Ziffern'
+          }
+          return true
+        },
       ],
       anzkinder: 1,
       items: [1, 2, 3, 4, 5],
@@ -562,9 +635,13 @@
               geburtsdatum: firebase.firestore.Timestamp.fromDate(new Date(this.date)),
               auto: this.checkboxAuto,
             },
+            events: {
+              eventsBes: 0,
+            },
             login: {
               completed: true,
               username: this.username,
+              registriertAm: firebase.firestore.Timestamp.fromDate(new Date()),
             },
             addresse: {
               strasse: this.strasse,
@@ -619,6 +696,7 @@
         this.$refs.privat2.save(date)
       },
       setmenuon (set) {
+        console.log(set)
         this.menuon = (set - 1)
       },
     },

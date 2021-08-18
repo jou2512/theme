@@ -22,9 +22,10 @@
           This is your Profile.
         </v-card-text>
         <v-card-actions>
-          <v-btn>
-            Edit your profile
-          </v-btn>
+          <v-btn
+            @click="disabled ? disabled=false : updateProfile()"
+            v-text="getTitle()"
+          />
         </v-card-actions>
       </v-card>
     </v-container>
@@ -84,9 +85,9 @@
                   class="pa-0"
                 >
                   <v-list>
-                    <template v-for="chat in recent">
+                    <template v-for="(chat, index) in recent">
                       <v-list-item
-                        :key="chat.title"
+                        :key="index"
                       >
                         <v-list-item-avatar>
                           <v-img
@@ -165,7 +166,7 @@
                       cols="12"
                     >
                       <v-container class="text-h3 white--text">
-                        <strong>3</strong>
+                        <strong>{{ infos.events.eventsBes }}</strong>
                       </v-container>
                     </v-col>
                   </v-row>
@@ -197,7 +198,7 @@
                       cols="12"
                     >
                       <v-container class=" text-h3 white--text">
-                        <strong>25.12.20</strong>
+                        <strong>{{ registriertAm }}</strong>
                       </v-container>
                     </v-col>
                   </v-row>
@@ -214,7 +215,11 @@
               Edit Profile — <small class="text-body-1">Complete your profile</small>
             </template>
 
-            <v-form>
+            <v-form
+              ref="profile"
+              v-model="valid"
+              lazy-validation
+            >
               <v-container class="py-0">
                 <v-row>
                   <v-col
@@ -227,7 +232,6 @@
                     cols="12"
                   >
                     <v-text-field
-                      v-model="user.funktion"
                       disabled
                       label="FUNKTION"
                     />
@@ -238,8 +242,9 @@
                     md="6"
                   >
                     <v-text-field
-                      v-model="user.username"
-                      disabled
+                      v-model="currentUserData.login.username"
+                      :disabled="disabled"
+                      :rules="usernameRules"
                       color="purple"
                       label="User Name"
                       outlined
@@ -251,8 +256,9 @@
                     md="6"
                   >
                     <v-text-field
-                      v-model="user.email"
-                      disabled
+                      v-model="currentUserData.login.email"
+                      :disabled="disabled"
+                      :rules="emailRules"
                       color="purple"
                       label="Email Address"
                       outlined
@@ -264,8 +270,9 @@
                     md="6"
                   >
                     <v-text-field
-                      v-model="user.vorname"
-                      disabled
+                      v-model="currentUserData.privat.firstName"
+                      :disabled="disabled"
+                      :rules="nameRules"
                       color="purple"
                       label="First Name"
                       outlined
@@ -277,8 +284,9 @@
                     md="6"
                   >
                     <v-text-field
-                      v-model="user.name"
-                      disabled
+                      v-model="currentUserData.privat.nachName"
+                      :disabled="disabled"
+                      :rules="nameRules"
                       color="purple"
                       label="Last Name"
                       outlined
@@ -290,9 +298,9 @@
                     md="6"
                   >
                     <v-select
-                      v-model="user.gender"
-                      disabled
-                      :items="['male', 'female']"
+                      v-model="currentUserData.privat.gender"
+                      :disabled="disabled"
+                      :items="['männlich', 'weiblich']"
                       color="purple"
                       label="gender"
                       outlined
@@ -304,8 +312,8 @@
                     md="6"
                   >
                     <v-text-field
-                      v-model="user.date"
-                      disabled
+                      v-model="geb"
+                      :disabled="disabled"
                       color="purple"
                       label="Geburtstag"
                       outlined
@@ -317,8 +325,8 @@
                     md="4"
                   >
                     <v-checkbox
-                      v-model="user.auto"
-                      disabled
+                      v-model="currentUserData.privat.auto"
+                      :disabled="disabled"
                       label="Ich besitze ein Auto"
                     />
                   </v-col>
@@ -328,8 +336,8 @@
                     md="4"
                   >
                     <v-checkbox
-                      v-model="user.fechten"
-                      disabled
+                      v-model="currentUserData.privat.fechten"
+                      :disabled="disabled"
                       label="Ich fechte persönlich"
                     />
                   </v-col>
@@ -351,8 +359,9 @@
                     md="8"
                   >
                     <v-text-field
-                      v-model="user.strasse"
-                      disabled
+                      v-model="currentUserData.addresse.strasse"
+                      :disabled="disabled"
+                      :rules="streetRules"
                       color="purple"
                       label="Strasse"
                       outlined
@@ -364,8 +373,9 @@
                     md="4"
                   >
                     <v-text-field
-                      v-model="user.nummer"
-                      disabled
+                      v-model="currentUserData.addresse.hausnummer"
+                      :disabled="disabled"
+                      :rules="nummerRules"
                       color="purple"
                       label="Hausnummer"
                       outlined
@@ -377,8 +387,9 @@
                     md="6"
                   >
                     <v-text-field
-                      v-model="user.ort"
-                      disabled
+                      v-model="currentUserData.addresse.ort"
+                      :disabled="disabled"
+                      :rules="ortRules"
                       color="purple"
                       label="ort"
                       outlined
@@ -390,8 +401,9 @@
                     md="6"
                   >
                     <v-text-field
-                      v-model="user.postleitzahl"
-                      disabled
+                      v-model="currentUserData.addresse.postleitzahl"
+                      :disabled="disabled"
+                      :rules="plzRules"
                       color="purple"
                       label="Postal Code"
                       type="number"
@@ -406,8 +418,9 @@
                     <v-btn
                       color="primary"
                       min-width="150"
+                      @click="disabled ? disabled=false : updateProfile()"
                     >
-                      Update Profile
+                      {{ getTitle() }}
                     </v-btn>
                   </v-col>
                 </v-row>
@@ -421,6 +434,7 @@
 </template>
 
 <script>
+  import { get } from 'vuex-pathify'
   import MaterialCard from '../components/MaterialCard.vue'
   import $ from 'jquery'
 
@@ -429,21 +443,84 @@
     components: { MaterialCard },
     data () {
       return {
-        user: {
-          funktion: 'funktion',
-          username: 'joe5959',
-          email: 'joel.scheuner5icloud.com',
-          vorname: 'joel',
-          name: 'scheuner',
-          gender: 'male',
-          date: '09.09.00',
-          auto: true,
-          fechten: true,
-          strasse: 'im lee',
-          nummer: 39,
-          ort: 'Arlesheim',
-          postleitzahl: 4444,
-        },
+        disabled: true,
+        registriertAm: '',
+        geb: '',
+        user: {},
+        currentUserData: {},
+        originalUserData: {},
+        valid: true,
+        usernameRules: [
+          v => !!v || 'Username is required',
+          v => !(/[^a-zA-Z\s0-9]/.test(v)) || 'Username darf keine Sonderzeichen enthalten',
+          v => {
+            if (/\d/g.test(v)) {
+              return (v.match(/\d/g).length <= 4 && v.match(/\d/g).length > 0) || 'Username darf maximal 4 zahlen enthalten'
+            }
+            return true
+          },
+          v => (v.length <= 15) || 'Maximal 15 Zeichen',
+          v => {
+            if (/[A-z]/g.test(v)) {
+              return (v.match(/[A-z]/g).length >= 3) || 'Username min. 3 Buchstaben enthalten'
+            }
+            return 'Username muss mindestens 5 Buchstaben enthalten'
+          },
+        ],
+        emailRules: [
+          (v) => !!v || 'E-mail is required',
+          (v) => /.+@.+\..+/.test(v) || 'E-mail must be valid',
+        ],
+        nameRules: [
+          v => !!v || 'Name is required',
+          v => !(/[^a-zA-Z\s]/.test(v)) || 'Nur Buchstaben sind zugelassen',
+          v => {
+            if (/[A-z]/g.test(v)) {
+              return (v.match(/[A-z]/g).length >= 3) || 'mindestens 3 Buchstaben'
+            }
+            return true
+          },
+        ],
+        streetRules: [
+          v => !!v || 'Street is required',
+          v => !(/[^a-zA-Z\s]/.test(v)) || 'Nur Buchstaben sind zugelassen',
+          v => {
+            if (/[A-z]/g.test(v)) {
+              return (v.match(/[A-z]/g).length >= 3) || 'mindestens 3 Buchstaben'
+            }
+            return true
+          },
+        ],
+        nummerRules: [
+          v => !!v || 'Housenumber is required',
+          v => !(/[^a-zA-Z\s0-9]/.test(v)) || 'Nur Zahlen und ein max. 1 Buchstabe',
+          v => {
+            if (/[A-z]/g.test(v)) {
+              return (v.match(/[A-z]/g).length <= 1) || 'max. 1 Buchstabe'
+            }
+            return true
+          },
+        ],
+        ortRules: [
+          v => !!v || 'field is required',
+          v => !(/[^a-zA-Z\s]/.test(v)) || 'Nur Buchstaben sind zugelassen',
+          v => {
+            if (/[A-z]/g.test(v)) {
+              return (v.match(/[A-z]/g).length >= 3) || 'mindestens 3 Buchstaben'
+            }
+            return true
+          },
+        ],
+        plzRules: [
+          v => !!v || 'Postcode is required',
+          v => !(/[^0-9]/.test(v)) || 'Nur Zahlen sind zugelassen',
+          v => {
+            if (/\d/g.test(v)) {
+              return v.match(/\d/g).length <= 5 || 'Nur PLZ mit max 5 Ziffern'
+            }
+            return true
+          },
+        ],
         icon: 'mdi-account-group',
         icons: ['mdi-account-cog', 'mdi-account-edit', 'mdi-account-minus'],
         recent: [
@@ -466,11 +543,57 @@
         ],
       }
     },
+
+    computed: {
+      ...get('userfirebase', [
+        'infos',
+      ]),
+    },
+
     mounted () {
       var height = $('#card3').width()
       console.log(height * 0.3)
       var height3 = $('#pic').width(height * 0.3)
       console.log(height3)
+      this.originalUserData = this.currentUserData = this.infos
+      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }
+      this.registriertAm = this.originalUserData.login.registriertAm.toDate().toLocaleDateString('de-DE', options)
+      const options2 = { year: 'numeric', month: 'numeric', day: 'numeric' }
+      this.geb = this.currentUserData.privat.geburtsdatum.toDate().toLocaleDateString('de-DE', options2)
+    },
+
+    methods: {
+      updateProfile () {
+        console.log(this.currentUserData)
+        this.validate1()
+        if (this.valid) {
+          this.disabled = true
+          // this.update(this.originalUserData, this.currentUserData)
+        }
+      },
+      getTitle () {
+        return this.disabled ? 'Edit Profile' : 'Update Profile'
+      },
+      validate1 () {
+        this.$refs.profile.validate() ? console.log('form1 okay') : this.$refs.form1.validate()
+      },
+      update (obj) {
+        for (var i = 1; i < arguments.length; i++) {
+          for (var prop in arguments[i]) {
+            var val = arguments[i][prop]
+            if (typeof val === 'object') { // this also applies to arrays or null!
+              if (typeof obj[prop] === 'undefined') {
+                obj[prop] = {}
+              }
+              this.update(obj[prop], val)
+            } else {
+              obj[prop] = val
+            }
+          }
+        }
+        console.log(obj)
+        return obj
+      },
     },
   }
 </script>

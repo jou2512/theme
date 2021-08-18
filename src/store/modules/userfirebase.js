@@ -1,6 +1,7 @@
 // Utilities
 import firebase from 'firebase/app'
 import 'firebase/auth'
+import { user } from '.'
 import db, { authService } from '../../Firebase/init'
 
 const state = {
@@ -14,12 +15,16 @@ const state = {
       geburtsdatum: firebase.firestore.Timestamp.fromDate(new Date('January 1, 2000')),
       auto: false,
     },
+    events: {
+      eventsBes: 0,
+    },
     login: {
       admin: false,
       completed: false,
       email: '',
       telefon: '',
       username: '',
+      registriertAm: firebase.firestore.Timestamp.fromDate(new Date('January 1, 2000')),
     },
     kinder: [],
     addresse: {
@@ -48,6 +53,9 @@ const mutations = {
         }
       }
     })
+  },
+  updateUser (state) {
+
   },
 }
 

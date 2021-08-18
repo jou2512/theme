@@ -128,6 +128,7 @@
   }
 </script>
 
-<style lang="scss">
-
+<style lang="sass">
+  .pointer
+    cursor: pointer
 </style>

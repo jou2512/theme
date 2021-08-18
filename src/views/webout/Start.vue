@@ -33,6 +33,7 @@
                 <v-text-field
                   v-model="email"
                   :rules="emailRules"
+                  color="blue"
                   label="E-mail"
                   required
                   prepend-icon="mdi-account-circle"
@@ -40,6 +41,7 @@
                 <v-text-field
                   v-model="password"
                   required
+                  color="blue"
                   label="Password"
                   :type="showPassword ? '' : 'password'"
                   prepend-icon="mdi-lock"
@@ -72,6 +74,7 @@
                 <v-text-field
                   v-model="email"
                   :rules="emailRules"
+                  color="blue"
                   label="E-mail"
                   required
                   prepend-icon="mdi-account-circle"
@@ -80,6 +83,7 @@
                 <v-text-field
                   v-model="password"
                   required
+                  color="blue"
                   label="Password"
                   :type="showPassword ? '' : 'password'"
                   :rules="passwordRules"
@@ -89,6 +93,7 @@
                 />
                 <v-text-field
                   v-model="passwordcheck"
+                  color="blue"
                   label="Confirm Password"
                   :type="showPassword1 ? '' : 'password'"
                   required
