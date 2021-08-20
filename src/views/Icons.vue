@@ -483,6 +483,7 @@
           type: 'relevanz',
           title: 'Ranglisten Relevanz',
           filteritems: [
+            { name: 'keine', tag: 'keinrang' },
             { name: 'Selektions Rangliste', tag: 'selrang' },
             { name: 'Nationale Rangliste', tag: 'natrang' },
             { name: 'Europaweite Rangliste', tag: 'eurorang' },

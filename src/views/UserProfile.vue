@@ -36,7 +36,6 @@
           md="4"
         >
           <v-card
-            id="card3"
             class="mt-4 text-center"
           >
             <v-img
@@ -45,15 +44,15 @@
               class="pa-0"
             />
             <v-img
-              id="pic"
               class="rounded-circle d-inline-block"
-              style="margin-top: -130px"
+              style="margin-top: -100px"
               src="https://demos.creative-tim.com/vue-material-dashboard/img/marc.aba54d65.jpg"
+              width="8vw"
             />
 
             <v-card-text class="text-center">
               <h4 class="text-h4 mb-3 text--primary">
-                Name
+                {{ currentUserData.login.firstName }}
               </h4>
 
               <h6 class="text-h6 mb-2 text--secondary">
@@ -67,6 +66,7 @@
             </v-card-text>
           </v-card>
           <v-card
+            id="card3"
             class="mt-4 text-center"
           >
             <v-card-title>
@@ -551,10 +551,6 @@
     },
 
     mounted () {
-      var height = $('#card3').width()
-      console.log(height * 0.3)
-      var height3 = $('#pic').width(height * 0.3)
-      console.log(height3)
       this.originalUserData = this.currentUserData = this.infos
       const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }
       this.registriertAm = this.originalUserData.login.registriertAm.toDate().toLocaleDateString('de-DE', options)

@@ -96,6 +96,7 @@ export function useChat () {
   const messages = ref([])
   const chat = ref(null)
   const chattype = ref(null)
+  const chats = ref(null)
 
   const assignChat = chatinfo => {
     var docref = chatCollection.doc(chatinfo)
@@ -115,16 +116,15 @@ export function useChat () {
           console.log('No such document!')
       }
     })
-    /*
-    chatCollection.where('users', 'array-contains', chatinfo[0]).where('type', '==', chatinfo[1]).get().then(result => {
-      const e = result.docs[0].id
-      chat.value = e
-      chatCollection.doc(e).collection('messages').orderBy('createdAt', 'desc').limit(100).onSnapshot(snapshot => {
-        messages.value = snapshot.docs
+  }
+
+  const getChats = chatinfo => {
+      chatCollection.where('users', 'array-contains', chatinfo[0]).orderBy('createdAt', 'desc').limit(100).onSnapshot(snapshot => {
+        chats.value = snapshot.docs
           .map(doc => ({ id: doc.id, ...doc.data() }))
           .reverse()
+        console.log(chats.value)
       })
-    })  */
   }
 
   /*
@@ -148,7 +148,7 @@ export function useChat () {
       .map(doc => ({ id: doc.id, ...doc.data() }))
       .reverse()
   })  */
-  onUnmounted(assignChat('CwtL7JqwpHWgbgvSYjfX'))
+  onUnmounted(getChats(), assignChat('CwtL7JqwpHWgbgvSYjfX'))
 
   const createChat = text => {
     if (!isLogin.value) return

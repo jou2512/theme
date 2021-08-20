@@ -535,7 +535,6 @@
                     Images(14)
                   </h3>
                 </v-expansion-panel-header>
-                <v-expansion-panel-content></v-expansion-panel-content>
               </v-expansion-panel>
               <v-expansion-panel>
                 <v-expansion-panel-header>
@@ -575,7 +574,6 @@
                     items
                   </h3>
                 </v-expansion-panel-header>
-                <v-expansion-panel-content></v-expansion-panel-content>
               </v-expansion-panel>
             </v-expansion-panels>
           </v-card>
