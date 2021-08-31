@@ -3,6 +3,7 @@ import 'firebase/firestore'
 import 'firebase/storage'
 import db from '../Firebase/init'
 import { ref, onUnmounted, computed } from '@vue/composition-api'
+import store from '../store/index'
 
 var firebaseConfig = {
     apiKey: 'AIzaSyBr2xKsQQzgSxalhoDc1m9xk78M75cNZrk',
@@ -23,6 +24,14 @@ const auth = firebase.auth()
 const initializeAuth = new Promise(resolve => {
   // this adds a hook for the initial auth-change event
   auth.onAuthStateChanged(user => {
+    user.getIdTokenResult().then(idtokenResult => {
+      console.log(idtokenResult.claims.admin)
+      if (idtokenResult.claims.admin) {
+        store.state.userfirebase.infos.login.admin = idtokenResult.claims.admin
+      } else {
+        store.state.userfirebase.infos.login.admin = false
+      }
+    })
     authService.setUser(user)
     resolve(user)
     console.log('now')
@@ -77,6 +86,9 @@ export function useUsers () {
         .reverse()
     })
   }
+  const setUserData = (uid, Data) => {
+    usersCollection.doc(uid).set(Data, { merge: true })
+  }
 
   const getInfUser = async (id) => {
     var userData = null
@@ -88,7 +100,7 @@ export function useUsers () {
 
   onUnmounted(getUsers())
 
-  return { getInfUser }
+  return { getInfUser, users, setUserData }
 }
 
 const chatCollection = firestore.collection('messages')

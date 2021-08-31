@@ -296,6 +296,7 @@
               auto: false,
             },
             login: {
+              gesperrt: false,
               admin: false,
               completed: false,
               email: this.email,

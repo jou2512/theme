@@ -134,6 +134,8 @@ router.beforeEach((to, from, next) => {
           email: user[i].login.email,
           categorie: categorie(user[i].privat.geburtsdatum),
           geburtstag: user[i].privat.geburtsdatum,
+          admin: user[i].login.admin,
+          gesperrt: user[i].login.gesperrt,
         }
       }
       for (let i = 0; i < values[1].docs.length; i++) {
@@ -149,6 +151,8 @@ router.beforeEach((to, from, next) => {
             email: user[i].login.email,
             categorie: categorie(user[i].privat.geburtsdatum),
             geburtstag: user[i].privat.geburtsdatum,
+            admin: user[i].login.admin,
+            gesperrt: user[i].login.gesperrt,
           }
         }
       }

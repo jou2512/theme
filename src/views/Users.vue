@@ -33,6 +33,26 @@
               {{ item.email }}
             </v-list-item-subtitle>
           </v-list-item-content>
+          <v-list-item-icon
+            v-if="item.admin && !item.gesperrt"
+          >
+            <v-chip>
+              <v-icon>
+                mdi-star
+              </v-icon>
+              Admin
+            </v-chip>
+          </v-list-item-icon>
+          <v-list-item-icon
+            v-if="item.gesperrt"
+          >
+            <v-chip>
+              <v-icon>
+                mdi-account-cancel
+              </v-icon>
+              Gesperrt
+            </v-chip>
+          </v-list-item-icon>
         </v-list-item>
       </template>
       <template v-slot:top>
@@ -210,27 +230,53 @@
           <v-list
             dense
           >
-            <v-list-item>
-              <v-list-item-avatar
-                style="height: inherit;"
-              >
-                <v-icon>
-                  mdi-account-cancel
-                </v-icon>
-              </v-list-item-avatar>
-              <v-list-item-title>Account Blockieren</v-list-item-title>
-            </v-list-item>
             <v-list-item
-              @click="addAdminRole(item)"
+              @click="deactivateUser(item, !item.gesperrt)"
             >
               <v-list-item-avatar
                 style="height: inherit;"
               >
-                <v-icon>
-                  mdi-account-star
+                <v-icon
+                  v-if="!item.gesperrt"
+                >
+                  mdi-account-cancel
+                </v-icon>
+                <v-icon
+                  v-else
+                >
+                  mdi-account-check
                 </v-icon>
               </v-list-item-avatar>
-              <v-list-item-title>Zum Admin machen</v-list-item-title>
+              <v-list-item-title
+                v-if="!item.gesperrt"
+              >Account Blockieren</v-list-item-title>
+              <v-list-item-title
+                v-else
+              >Account Entblockieren</v-list-item-title>
+            </v-list-item>
+            <v-list-item
+              @click="addAdminRole(item, !item.adim)"
+            >
+              <v-list-item-avatar
+                style="height: inherit;"
+              >
+                <v-icon
+                  v-if="!item.admin"
+                >
+                  mdi-account-star
+                </v-icon>
+                <v-icon
+                  v-else
+                >
+                  mdi-account-remove
+                </v-icon>
+              </v-list-item-avatar>
+              <v-list-item-title
+                v-if="!item.admin"
+              >Zum Admin machen</v-list-item-title>
+              <v-list-item-title
+                v-else
+              >Admin Rolle Entfernen</v-list-item-title>
             </v-list-item>
           </v-list>
         </v-menu>
@@ -251,7 +297,9 @@
   import firebase from 'firebase/app'
   import 'firebase/functions'
   import { get } from 'vuex-pathify'
-  import db from '../Firebase/init'
+  import db, { useUsers } from '../Firebase/init'
+
+  const { users } = useUsers()
 
   export default {
     name: 'RegularTablesView',
@@ -317,20 +365,41 @@
       dialogDelete (val) {
         val || this.closeDelete()
       },
+      users (val) {
+        console.log(val)
+      },
     },
 
     methods: {
-      addAdminRole (item) {
+      addAdminRole (item, disable) {
+        this.loading = true
         const addAdminRole = firebase.functions().httpsCallable('addAdminRole')
-        addAdminRole({ uid: item.uid }).then(result => {
+        addAdminRole({ uid: item.uid, disable: disable }).then(result => {
           console.log(result)
+          setTimeout(() => {
+            this.update()
+          }, 2000)
         }).catch((error) => {
           console.log(error)
+          this.loading = false
+        })
+      },
+      deactivateUser (item, disable) {
+        this.loading = true
+        const deactivateUser = firebase.functions().httpsCallable('deactivateUser')
+        deactivateUser({ uid: item.uid, disable: disable }).then(result => {
+          console.log(result)
+          setTimeout(() => {
+            this.update()
+          }, 2000)
+        }).catch((error) => {
+          console.log(error)
+          this.loading = false
         })
       },
       update () {
         this.loading = true
-        this.$store.commit({ type: 'userfirebase/updateMitglieder' })
+        this.$store.commit({ type: 'userfirebase/updateAllData' })
         setTimeout(() => {
           this.loading = false
           this.forceupdate++

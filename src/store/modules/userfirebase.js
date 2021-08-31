@@ -80,6 +80,7 @@ const state = {
       eventsBes: 0,
     },
     login: {
+      gesperrt: false,
       avatar: '',
       admin: false,
       completed: false,
@@ -119,6 +120,7 @@ const mutations = {
           email: user[i].login.email,
           categorie: categorie(user[i].privat.geburtsdatum),
           geburtstag: user[i].privat.geburtsdatum,
+          gesperrt: user[i].login.gesperrt,
         }
       }
     })
@@ -156,6 +158,8 @@ const mutations = {
           email: user[i].login.email,
           categorie: categorie(user[i].privat.geburtsdatum),
           geburtstag: user[i].privat.geburtsdatum,
+          admin: user[i].login.admin,
+          gesperrt: user[i].login.gesperrt,
         }
       }
       for (let i = 0; i < values[1].docs.length; i++) {
@@ -171,6 +175,8 @@ const mutations = {
             email: user[i].login.email,
             categorie: categorie(user[i].privat.geburtsdatum),
             geburtstag: user[i].privat.geburtsdatum,
+            admin: user[i].login.admin,
+            gesperrt: user[i].login.gesperrt,
           }
         }
       }
