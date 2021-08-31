@@ -249,8 +249,9 @@
 
 <script>
   import firebase from 'firebase/app'
+  import 'firebase/functions'
   import { get } from 'vuex-pathify'
-  import db, { functions } from '../Firebase/init'
+  import db from '../Firebase/init'
 
   export default {
     name: 'RegularTablesView',
@@ -320,7 +321,7 @@
 
     methods: {
       addAdminRole (item) {
-        const addAdminRole = functions.httpsCallable('addAdminRole')
+        const addAdminRole = firebase.functions().httpsCallable('addAdminRole')
         addAdminRole({ uid: item.uid }).then(result => {
           console.log(result)
         }).catch((error) => {
