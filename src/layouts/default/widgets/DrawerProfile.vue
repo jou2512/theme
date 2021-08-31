@@ -5,8 +5,7 @@
   >
     <v-list-item-avatar>
       <v-img
-        :src="
-          require('@/assets/user.png')"
+        :src="avatar"
       />
     </v-list-item-avatar>
 
@@ -33,6 +32,7 @@
       ...get('userfirebase', [
         'infos@privat@firstName',
         'infos@privat@nachName',
+        'infos@login@avatar',
       ]),
     },
   }

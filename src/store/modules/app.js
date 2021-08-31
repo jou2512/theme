@@ -31,11 +31,6 @@ const state = {
       icon: 'mdi-car-side',
       to: '/fahrten',
     },
-    {
-      title: 'Kalender',
-      icon: 'mdi-calendar',
-      to: '/kalender',
-    },
   ],
   items2: [
     {
@@ -79,11 +74,6 @@ const state = {
       title: 'Events',
       icon: 'mdi-calendar-plus',
       to: '/events',
-    },
-    {
-      title: 'Chats',
-      icon: 'mdi-chat-plus',
-      to: '/chats',
     },
   ],
 }

@@ -12,6 +12,10 @@
     <v-data-table
       :headers="headers"
       :items="mitglieder"
+      :search="search"
+      :loading="loading"
+      :key="forceupdate"
+      show-group-by
       class="elevation-1 rounded-lg"
     >
       <template v-slot:item.title="{ item }">
@@ -48,6 +52,7 @@
           >
             <v-icon
               color="black"
+              @click="update()"
             >
               mdi-refresh
             </v-icon>
@@ -61,6 +66,7 @@
               <v-btn
                 color="primary"
                 dark
+                disabled
                 class="mb-2"
                 v-bind="attrs"
                 v-on="on"
@@ -162,6 +168,11 @@
             </v-card>
           </v-dialog>
         </v-toolbar>
+        <v-text-field
+          v-model="search"
+          label="Search"
+          class="mx-4"
+        ></v-text-field>
       </template>
       <template v-slot:item.actions="{ item }">
         <v-icon
@@ -173,7 +184,6 @@
         <v-icon
           small
           class="mr-2"
-          @click="editItem(item)"
         >
           mdi-pencil
         </v-icon>
@@ -210,6 +220,18 @@
               </v-list-item-avatar>
               <v-list-item-title>Account Blockieren</v-list-item-title>
             </v-list-item>
+            <v-list-item
+              @click="addAdminRole(item)"
+            >
+              <v-list-item-avatar
+                style="height: inherit;"
+              >
+                <v-icon>
+                  mdi-account-star
+                </v-icon>
+              </v-list-item-avatar>
+              <v-list-item-title>Zum Admin machen</v-list-item-title>
+            </v-list-item>
           </v-list>
         </v-menu>
       </template>
@@ -226,13 +248,18 @@
 </template>
 
 <script>
+  import firebase from 'firebase/app'
   import { get } from 'vuex-pathify'
+  import db, { functions } from '../Firebase/init'
 
   export default {
     name: 'RegularTablesView',
 
     data () {
       return {
+        forceupdate: 0,
+        loading: false,
+        search: '',
         dialog: false,
         dialogDelete: false,
         headers: [
@@ -242,10 +269,10 @@
             value: 'ID',
           },
           { text: 'Name', value: 'title' },
-          { text: 'Alter', value: 'subtitle' },
-          { text: 'Categorie', value: 'tag' },
-          { text: 'Role', value: 'tag' },
-          { text: 'Aktionen', value: 'actions', sortable: false },
+          { text: 'Alter', value: 'alter' },
+          { text: 'Categorie', value: 'categorie' },
+          { text: 'Role', value: 'funktionen' },
+          { text: 'Aktionen', value: 'actions', sortable: false, groupable: false },
         ],
         editedIndex: -1,
         editedItem: {
@@ -292,6 +319,23 @@
     },
 
     methods: {
+      addAdminRole (item) {
+        const addAdminRole = functions.httpsCallable('addAdminRole')
+        addAdminRole({ uid: item.uid }).then(result => {
+          console.log(result)
+        }).catch((error) => {
+          console.log(error)
+        })
+      },
+      update () {
+        this.loading = true
+        this.$store.commit({ type: 'userfirebase/updateMitglieder' })
+        setTimeout(() => {
+          this.loading = false
+          this.forceupdate++
+        }, 2000)
+      },
+
       editItem (item) {
         this.editedIndex = this.mitglieder.indexOf(item)
         this.editedItem = Object.assign({}, item)
@@ -299,8 +343,8 @@
       },
 
       deleteItem (item) {
-        this.editedIndex = this.mitglieder.indexOf(item)
-        this.editedItem = Object.assign({}, item)
+        db.collection('users').doc(item.uid).delete()
+        this.$store.commit({ type: 'userfirebase/updateAllData' })
         this.dialogDelete = true
       },
 

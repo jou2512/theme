@@ -49,13 +49,6 @@
                   @click:append="showPassword = !showPassword"
                 />
 
-                <v-checkbox
-                  v-model="checkbox"
-                  class="mt-1"
-                  label="Eingelogt bleiben"
-                  dense
-                />
-
                 <span class="text-caption grey--text text--darken-1 pointer">
                   passwort vergessen
                 </span>
@@ -63,7 +56,10 @@
                   v-if="errorlog"
                   class="my-2"
                 />
-                <span class="text-caption red--text text--darken-1 font-weight-bold">
+                <span
+                  :key="errorlog"
+                  class="text-caption red--text text--darken-1 font-weight-bold"
+                >
                   {{ errorlog }}
                 </span>
               </v-card-text>

@@ -46,35 +46,58 @@
             <v-img
               class="rounded-circle d-inline-block"
               style="margin-top: -100px"
-              src="https://demos.creative-tim.com/vue-material-dashboard/img/marc.aba54d65.jpg"
+              :src="infos.login.avatar"
               width="8vw"
             />
 
             <v-card-text class="text-center">
               <h4 class="text-h4 mb-3 text--primary">
-                {{ currentUserData.login.firstName }}
+                {{ infos.privat.firstName }} {{ infos.privat.nachName }}
               </h4>
 
-              <h6 class="text-h6 mb-2 text--secondary">
-                Funktion
+              <h6
+                class="text-h6 mb-2 text--secondary"
+              >
+                <template
+                  v-for="(items, index) in infos.privat.funktionen"
+                >
+                  {{ items }}
+                  <span
+                    v-if="(index+1) !== infos.privat.funktionen.length"
+                    :key="index"
+                  > | </span>
+                </template>
               </h6>
 
               <p class="text--secondary">
                 <br>
-                Addresse
+                {{ infos.addresse.strasse }} {{ infos.addresse.hausnummer }}
+                <br>
+                {{ infos.addresse.postleitzahl }} {{ infos.addresse.ort }}
               </p>
             </v-card-text>
           </v-card>
           <v-card
             id="card3"
             class="mt-4 text-center"
+            :loading="vloading"
+            min-height="100px"
           >
             <v-card-title>
               <strong>Verknüpte Konnten -</strong>
               <v-icon
                 color="black"
-                v-text="icon"
+                v-text="'mdi-account-group'"
               />
+              <v-spacer />
+              <v-btn
+                v-if="SelectedAccount !== -1"
+                :disabled="!disabled"
+                small
+                class="mb-1 text-center white--text"
+                color="red"
+                @click="vKonntoback()"
+              >Zurück</v-btn>
             </v-card-title>
             <v-card-subtitle>
               <v-divider />
@@ -84,56 +107,59 @@
                 <v-col
                   class="pa-0"
                 >
-                  <v-list>
-                    <template v-for="(chat, index) in recent">
+                  <v-list
+                    :key="idkey"
+                  >
+                    <template v-for="(chat, index) in userVerküpfteKonnten">
                       <v-list-item
                         :key="index"
                       >
                         <v-list-item-avatar>
                           <v-img
-                            :alt="`${chat.title} avatar`"
-                            :src="chat.avatar"
+                            :alt="`${chat.login.avatar} avatar`"
+                            :src="chat.login.avatar"
                           />
                         </v-list-item-avatar>
 
-                        <v-list-item-content>
-                          <v-list-item-title v-text="chat.title" />
+                        <v-list-item-content
+                          class="pointer"
+                          @click="vKonntoSelect(index)"
+                        >
+                          <v-list-item-title v-text="chat.privat.firstName + ' ' + chat.privat.nachName" />
                         </v-list-item-content>
 
                         <v-list-item-icon>
                           <v-icon
+                            class="mx-2"
                             color="black"
                             v-text="icons[0]"
                           />
                           <v-icon
+                            class="mx-2"
                             color="black"
                             v-text="icons[1]"
+                            @click="vKonntoBearbeiten(index)"
                           />
                           <v-icon
+                            class="mx-2"
                             color="black"
                             v-text="icons[2]"
+                            @click="vKonntoLöschen(index)"
                           />
                         </v-list-item-icon>
                       </v-list-item>
                       <v-divider
-                        :key="chat.title"
+                        :key="chat.privat.firstName"
                       />
                     </template>
                   </v-list>
                 </v-col>
               </v-row>
             </v-card-text>
-            <v-card-actions>
-              <v-btn
-                color="info"
-              >
-                Konto <br> hinzufügen
-                <v-icon
-                  color="white"
-                  v-text="'mdi-account-plus'"
-                />
-              </v-btn>
-            </v-card-actions>
+            <div
+              v-if="userVerküpfteKonnten.length === 0"
+              class="font-weight-black"
+            >Keine Konten Verknüpft</div>
           </v-card>
         </v-col>
         <v-col
@@ -166,7 +192,7 @@
                       cols="12"
                     >
                       <v-container class="text-h3 white--text">
-                        <strong>{{ infos.events.eventsBes }}</strong>
+                        <strong>{{ originalUserData.events.eventsBes }}</strong>
                       </v-container>
                     </v-col>
                   </v-row>
@@ -212,7 +238,7 @@
             icon="mdi-account-outline"
           >
             <template #title>
-              Edit Profile — <small class="text-body-1">Complete your profile</small>
+              {{ getAccountTitle() }}
             </template>
 
             <v-form
@@ -226,15 +252,19 @@
                     class=" mt-5"
                     cols="12"
                   >
-                    <h4>Userinormationen</h4>
+                    <h4>Userinformationen</h4>
                   </v-col>
                   <v-col
                     cols="12"
                   >
-                    <v-text-field
+                    <v-select
+                      v-model="currentUserData.privat.funktionen"
+                      :items="currentUserData.privat.funktionen"
+                      chips
                       disabled
-                      label="FUNKTION"
-                    />
+                      label="Funktionen"
+                      multiple
+                    ></v-select>
                   </v-col>
 
                   <v-col
@@ -257,8 +287,7 @@
                   >
                     <v-text-field
                       v-model="currentUserData.login.email"
-                      :disabled="disabled"
-                      :rules="emailRules"
+                      disabled
                       color="purple"
                       label="Email Address"
                       outlined
@@ -313,7 +342,7 @@
                   >
                     <v-text-field
                       v-model="geb"
-                      :disabled="disabled"
+                      disabled
                       color="purple"
                       label="Geburtstag"
                       outlined
@@ -426,6 +455,14 @@
                 </v-row>
               </v-container>
             </v-form>
+            <v-overlay
+              v-if="loading"
+              absolute
+            >
+              <v-progress-circular
+                indeterminate
+              ></v-progress-circular>
+            </v-overlay>
           </material-card>
         </v-col>
       </v-row>
@@ -434,22 +471,29 @@
 </template>
 
 <script>
-  import { get } from 'vuex-pathify'
+  import { sync } from 'vuex-pathify'
   import MaterialCard from '../components/MaterialCard.vue'
-  import $ from 'jquery'
+  import 'firebase/auth'
+  import db, { authService, useUsers } from '../Firebase/init'
+  import firebase from 'firebase/app'
+  const { getInfUser } = useUsers()
 
   export default {
     name: 'UserProfileView',
     components: { MaterialCard },
     data () {
       return {
+        vloading: false,
+        loading: false,
         disabled: true,
         registriertAm: '',
         geb: '',
-        user: {},
+        userVerküpfteKonnten: [],
+        idkey: 0,
         currentUserData: {},
         originalUserData: {},
         valid: true,
+        SelectedAccount: -1,
         usernameRules: [
           v => !!v || 'Username is required',
           v => !(/[^a-zA-Z\s0-9]/.test(v)) || 'Username darf keine Sonderzeichen enthalten',
@@ -521,31 +565,12 @@
             return true
           },
         ],
-        icon: 'mdi-account-group',
         icons: ['mdi-account-cog', 'mdi-account-edit', 'mdi-account-minus'],
-        recent: [
-          {
-            avatar: 'https://cdn.vuetifyjs.com/images/lists/1.jpg',
-            title: 'Jason Oner',
-          },
-          {
-            avatar: 'https://cdn.vuetifyjs.com/images/lists/2.jpg',
-            title: 'Mike Carlson',
-          },
-          {
-            avatar: 'https://cdn.vuetifyjs.com/images/lists/3.jpg',
-            title: 'Cindy Baker',
-          },
-          {
-            avatar: 'https://cdn.vuetifyjs.com/images/lists/4.jpg',
-            title: 'Ali Connors',
-          },
-        ],
       }
     },
 
     computed: {
-      ...get('userfirebase', [
+      ...sync('userfirebase', [
         'infos',
       ]),
     },
@@ -556,15 +581,97 @@
       this.registriertAm = this.originalUserData.login.registriertAm.toDate().toLocaleDateString('de-DE', options)
       const options2 = { year: 'numeric', month: 'numeric', day: 'numeric' }
       this.geb = this.currentUserData.privat.geburtsdatum.toDate().toLocaleDateString('de-DE', options2)
+      this.storeKonnten()
     },
 
     methods: {
+      vKonntoback () {
+        this.SelectedAccount = -1
+        this.originalUserData = this.currentUserData = this.infos
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }
+        this.registriertAm = this.originalUserData.login.registriertAm.toDate().toLocaleDateString('de-DE', options)
+        const options2 = { year: 'numeric', month: 'numeric', day: 'numeric' }
+        this.geb = this.currentUserData.privat.geburtsdatum.toDate().toLocaleDateString('de-DE', options2)
+      },
+      vKonntoSelect (index) {
+        this.SelectedAccount = index
+        this.originalUserData = this.currentUserData = this.userVerküpfteKonnten[index]
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }
+        this.registriertAm = this.originalUserData.login.registriertAm.toDate().toLocaleDateString('de-DE', options)
+        const options2 = { year: 'numeric', month: 'numeric', day: 'numeric' }
+        this.geb = this.currentUserData.privat.geburtsdatum.toDate().toLocaleDateString('de-DE', options2)
+      },
+      vKonntoBearbeiten (index) {
+        this.vKonntoSelect(index)
+        this.disabled = false
+      },
+      vKonntoEinstellen () {
+        //
+      },
+      async vKonntoLöschen (index) {
+        this.vloading = true
+        const washingtonRef = db.collection('users').doc(authService.user.uid)
+        console.log(this.infos.kinder[index])
+        await washingtonRef.update({
+          kinder: firebase.firestore.FieldValue.arrayRemove(this.infos.kinder[index]),
+        })
+        await this.$store.commit({ type: 'userfirebase/updateAllData' })
+        setTimeout(() => {
+          console.log(this.infos.kinder)
+          this.storeKonnten()
+          setTimeout(() => {
+            this.vloading = false
+            this.idkey++
+          }, 500)
+        }, 1000)
+      },
+      getAccountTitle () {
+        if (this.SelectedAccount === -1) {
+          return 'Your Profile'
+        } else {
+          return 'Profile von ' + this.userVerküpfteKonnten[this.SelectedAccount].privat.firstName + ' ' + this.userVerküpfteKonnten[this.SelectedAccount].privat.nachName
+        }
+      },
+      async storeKonnten () {
+        this.userVerküpfteKonnten = []
+        for (let i = 0; i < this.infos.kinder.length; i++) {
+          this.userVerküpfteKonnten[i] = await getInfUser(this.infos.kinder[i])
+        }
+        this.idkey++
+      },
       updateProfile () {
-        console.log(this.currentUserData)
         this.validate1()
         if (this.valid) {
           this.disabled = true
-          // this.update(this.originalUserData, this.currentUserData)
+          this.loading = true
+          setTimeout(() => {
+            this.update(this.originalUserData, this.currentUserData)
+            if (this.SelectedAccount === -1) {
+              this.infos = this.originalUserData
+              this.pushProfileData()
+              this.loading = false
+            } else {
+              this.pushAccountData()
+              this.loading = false
+            }
+            this.$store.commit({ type: 'userfirebase/updateAllData' })
+          }, 2000)
+        }
+      },
+      async pushProfileData () {
+        try {
+          const dataBase = db.collection('users').doc(authService.user.uid)
+          await dataBase.set(this.infos, { merge: true })
+        } catch (error) {
+          console.log(error)
+        }
+      },
+      async pushAccountData () {
+        try {
+          const dataBase = db.collection('users').doc(this.infos.kinder[this.SelectedAccount])
+          await dataBase.set(this.originalUserData, { merge: true })
+        } catch (error) {
+          console.log(error)
         }
       },
       getTitle () {
@@ -587,7 +694,6 @@
             }
           }
         }
-        console.log(obj)
         return obj
       },
     },
@@ -595,5 +701,6 @@
 </script>
 
 <style lang="sass" scoped>
-
+  .pointer
+    cursor: pointer
 </style>

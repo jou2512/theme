@@ -577,7 +577,7 @@
     },
 
     methods: {
-      validate () {
+      async validate () {
         this.$refs.form.validate() ? console.log('success') : this.$refs.form.validate()
         this.validate1()
         this.validate2()
@@ -589,7 +589,8 @@
         } else if (!this.valid3) {
           this.e1 = 3
         } else {
-          this.datatodatabase()
+          await this.datatodatabase()
+          this.step = 1
           this.$router.push('/start/')
         }
       },
@@ -622,23 +623,72 @@
       validate3 () {
         this.$refs.form3.validate() ? console.log('form3 okay') : this.$refs.form3.validate()
       },
-      datatodatabase () {
+      async createChildrenLogin (kinder, index) {
         try {
+          const dataBase = db.collection('users')
+          var id = ''
+          await dataBase.add({
+            privat: {
+              funktionen: ['fechter/in'],
+              fechten: true,
+              firstName: kinder.vorname,
+              nachName: this.familienname,
+              gender: kinder.gender,
+              geburtsdatum: kinder.geburtsdatum,
+              auto: false,
+            },
+            events: {
+              eventsBes: 0,
+            },
+            kinder: [],
+            login: {
+              admin: false,
+              email: '',
+              telefon: '',
+              avatar: 'https://firebasestorage.googleapis.com/v0/b/fechtgesellschaft-1.appspot.com/o/profilbilder%2Fprofile-picture.jpg?alt=media&token=8abd74b4-8961-4cd5-9d7e-3bdc4533bd9c',
+              completed: false,
+              username: kinder.vorname + '' + index + '' + this.familienname,
+              registriertAm: firebase.firestore.Timestamp.fromDate(new Date()),
+            },
+            addresse: {
+              strasse: this.strasse,
+              hausnummer: this.hausnummer,
+              ort: this.ort,
+              postleitzahl: this.postleitzahl,
+            },
+          })
+            .then((docRef) => {
+              id = docRef.id + ''
+            })
+          return id
+        } catch (error) {
+          console.log(error)
+        }
+      },
+      async datatodatabase () {
+        try {
+          const kinderIds = []
+          for (let i = 0; i < this.anzkinder; i++) {
+            kinderIds[i] = await this.createChildrenLogin(this.kinder[i], i)
+          }
           const dataBase = db.collection('users').doc(this.$route.params.id)
           const fechten = this.checkboxPersoenlich || this.tab === 1
-          dataBase.set({
+          await dataBase.set({
             privat: {
+              funktionen: [fechten ? 'fechter/in' : '', this.anzkinder > 0 ? 'elternteil' : ''],
               fechten: fechten,
               firstName: this.vorname,
               nachName: this.familienname,
-              gender: this.gender,
-              geburtsdatum: firebase.firestore.Timestamp.fromDate(new Date(this.date)),
+              gender: fechten ? this.gender : '',
+              geburtsdatum: fechten ? firebase.firestore.Timestamp.fromDate(new Date(this.date)) : firebase.firestore.Timestamp.fromDate(new Date('January 1, 2000')),
               auto: this.checkboxAuto,
             },
             events: {
               eventsBes: 0,
             },
+            kinder: kinderIds,
             login: {
+              avatar: 'https://firebasestorage.googleapis.com/v0/b/fechtgesellschaft-1.appspot.com/o/profilbilder%2Fprofile-picture.jpg?alt=media&token=8abd74b4-8961-4cd5-9d7e-3bdc4533bd9c',
               completed: true,
               username: this.username,
               registriertAm: firebase.firestore.Timestamp.fromDate(new Date()),
@@ -650,8 +700,10 @@
               postleitzahl: this.postleitzahl,
             },
           }, { merge: true })
+            .catch((err) => {
+              console.error(err)
+            })
           console.log('good')
-          this.step = 1
         } catch (error) {
           console.log(error)
         }

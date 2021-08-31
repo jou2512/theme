@@ -1,5 +1,7 @@
 import firebase from 'firebase/app'
 import 'firebase/firestore'
+import 'firebase/storage'
+import db from '../Firebase/init'
 import { ref, onUnmounted, computed } from '@vue/composition-api'
 
 var firebaseConfig = {
@@ -14,7 +16,7 @@ var firebaseConfig = {
 }
 
 const firebaseApp = firebase.initializeApp(firebaseConfig)
-const timestamp = firebase.firestore.FieldValue.serverTimestamp
+const timestamp = firebase.firestore.FieldValue.serverTimestamp()
 
 const auth = firebase.auth()
 
@@ -67,27 +69,26 @@ const firestore = firebase.firestore()
 const usersCollection = firestore.collection('users')
 export function useUsers () {
   const users = ref([])
-  const items = ref([])
 
   const getUsers = () => {
     usersCollection.limit(100).onSnapshot(snapshot => {
       users.value = snapshot.docs
         .map(doc => ({ id: doc.id, ...doc.data() }))
         .reverse()
-      for (let i = 0; i < users.value.length; i++) {
-        items.value[i] = {
-          avatar: 'https://cdn.vuetifyjs.com/images/lists/1.jpg',
-          title: users.value[i].privat.firstName + ' ' + users.value[i].privat.nachName,
-          subtitle: 'today',
-          tag: 'person',
-        }
-      }
     })
+  }
+
+  const getInfUser = async (id) => {
+    var userData = null
+    await db.collection('users').doc(id).get().then((data) => {
+      userData = data.data()
+    })
+    return userData
   }
 
   onUnmounted(getUsers())
 
-  return { items }
+  return { getInfUser }
 }
 
 const chatCollection = firestore.collection('messages')
@@ -99,6 +100,7 @@ export function useChat () {
   const chats = ref(null)
 
   const assignChat = chatinfo => {
+    console.log('Chatinfo: ', chatinfo)
     var docref = chatCollection.doc(chatinfo)
     docref.get().then((doc) => {
       if (doc.exists) {
@@ -117,14 +119,18 @@ export function useChat () {
       }
     })
   }
-
-  const getChats = chatinfo => {
-      chatCollection.where('users', 'array-contains', chatinfo[0]).orderBy('createdAt', 'desc').limit(100).onSnapshot(snapshot => {
-        chats.value = snapshot.docs
-          .map(doc => ({ id: doc.id, ...doc.data() }))
-          .reverse()
-        console.log(chats.value)
-      })
+  const getChats = () => {
+    console.log(authService.user.uid)
+    chatCollection.where('users', 'array-contains', authService.user.uid).orderBy('lastMessage', 'asc').limit(100).onSnapshot(snapshot => {
+      console.log('Alle Chats: ', snapshot)
+      chats.value = snapshot.docs
+        .map(doc => ({ id: doc.id, ...doc.data() }))
+        .reverse()
+      console.log('heyyy', chats.value)
+      if (!(messages.value.length > 0)) {
+        assignChat(chats.value[0].id)
+      }
+    })
   }
 
   /*
@@ -148,19 +154,44 @@ export function useChat () {
       .map(doc => ({ id: doc.id, ...doc.data() }))
       .reverse()
   })  */
-  onUnmounted(getChats(), assignChat('CwtL7JqwpHWgbgvSYjfX'))
+  onUnmounted(getChats())
 
-  const createChat = text => {
+  const createChat = pars => {
     if (!isLogin.value) return
-    console.log('created')
     const { uid } = user.value
-    const users = [uid, uid]
-    const type = text.type
+    const users = [uid, pars.uid]
+    const type = pars.type
     chatCollection.add({
-      user: users,
+      avatar: pars.avatar,
+      users: users,
       type: type,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      title: pars.title,
+      lastMessage: null,
+      createdAt: timestamp,
     })
+    console.log('created')
+  }
+
+  const searchChats = (obj) => {
+    const { uid } = user.value
+    if (obj.uid === uid) return 0
+    if (chats.value) {
+      var exists = false
+      var i = 0
+      while (i < chats.value.length && !exists) {
+        const element = chats.value[i].users
+        if (element.includes(obj.uid)) {
+          exists = true
+          return i
+        }
+        i++
+      }
+      createChat({ uid: obj.uid, type: 'chat', avatar: obj.avatar, title: obj.title })
+      return 0
+    } else {
+      createChat({ uid: obj.uid, type: 'chat', avatar: obj.avatar, title: obj.title })
+      return 0
+    }
   }
 
   const { user, isLogin } = useAuth()
@@ -177,7 +208,7 @@ export function useChat () {
     })
   }
 
-  return { chattype, assignChat, messages, sendMessage, createChat }
+  return { chattype, searchChats, assignChat, messages, chats, sendMessage, createChat }
 }
 
 export { timestamp }

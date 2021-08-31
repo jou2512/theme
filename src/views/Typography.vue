@@ -16,31 +16,9 @@
           sm="3"
           class="pb-2 pr-2"
         >
-          <v-card>
-            <v-app-bar
-              flat
-              color="rgba(0,0,0,0)"
-            >
-              <v-btn
-                tile
-                color="white"
-                x-large
-                block
-              >
-                <v-icon
-                  left
-                  color="blue"
-                >
-                  mdi-plus-box
-                </v-icon>
-                <v-divider
-                  class="mx-3"
-                  vertical
-                ></v-divider>
-                New
-                Conversation
-              </v-btn>
-            </v-app-bar>
+          <v-card
+            :key="key"
+          >
 
             <v-app-bar
               flat
@@ -65,12 +43,32 @@
               flat
               color="rgba(0,0,0,0)"
             >
-              <v-text-field
-                filled
-                label="Search Here"
+              <v-autocomplete
+                v-model="model"
+                :search-input.sync="selectedChat"
+                :items="mitgliederkeineKinder"
+                auto-select-first
                 append-icon="mdi-magnify"
-                color="grey"
-              ></v-text-field>
+                filled
+                color="blue-grey lighten-2"
+                label="Search for Conversation/People"
+                item-text="title"
+                item-value="title"
+                return-object
+                @change="v => {selectChat(v), show(v)}"
+              >
+                <template v-slot:item="data">
+                  <template>
+                    <v-list-item-avatar>
+                      <img :src="data.item.avatar">
+                    </v-list-item-avatar>
+                    <v-list-item-content>
+                      <v-list-item-title v-html="data.item.title"></v-list-item-title>
+                      <v-list-item-subtitle v-html="data.item.funktionen"></v-list-item-subtitle>
+                    </v-list-item-content>
+                  </template>
+                </template>
+              </v-autocomplete>
             </v-app-bar>
 
             <v-divider />
@@ -79,16 +77,17 @@
               two-line
               color="rgba(0,0,0,0)"
               class="overflow-y-auto"
-              min-height="150"
               max-height="500"
             >
               <v-list-item-group
+                v-if="chats"
                 v-model="selected"
                 mandatory
                 active-class="blue lighten-4"
+                @change="changeChat()"
               >
                 <template
-                  v-for="(item, index) in mitglieder"
+                  v-for="(item, index) in chats"
                 >
                   <v-list-item
                     :key="item.title"
@@ -96,40 +95,51 @@
                     <v-badge
                       bordered
                       bottom
-                      color="green"
+                      color="transparent"
                       dot
                       offset-x="22"
                       offset-y="26"
                     >
                       <v-list-item-avatar>
                         <v-img
-                          :src="item.avatar"
+                          :src="getAvatar(item)"
                         ></v-img>
                       </v-list-item-avatar>
                     </v-badge>
                     <template>
                       <v-list-item-content>
                         <v-list-item-title
+                          v-if="item.type === 'chat'"
+                          v-text="getTitle(item)"
+                        ></v-list-item-title>
+                        <v-list-item-title
+                          v-else
                           v-text="item.title"
                         ></v-list-item-title>
 
                         <v-list-item-subtitle
-                          v-text="item.subtitle"
+                          v-text="item.lastMessage === null ? '' : 'Last Message ' + convertTime(item.lastMessage) + ' ago'"
                         ></v-list-item-subtitle>
                       </v-list-item-content>
                     </template>
                   </v-list-item>
 
                   <v-divider
-                    v-if="index < mitglieder.length - 1"
+                    v-if="index < mitgliederkeineKinder.length - 1"
                     :key="index"
                   ></v-divider>
                 </template>
               </v-list-item-group>
+              <template
+                v-else
+              >
+                <h3 class="text-center red--text font-weight-thin py-5">Du hast momentan noch keine Chats</h3>
+              </template>
             </v-list>
           </v-card>
         </v-col>
         <v-col
+          v-if="chats"
           cols="12"
           sm="6"
           class="pb-2 pr-2"
@@ -144,7 +154,7 @@
               <v-badge
                 bordered
                 bottom
-                color="green"
+                color="transparent"
                 dot
                 offset-x="11"
                 offset-y="13"
@@ -155,57 +165,62 @@
                   elevation="10"
                 >
                   <img
-                    :src="mitglieder[selected].avatar"
+                    :src="getAvatar(chats[selected])"
                   />
                 </v-avatar>
               </v-badge>
               <v-toolbar-title
                 class="text-h6 pl-0 ml-2 mt-n4"
               >
-                {{ mitglieder[selected].title }}
+                {{ getTitle(chats[selected]) }}
               </v-toolbar-title>
               <v-spacer></v-spacer>
-              <v-toolbar-title
-                class="text-h6 pl-0 mr-2 mt-n4"
-              >
-                Members
-                :
-              </v-toolbar-title>
-              <v-btn
-                color="blue"
-                icon
-                class="mt-n5 mr-n2"
-                outlined
-                max-height="35"
-                max-width="35"
-              >
-                <v-icon>
-                  mdi-plus
-                </v-icon>
-              </v-btn>
-              <v-avatar
-                class="mt-n5 mr-2"
-                size="30"
-                elevation="10"
-              >
-                <img
-                  src="https://cdn.vuetifyjs.com/images/lists/5.jpg"
-                />
-              </v-avatar>
-              <v-divider
-                vertical
-                inset
-                class="mt-n1"
-              ></v-divider>
-              <v-btn
-                color="black"
-                icon
-                class="mt-n5"
-              >
-                <v-icon>
-                  mdi-cog
-                </v-icon>
-              </v-btn>
+                <v-toolbar-title
+                  v-if="chats[selected].type === 'chat' ? false : true"
+                  class="text-h6 pl-0 mr-2 mt-n4"
+                >
+                  Members
+                  :
+                </v-toolbar-title>
+                <template
+                  v-if="chats[selected].type === 'chat' ? false : true"
+                >
+                  <v-btn
+                    color="blue"
+                    icon
+                    class="mt-n5 mr-n2"
+                    outlined
+                    max-height="35"
+                    max-width="35"
+                  >
+                    <v-icon>
+                      mdi-plus
+                    </v-icon>
+                  </v-btn>
+                  <v-avatar
+                    class="mt-n5 mr-2"
+                    size="30"
+                    elevation="10"
+                  >
+                    <img
+                      src="https://cdn.vuetifyjs.com/images/lists/5.jpg"
+                    />
+                  </v-avatar>
+                  <v-divider
+                    vertical
+                    inset
+                    class="mt-n1"
+                  ></v-divider>
+                  <v-btn
+                    color="black"
+                    icon
+                    class="mt-n5"
+                  >
+                    <v-icon>
+                      mdi-cog
+                    </v-icon>
+                  </v-btn>
+                </template>
             </v-app-bar>
 
             <v-divider />
@@ -214,8 +229,7 @@
               class="overflow-y-auto mb-5"
               color="transparent"
               flat
-              min-height="400"
-              max-height="500"
+              height="500"
             >
               <v-container
                 v-for="({ id, text, userId }, index) in messages"
@@ -228,6 +242,17 @@
                   class="mb-16"
                 >
                   <v-spacer></v-spacer>
+                  <v-btn
+                    color="black"
+                    icon
+                    class="mb-n10"
+                  >
+                    <v-icon
+                      small
+                    >
+                      mdi-dots-horizontal
+                    </v-icon>
+                  </v-btn>
                   <v-card
                     class="mt-10 mr-2"
                     max-width="350px"
@@ -244,14 +269,8 @@
                           {{ text }}
                         </div>
                         <v-list-item-subtitle>
-                          {{ convertTime(index) }}
+                          {{ convertTime(messages[index].createdAt) }}
                           ago
-                          <span
-                            class="ml-16"
-                          >
-                            Seen
-                            1:03PM
-                          </span>
                         </v-list-item-subtitle>
                       </v-list-item-content>
                     </v-list-item>
@@ -270,7 +289,7 @@
                       elevation="10"
                     >
                       <img
-                        src="https://cdn.vuetifyjs.com/images/lists/5.jpg"
+                        :src="avatar"
                       />
                     </v-avatar>
                   </v-badge>
@@ -284,7 +303,7 @@
                   <v-badge
                     bordered
                     bottom
-                    color="green"
+                    color="transparent"
                     dot
                     offset-x="16"
                     offset-y="9"
@@ -295,7 +314,7 @@
                       elevation="10"
                     >
                       <img
-                        src="https://cdn.vuetifyjs.com/images/lists/1.jpg"
+                        :src="getAvatar(chats[selected])"
                       />
                     </v-avatar>
                   </v-badge>
@@ -313,7 +332,7 @@
                           {{ text }}
                         </div>
                         <v-list-item-subtitle>
-                          {{ convertTime(index) }}
+                          {{ convertTime(messages[index].createdAt) }}
                           ago
                         </v-list-item-subtitle>
                       </v-list-item-content>
@@ -324,9 +343,10 @@
                     icon
                     class="mb-n10"
                   >
-                    <v-icon>
-                      fas
-                      fa-ellipsis-h
+                    <v-icon
+                      small
+                    >
+                      mdi-dots-horizontal
                     </v-icon>
                   </v-btn>
                 </v-app-bar>
@@ -372,6 +392,7 @@
           </v-card>
         </v-col>
         <v-col
+          v-if="chats"
           cols="12"
           sm="3"
         >
@@ -385,7 +406,7 @@
               <v-badge
                 bordered
                 bottom
-                color="green"
+                color="transparent"
                 dot
                 offset-x="11"
                 offset-y="13"
@@ -396,24 +417,19 @@
                   elevation="10"
                 >
                   <img
-                    :src="mitglieder[selected].avatar"
+                    :src="getAvatar(chats[selected])"
                   />
                 </v-avatar>
               </v-badge>
               <v-card-title
                 class="layout justify-center"
               >
-                {{ mitglieder[selected].title }}
+                {{ getTitle(chats[selected]) }}
               </v-card-title>
               <v-card-subtitle
                 class="layout justify-center"
               >
-                CEO
-                &
-                Founder
-                at
-                Highly
-                inc
+                {{ getFunktionen(chats[selected]).toString() }}
               </v-card-subtitle>
               <v-list></v-list>
             </v-card>
@@ -423,7 +439,7 @@
               multiple
             >
               <v-expansion-panel
-                v-if="mitglieder[selected].tag === 'person' ? true : false"
+                v-if="chats[selected].type === 'groupe' ? true : false"
               >
                 <v-expansion-panel-header>
                   <h3>
@@ -440,7 +456,7 @@
                 </v-expansion-panel-content>
               </v-expansion-panel>
               <v-expansion-panel
-                v-if="mitglieder[selected].tag === 'person' ? true : false"
+                v-if="chats[selected].type === 'groupe' ? true : false"
               >
                 <v-expansion-panel-header>
                   <h3>
@@ -480,7 +496,7 @@
                 </v-expansion-panel-content>
               </v-expansion-panel>
               <v-expansion-panel
-                v-if="mitglieder[selected].tag === 'person' ? true : false"
+                v-if="chats[selected].type === 'groupe' ? true : false"
               >
                 <v-expansion-panel-header>
                   <h3>
@@ -529,14 +545,14 @@
                   </template>
                 </v-expansion-panel-content>
               </v-expansion-panel>
-              <v-expansion-panel>
+              <v-expansion-panel v-if="false">
                 <v-expansion-panel-header>
                   <h3>
                     Images(14)
                   </h3>
                 </v-expansion-panel-header>
               </v-expansion-panel>
-              <v-expansion-panel>
+              <v-expansion-panel v-if="false">
                 <v-expansion-panel-header>
                   <h3>
                     Files(3)
@@ -567,7 +583,7 @@
                   </v-list>
                 </v-expansion-panel-content>
               </v-expansion-panel>
-              <v-expansion-panel>
+              <v-expansion-panel v-if="false">
                 <v-expansion-panel-header>
                   <h3>
                     Pinned
@@ -585,19 +601,34 @@
 <script>
   import firebase from 'firebase/app'
   import { ref, watch, nextTick } from '@vue/composition-api'
-  import { useAuth, useChat, useUsers } from '../Firebase/init'
+  import { useAuth, useChat, useUsers, authService } from '../Firebase/init'
   import { get } from 'vuex-pathify'
   export default {
     setup () {
       const { items } = useUsers()
-      const { messages, sendMessage, chattype } = useChat()
+      const { chats, messages, sendMessage, chattype, assignChat, searchChats } = useChat()
       const bottom = ref(null)
-
+      const selectedChat = ref('')
+      const model = ref('')
+      const selected = ref(0)
       watch(
         messages,
         () => {
           nextTick(() => {
-            bottom.value.scrollIntoView({ behavior: 'smooth' })
+            bottom.value.scrollIntoView({ behavior: 'auto' })
+          })
+        },
+        chats,
+        () => {
+          nextTick(() => {
+            console.log('okay')
+          })
+        },
+        selected,
+        (v, n) => {
+          nextTick(() => {
+            console.log(v, n)
+            assignChat(chats.value[selected.value].id)
           })
         },
       )
@@ -607,14 +638,28 @@
         message.value = ''
       }
 
-      const selected = ref(0)
-
       const submitmessage = () => {
         document.getElementById('mes').submit()
       }
 
-      const convertTime = index => {
-        var startTime = messages.value[index].createdAt
+      const changeChat = () => {
+        assignChat(chats.value[selected.value].id)
+      }
+
+      const selectChat = (v) => {
+        const i = searchChats(v)
+        console.log(i)
+        selected.value = i
+        changeChat()
+        nextTick(() => {
+          selectedChat.value = ''
+          model.value = null
+          console.log('chatss', chats.value)
+        })
+      }
+
+      const convertTime = createdAt => {
+        var startTime = createdAt
         var endTime = firebase.firestore.Timestamp.fromDate(new Date())
         var differenceInSeconds = endTime - startTime
 
@@ -632,13 +677,14 @@
           return seconds + ' seconds'
         }
       }
-
+      console.log(chats.value)
       const { user, isLogin, signOut, signIn } = useAuth()
-      return { user, convertTime, chattype, isLogin, signOut, signIn, bottom, messages, message, send, selected, items, submitmessage }
+      return { model, changeChat, selectChat, user, convertTime, chattype, isLogin, signOut, signIn, bottom, messages, message, chats, send, selected, items, submitmessage, selectedChat }
     },
     data: () => ({
       dialog: false,
       overlay: false,
+      key: 0,
       infosTurnier: {
         days: ['saturday', 'sunnday'],
         zeiten: [
@@ -682,9 +728,7 @@
           icon: ' mdi-cloud-upload',
         },
       ],
-      panel: [
-        2,
-      ],
+      panel: [],
       iconIndex: 0,
     }),
     computed: {
@@ -697,10 +741,37 @@
           : 'light'
       },
       ...get('userfirebase', [
-        'mitglieder',
+        'mitgliederkeineKinder',
+        'infos@login@avatar',
       ]),
     },
+    mounted () {
+      setTimeout(() => {
+        console.log('chats new', this.chats)
+        this.key++
+      }, 1000)
+    },
     methods: {
+      getFunktionen (selected) {
+        const userIndex = selected.users.indexOf(authService.user.uid)
+        const uid = selected.users[1 - userIndex]
+        const inf = this.mitgliederkeineKinder.find(mitglied => mitglied.uid === uid)
+        return inf.funktionen
+      },
+      getTitle (selected) {
+        const userIndex = selected.users.indexOf(authService.user.uid)
+        const uid = selected.users[1 - userIndex]
+        const inf = this.mitgliederkeineKinder.find(mitglied => mitglied.uid === uid)
+        return inf.title
+      },
+      getAvatar (selected) {
+        const userIndex = selected.users.indexOf(authService.user.uid)
+        const uid = selected.users[1 - userIndex]
+        console.log(uid)
+        console.log(this.mitgliederkeineKinder)
+        const inf = this.mitgliederkeineKinder.find(mitglied => mitglied.uid === uid)
+        return inf.avatar
+      },
       sendMessage () {
         this.resetIcon()
         this.clearMessage()
@@ -714,6 +785,9 @@
       },
       filterddays (day) {
         return this.infosTurnier.zeiten.filter(v => v.day === this.infosTurnier.days[day])
+      },
+      show (v) {
+        console.log(v)
       },
     },
   }

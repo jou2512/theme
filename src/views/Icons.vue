@@ -19,7 +19,9 @@
           cols="12"
           md="8"
         >
-          <v-card>
+          <v-card
+            :loading="loading"
+          >
             <v-card-title
               class="text-center text-h3 font-weight-black"
             >
@@ -58,13 +60,14 @@
                 max-height="900px"
               >
                 <v-timeline
+                  :key="keyloader"
                   class="mx-3"
                   dense
                   align-top
                 >
                   <v-timeline-item
-                    v-for="(event, n) in events"
-                    :key="n"
+                    v-for="(event, index) in events1"
+                    :key="index"
                     right
                     color="#334460"
                   >
@@ -73,7 +76,7 @@
                       class="mr-n12"
                     >
                       <object
-                        :id="`_date-${n}`"
+                        :id="`_date-${index}`"
                         type="image/svg+xml"
                         :data="require('@/assets/date.svg')"
                         class="mt-n3"
@@ -118,16 +121,23 @@
                                 {{ event.description }}
                               </span>
                               <br>
+                              <br>
                               <span
                                 class="text-caption"
                               >
                                 {{ event.caption }}
                               </span>
+                              <br>
+                              <span
+                                class="font-weight-thin"
+                              >
+                                {{ event.datumvoll }}
+                              </span>
                             </v-card-text>
                           </v-card>
                         </v-col>
                         <v-col
-                          v-if="n == 1"
+                          v-if="index == 1"
                           cols="12"
                           class="mt-n4"
                         >
@@ -159,11 +169,11 @@
                   </v-timeline-item>
                 </v-timeline>
                 <div
-                  v-if="events.length == 0"
+                  v-if="events1.length == 0"
                   class="blck--text text-center font-weight-black text-h4"
                 >
                   Keine
-                  Neugigkeiten
+                  Events
                 </div>
               </v-card>
             </v-card-text>
@@ -196,7 +206,7 @@
                   <v-btn
                     class="rounded-l rounded-r-0 elevation-3"
                     :disabled="!my"
-                    @click="my = !my"
+                    @click="my = !my, FilterIt()"
                   >
                     Alle
                     Events
@@ -204,7 +214,7 @@
                   <v-btn
                     class="rounded-r rounded-l-0 elevation-3"
                     :disabled="my"
-                    @click="my = !my"
+                    @click="my = !my, FilterIt()"
                   >
                     Meine
                     Events
@@ -257,6 +267,7 @@
                             readonly
                             v-bind="attrs"
                             v-on="on"
+                            @click:clear="FilterIt()"
                           />
                         </template>
                         <v-date-picker
@@ -275,7 +286,7 @@
                           <v-btn
                             text
                             color="primary"
-                            @click="$refs.menu1.save(daterange.start)"
+                            @click="$refs.menu1.save(daterange.start), FilterIt()"
                           >
                             OK
                           </v-btn>
@@ -316,6 +327,7 @@
                             clearable
                             dense
                             readonly
+                            @click:clear="FilterIt()"
                             v-bind="attrs"
                             v-on="on"
                           />
@@ -336,7 +348,7 @@
                           <v-btn
                             text
                             color="primary"
-                            @click="$refs.menu.save(daterange.end)"
+                            @click="$refs.menu.save(daterange.end), FilterIt()"
                           >
                             OK
                           </v-btn>
@@ -346,8 +358,8 @@
                   </v-row>
                 </v-container>
                 <v-container
-                  v-for="filter in filters"
-                  :key="filter"
+                  v-for="(filter, index) in filters"
+                  :key="index"
                   class="py-0"
                   fluid
                 >
@@ -358,56 +370,69 @@
                   </v-subheader>
 
                   <v-list>
-                    <template
-                      v-for="item in filter.filteritems"
+                    <v-list-item-group
+                      v-model="model[filter.type]"
+                      multiple
                     >
-                      <v-tooltip
-                        v-if="item.tooltip"
-                        :key="item.tag"
-                        top
+                      <template
+                        v-for="item in filter.filteritems"
                       >
-                        <template
-                          v-slot:activator="{ on, attrs }"
+                        <v-tooltip
+                          v-if="item.tooltip"
+                          :key="item.tag"
+                          top
                         >
-                          <v-list-item
-                            :key="item.tag"
-                            class="mt-n5"
-                            v-bind="attrs"
-                            v-on="on"
+                          <template
+                            v-slot:activator="{ on, attrs }"
                           >
-                            <v-list-item-action>
-                              <v-checkbox />
-                            </v-list-item-action>
+                            <v-list-item
+                              :key="item.tag"
+                              :value="item.tag"
+                              class="mt-n5"
+                              active-class="no-active"
+                              v-bind="attrs"
+                              v-on="on"
+                              @click="FilterIt()"
+                            >
+                              <v-list-item-action>
+                                <v-checkbox
+                                  :input-value="model[filter.type].includes(item.tag)"
+                                />
+                              </v-list-item-action>
 
-                            <v-list-item-content>
-                              <v-list-item-title>
-                                {{ item.name }}
-                              </v-list-item-title>
-                            </v-list-item-content>
-                          </v-list-item>
-                        </template>
-                        <span>
-                          {{ item.tooltip }}
-                        </span>
-                      </v-tooltip>
-                      <v-list-item
-                        v-else
-                        :key="item.tag"
-                        class="mt-n5"
-                        v-bind="attrs"
-                        v-on="on"
-                      >
-                        <v-list-item-action>
-                          <v-checkbox />
-                        </v-list-item-action>
+                              <v-list-item-content>
+                                <v-list-item-title>
+                                  {{ item.name }}
+                                </v-list-item-title>
+                              </v-list-item-content>
+                            </v-list-item>
+                          </template>
+                          <span>
+                            {{ item.tooltip }}
+                          </span>
+                        </v-tooltip>
+                        <v-list-item
+                          v-else
+                          :key="item.tag"
+                          :value="item.tag"
+                          class="mt-n5"
+                          active-class="no-active"
+                          @click="FilterIt()"
+                        >
+                          <v-list-item-action>
+                            <v-checkbox
+                              :input-value="model[filter.type].includes(item.tag)"
+                            />
+                          </v-list-item-action>
 
-                        <v-list-item-content>
-                          <v-list-item-title>
-                            {{ item.name }}
-                          </v-list-item-title>
-                        </v-list-item-content>
-                      </v-list-item>
-                    </template>
+                          <v-list-item-content>
+                            <v-list-item-title>
+                              {{ item.name }}
+                            </v-list-item-title>
+                          </v-list-item-content>
+                        </v-list-item>
+                      </template>
+                    </v-list-item-group>
                   </v-list>
                 </v-container>
               </v-card>
@@ -420,26 +445,31 @@
 </template>
 
 <script>
+  import { get } from 'vuex-pathify'
+  import firebase from 'firebase/app'
   export default {
     name: 'NotificationsView',
 
     data: () => ({
+      loading: false,
+      model: {
+        cat: [],
+        event: [],
+        region: [],
+        relevanz: [],
+        nationalität: [],
+      },
+      keyloader: 0,
+      inset: true,
       daterange: {
         menu1: false,
         menu: false,
-        start: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
-        end: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
+        start: '',
+        end: '',
       },
-      my: true,
-      events: [
-        { type: 'test', title: 'Test Pist', cat: 'H&D U14 / U17 / U20', foryou: false, caption: 'in Biel', description: 'Nationaler Test für die Olympic talent card', to: '/', date: '03', day: 'TUE' },
-        { type: 'turnier', title: 'Schweizermeisterschaften', cat: 'D U14 und jünger', foryou: false, caption: 'in Morges', description: 'Einzel und Mannschafts Turnier', to: '/', date: '14', day: 'MON' },
-        { type: 'turnier', title: 'Basler Meisterschaften', cat: 'H&D U14 / U17 / U20', foryou: true, caption: 'Im Basler Fechtsaal', description: 'Bitte alle die 20.- mitbringen und sich unbedingt im Vorraus anmelden', to: '/', date: '25', day: 'FRI' },
-        { type: 'turnier', title: 'Zürich Turnier', cat: 'H&D U17', foryou: false, caption: 'in Zürich', description: '1 Selektions Turnier der Saison', to: '/', date: '15', day: 'SAT' },
-        { type: 'turnier', title: 'Budapest Turnier', cat: 'H&D U17 / U20', foryou: true, caption: 'in Budapest', description: '2 unserer Fechter sind in Budapest', to: '/', date: '26', day: 'SUN' },
-        { type: 'lager', title: 'Fechtlager Waldkirch', cat: 'alle', foryou: true, caption: 'in Waldkirch', description: 'Es ist wieder so weit! Waldkirch findet zum 15. mal statt. Wir freuen uns über jeden der kommt', to: '/', date: '06', day: 'MON' },
-        { type: 'event', title: 'Weisswurst Abend', cat: 'alle', foryou: true, caption: 'am Rhein', description: 'Es ist wieder so weit', to: '/', date: '17', day: 'SAT' },
-      ],
+      my: false,
+      events1: [],
+      events2: [],
       filters: [
         {
           type: 'cat',
@@ -451,8 +481,9 @@
             { name: 'Minims / U14', tag: 'u14', tooltip: '2007/08' },
             { name: 'Cadets / U17', tag: 'u17', tooltip: '2004/05/06' },
             { name: 'Junioren / U20', tag: 'u20', tooltip: '2001/02/03' },
-            { name: 'Senioren / Ü20', tag: 'ü20', tooltip: '2000 - 1982' },
-            { name: 'Veteranen / Ü40', tag: 'ü40', tooltip: '1991 und älter' },
+            { name: 'Senioren / Ü20', tag: 'ü20', tooltip: '2000 - 1977' },
+            { name: 'Senioren / U23', tag: 'ü23', tooltip: '2000 - 1997' },
+            { name: 'Veteranen / Ü45', tag: 'ü45', tooltip: '1976 und älter' },
           ],
         },
         {
@@ -499,9 +530,21 @@
           ],
         },
       ],
+      Arranged: {},
+      matches: '',
     }),
 
+    computed: {
+      ...get('userfirebase', [
+        'events',
+        'infos',
+      ]),
+    },
+
     mounted () {
+      this.events2 = this.events
+      this.events2.sort(this.compare)
+      this.storeEvents()
       this.$nextTick(function () {
         setTimeout(() => {
           this.changeText()
@@ -510,23 +553,221 @@
     },
 
     methods: {
-      deletNews (newsIndex) {
-        this.news.splice(newsIndex, 1)
-        console.log(this.news)
+      /*  ArrangeArrays (array, criteria, filters, name) {
+        var item = criteria(array[0]).toString()
+        var criteriaMatchs = [item]
+        for (var i = 0; i < array.length; i++) {
+          if (criteria(array[i]).toString() !== item) {
+            criteriaMatchs[criteriaMatchs.length] = criteria(array[i]).toString()
+            item = criteria(array[i]).toString()
+          }
+        }
+        console.log(criteriaMatchs)
+        var arrangeArray = []
+        for (let i = 0; i < criteriaMatchs.length; i++) {
+          this.matches = criteriaMatchs[i]
+          arrangeArray[i] = { [name]: this.matches, items: this.filterArray(array, filters) }
+          console.log(this.filterArray(array, filters))
+          console.log(arrangeArray)
+        }
+        return arrangeArray
+      }, */
+      compare (a, b) {
+        // Use toUpperCase() to ignore character casing
+        const datumA = a.Datum[0].toDate()
+        const datumB = b.Datum[0].toDate()
+
+        let comparison = 0
+        if (datumA > datumB) {
+          comparison = 1
+        } else if (datumA < datumB) {
+          comparison = -1
+        }
+        return comparison
+      },
+      FilterIt () {
+        this.loading = true
+        const filters = {
+          filter: filter => {
+            var cat = filter.cat
+            var event = filter.event
+            var region = filter.region
+            var relevanz = filter.relevanz
+            var nationalität = filter.nationalität
+            var catvar = true
+            var eventvar = true
+            var regionvar = true
+            var relevanzvar = true
+            var nationalitätvar = true
+
+            if (this.model.cat.length !== 0) {
+              catvar = cat.find(x => this.model.cat.includes(x))
+            }
+            if (this.model.event.length !== 0) {
+              eventvar = this.model.event.includes(event)
+            }
+            if (this.model.region.length !== 0) {
+              regionvar = this.model.region.includes(region)
+            }
+            if (this.model.relevanz.length !== 0) {
+              relevanzvar = relevanz.find(x => this.model.relevanz.includes(x))
+            }
+            if (this.model.nationalität.length !== 0) {
+              nationalitätvar = nationalität.find(x => this.model.nationalität.includes(x))
+            }
+            return catvar && eventvar && regionvar && relevanzvar && nationalitätvar
+          },
+          Datum: Datum => {
+            var datum = true
+            var test1 = firebase.firestore.Timestamp.fromDate(new Date(this.daterange.start))
+            var test2 = firebase.firestore.Timestamp.fromDate(new Date(this.daterange.end))
+            if ((this.daterange.start === '' | this.daterange.start === null) && (this.daterange.end === '' | this.daterange.end === null)) {
+              return datum
+            } else if (this.daterange.start === '' | this.daterange.start === null) {
+              datum = Datum[0].toDate() <= test2.toDate()
+            } else if (this.daterange.end === '' | this.daterange.end === null) {
+              datum = Datum[0].toDate() >= test1.toDate()
+            } else {
+              datum = Datum[0].toDate() >= test1.toDate() && Datum[0].toDate() <= test2.toDate()
+            }
+            return datum
+          },
+        }
+        setTimeout(() => {
+          this.events2 = this.events
+          this.events2 = this.filterArray(this.events2, filters)
+          console.log(this.events2.sort(this.compare))
+          this.storeEvents()
+          this.loading = false
+          this.$nextTick(function () {
+            setTimeout(() => {
+              this.changeText()
+            }, 1000)
+          })
+        }, 1000)
+      },
+      convertDate (date) {
+        const options = { weekday: 'long', year: 'numeric', month: 'numeric', day: 'numeric' }
+        return date.toDate().toLocaleDateString('de-DE', options)
+      },
+      storeEvents () {
+        this.events1 = []
+        for (let i = 0; i < this.events2.length; i++) {
+          const element = this.events2[i]
+          var cat = ''
+          element.filter.cat.forEach(element2 => {
+            cat += element2 + ' / '
+          })
+          var datumvoll = ''
+          if (element.Datum[0].seconds === element.Datum[1].seconds) {
+            datumvoll = this.convertDate(element.Datum[0])
+          } else {
+            datumvoll = this.convertDate(element.Datum[0]) + ' - ' + this.convertDate(element.Datum[1])
+          }
+          if (!this.my) {
+            this.events1[i] = {
+              type: element.filter.event,
+              title: element.Title,
+              cat: cat,
+              foryou: element.filter.cat.find(ca => ca === this.categorie(this.infos.privat.geburtsdatum)),
+              caption: 'in ' + element.ort,
+              description: element.beschreibung,
+              to: '/',
+              datumvoll: datumvoll,
+              date: element.Datum[0].toDate().getDate() + '',
+              day: 'TUE',
+            }
+          } else if (element.filter.cat.find(ca => ca === this.categorie(this.infos.privat.geburtsdatum))) {
+            this.events1[i] = {
+              type: element.filter.event,
+              title: element.Title,
+              cat: cat,
+              foryou: element.filter.cat.find(ca => ca === this.categorie(this.infos.privat.geburtsdatum)),
+              caption: 'in ' + element.ort,
+              description: element.beschreibung,
+              to: '/',
+              date: element.Datum[0].toDate().getDate() + '',
+              day: 'TUE',
+            }
+          }
+        }
+        this.forcereload()
+      },
+      filterArray (array, filters) {
+        const filterKeys = Object.keys(filters)
+        return array.filter(item => {
+          // validates all filter criteria
+          return filterKeys.every(key => {
+            // ignores non-function predicates
+            if (typeof filters[key] !== 'function') return true
+            return filters[key](item[key])
+          })
+        })
+      },
+      categorie (geburtstag) {
+        var year = geburtstag.toDate().getFullYear()
+        var thisyear = new Date().getFullYear()
+        var date1 = new Date('June 30, ' + thisyear)
+        if (new Date() > date1) {
+          if (year > thisyear - 8) {
+            return 'u8'
+          } else if (year > thisyear - 10) {
+            return 'u10'
+          } else if (year > thisyear - 12) {
+            return 'u12'
+          } else if (year > thisyear - 14) {
+            return 'u14'
+          } else if (year > thisyear - 17) {
+            return 'u17'
+          } else if (year > thisyear - 20) {
+            return 'u20'
+          } else if (year > thisyear - 45) {
+            if (year >= thisyear - 23) {
+              return 'u23)'
+            } else {
+              return 'ü23'
+            }
+          } else {
+            return 'ü45'
+          }
+        } else {
+          thisyear--
+          if (year > thisyear - 8) {
+            return 'u8'
+          } else if (year > thisyear - 10) {
+            return 'u10'
+          } else if (year > thisyear - 12) {
+            return 'u12'
+          } else if (year > thisyear - 14) {
+            return 'u14'
+          } else if (year > thisyear - 17) {
+            return 'u17'
+          } else if (year > thisyear - 20) {
+            return 'u20'
+          } else if (year > thisyear - 45) {
+            if (year >= thisyear - 23) {
+              return 'u23)'
+            } else {
+              return 'ü23'
+            }
+          } else {
+            return 'ü45'
+          }
+        }
       },
       to (to) {
         this.$router.push(to)
       },
+      forcereload () {
+        this.keyloader++
+      },
       changeText () {
-        for (var i = 1; i < this.events.length; i++) {
-          console.log('good')
+        for (var i = 0; i < this.events1.length; i++) {
           var svgObject = document.getElementById(`_date-${i}`).contentDocument
           var date = svgObject.getElementById('date')
           var day = svgObject.getElementById('day')
-          console.log(date)
-          console.log(day)
-          date.textContent = this.events[i].date
-          day.textContent = this.events[i].day
+          date.textContent = this.events1[i].date
+          day.textContent = this.events1[i].day
         }
       },
     },
@@ -555,4 +796,8 @@
   .v-application--is-ltr .v-timeline--dense:not(.v-timeline--reverse):before
     left: calc( var(--timeline-opposite-item-width) + (96px - var(--timeline-line-width)) / 2 )
     width: var(--timeline-line-width)
+
+  .no-active::before
+    background-color: transparent !important
+
 </style>
