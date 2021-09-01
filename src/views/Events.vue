@@ -12,11 +12,10 @@
     <v-data-table
       :headers="headers"
       :items="events"
-      item-key="Title"
-      :key="forceupdate"
       :search="search"
       :loading="loading"
-      :expanded="expanded"
+      :expanded.sync="expanded"
+      :key="forceupdate"
       show-expand
       single-expand
       show-group-by
@@ -90,12 +89,12 @@
                 </div>
               </v-col>
               <v-col
+                v-if="item.startzeiten"
                 cols="12"
                 sm="2"
                 md="4"
               >
                 <v-data-table
-                  v-if="item.startzeiten[0].cat !== ''"
                   :headers="headersTime"
                   :items="item.startzeiten"
                 />
@@ -516,6 +515,10 @@
                           item-text="name"
                           item-value="tag"
                           label="Nationalität"
+                          multiple
+                          chips
+                          clearable
+                          deletable-chips
                         />
                       </v-col>
                       <v-col
@@ -725,7 +728,6 @@
           mdi-delete
         </v-icon>
         <v-menu
-          v-if="false"
           top
           offset-y
         >
@@ -800,9 +802,6 @@
           { text: '', align: 'end', value: 'actions', sortable: false, groupable: false },
         ],
         startTimeItems: [
-          { day: '', cat: '', time: '' },
-        ],
-        defaultstartTimeItems: [
           { day: '', cat: '', time: '' },
         ],
         headersdokuments: [
@@ -887,7 +886,7 @@
           dokument: '',
           region: '',
           selectedCategories: [],
-          selectedNation: '',
+          selectedNation: [],
           selectedRelevanz: [],
           selectedDays: [],
           ort: '',
@@ -899,7 +898,7 @@
           dokument: '',
           region: '',
           selectedCategories: [],
-          selectedNation: '',
+          selectedNation: [],
           selectedRelevanz: [],
           selectedDays: [],
           ort: '',
@@ -1000,7 +999,7 @@
       },
       update () {
         this.loading = true
-        this.$store.commit({ type: 'userfirebase/updateAllData' })
+        this.$store.commit({ type: 'userfirebase/updateEvents' })
         setTimeout(() => {
           this.loading = false
           this.forceupdate++
@@ -1024,7 +1023,7 @@
         this.editedIndex = this.events.indexOf(item)
         this.newEvent = {
           type: item.filter.event,
-          title: item.Title,
+          title: item.title,
           beschreibung: item.beschreibung,
           dokument: item.turnierausschreibung,
           region: item.filter.region,
@@ -1041,6 +1040,8 @@
           end: item.Datum[1].toDate().toLocaleDateString('us-US'),
         }
         this.startTimeItems = item.startzeiten
+        console.log(this.newEvent)
+        console.log(this.editedIndex)
         this.dialog = true
       },
 
@@ -1051,43 +1052,19 @@
 
       deleteItemConfirm () {
         this.deletenewEvent(this.events[this.editedIndex].uid)
-        this.update()
         this.closeDelete()
+        this.update()
       },
 
       close () {
         this.dialog = false
         this.editedIndex = -1
-        this.reset()
-      },
-
-      reset () {
-        this.newEvent = {
-          type: 'turnier',
-          title: '',
-          beschreibung: '',
-          dokument: '',
-          region: '',
-          selectedCategories: [],
-          selectedNation: '',
-          selectedRelevanz: [],
-          selectedDays: [],
-          ort: '',
-        }
-        this.daterange = {
-          menu1: false,
-          menu: false,
-          start: '',
-          end: '',
-        }
-        this.startTimeItems = this.defaultstartTimeItems
       },
 
       closeDelete () {
         this.dialogDelete = false
         this.$nextTick(() => {
           this.editedIndex = -1
-          this.reset()
         })
       },
       save () {
@@ -1097,8 +1074,8 @@
         } else {
           this.saveeditEvent(this.events[this.editedIndex].uid)
         }
-        this.update()
         this.close()
+        this.update()
       },
       async savenewEvent () {
         try {

@@ -221,9 +221,6 @@ router.beforeEach((to, from, next) => {
                 next('/start/')
               }
             })
-            .catch((err) => {
-              console.log(err)
-            })
           }
         }
       } catch (error) {

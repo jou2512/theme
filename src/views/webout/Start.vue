@@ -48,11 +48,7 @@
                   :append-icon="!showPassword ? 'mdi-eye' : 'mdi-eye-off'"
                   @click:append="showPassword = !showPassword"
                 />
-                <v-checkbox
-                  v-model="checkbox"
-                  dens
-                  label="Eingeloggt bleiben"
-                />
+
                 <span class="text-caption grey--text text--darken-1 pointer">
                   passwort vergessen
                 </span>
@@ -323,27 +319,19 @@
         }
       },
       log () {
-        const session = firebase.auth.Auth.Persistence.SESSION
-        const local = firebase.auth.Auth.Persistence.LOCAL
-        firebase.auth().setPersistence(this.checkbox ? local : session)
-          .then(() => {
-            return firebase.auth().signInWithEmailAndPassword(this.email, this.password)
-          })
-          .then(() => {
-            const cityRef = db.collection('users').doc(firebase.auth().currentUser.uid)
-            return cityRef.get()
-          })
-          .then((doc) => {
+        firebase.auth().signInWithEmailAndPassword(this.email, this.password).then(() => {
+          const cityRef = db.collection('users').doc(firebase.auth().currentUser.uid)
+          cityRef.get().then((doc) => {
             if (doc.data().login.completed) {
               this.$router.push('/')
             } else {
               this.$router.push('/start/confirmation/' + firebase.auth().currentUser.uid)
             }
           })
-          .catch((error) => {
-            console.log(error)
-            this.errorlog = error.message
-          })
+        }).catch((error) => {
+          console.log(error)
+          this.errorlog = error.message
+        })
       },
     },
   }

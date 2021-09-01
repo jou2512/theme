@@ -24,18 +24,17 @@ const auth = firebase.auth()
 const initializeAuth = new Promise(resolve => {
   // this adds a hook for the initial auth-change event
   auth.onAuthStateChanged(user => {
-    if (user) {
-      user.getIdTokenResult().then(idtokenResult => {
-        console.log(idtokenResult.claims.admin)
-        if (idtokenResult.claims.admin) {
-          store.state.userfirebase.infos.login.admin = idtokenResult.claims.admin
-        } else {
-          store.state.userfirebase.infos.login.admin = false
-        }
-      })
-    }
+    user.getIdTokenResult().then(idtokenResult => {
+      console.log(idtokenResult.claims.admin)
+      if (idtokenResult.claims.admin) {
+        store.state.userfirebase.infos.login.admin = idtokenResult.claims.admin
+      } else {
+        store.state.userfirebase.infos.login.admin = false
+      }
+    })
     authService.setUser(user)
     resolve(user)
+    console.log('now')
   })
 })
 

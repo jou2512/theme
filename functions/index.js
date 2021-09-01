@@ -35,17 +35,6 @@ exports.deactivateUser = functions
         return err;
       });
     });
-exports.deleteUser = functions
-    .https.onCall((data, context) => {
-      return admin.auth().deleteUsers(data.uid).then(() => {
-        return {
-          message:
-            `Success! ${data.uid} has been Deleted`,
-        };
-      }).catch((err) => {
-        return err;
-      });
-    });
 
 // // Create and Deploy Your First Cloud Functions
 // // https://firebase.google.com/docs/functions/write-firebase-functions
