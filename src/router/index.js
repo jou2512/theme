@@ -111,17 +111,20 @@ router.beforeEach((to, from, next) => {
     }
   }
   const calldata = () => {
-    const cityRef = db.collection('users').doc(authService.user.uid)
     const usersCollection = db.collection('users')
+    const cityRef = usersCollection.doc(authService.user.uid)
     const eventsCollection = db.collection('events')
+    const notificationsCollection = db.collection('notifications')
 
     const promise1 = cityRef.get()
     const promise2 = usersCollection.limit(100).get()
     const promise3 = eventsCollection.get()
     const promise4 = firebase.storage().ref().child('Turnierausschreibungen').list()
+    const promise5 = notificationsCollection.get()
 
-    return Promise.all([promise1, promise2, promise3, promise4]).then((values) => {
+    return Promise.all([promise1, promise2, promise3, promise4, promise5]).then((values) => {
       store.state.userfirebase.infos = values[0].data()
+      store.state.notifications.notifications = values[4].docs.map(doc => ({ id: doc.id, ...doc.data() }))
       const user = values[1].docs.map(doc => ({ id: doc.id, ...doc.data() }))
       for (let i = 0; i < values[1].docs.length; i++) {
         store.state.userfirebase.mitglieder[i] = {
