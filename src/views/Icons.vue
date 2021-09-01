@@ -65,108 +65,98 @@
                   dense
                   align-top
                 >
-                  <v-timeline-item
-                    v-for="(event, index) in events1"
-                    :key="index"
-                    right
-                    color="#334460"
+                  <div
+                    v-for="(year, y) in eventsOrderd"
+                    :key="y"
                   >
-                    <span
-                      slot="opposite"
-                      class="mr-n12"
+                    <p class="mb-n1 font-weight-black text-h3">{{ y }}</p>
+                    <div
+                      class="py-2"
+                      v-for="(month, m) in year"
+                      :key="m"
                     >
-                      <object
-                        :id="`_date-${index}`"
-                        type="image/svg+xml"
-                        :data="require('@/assets/date.svg')"
-                        class="mt-n3"
+                      <p class="mb-0 font-weight-medium text-h4">{{ monthNames[m] }}</p>
+                      <v-divider
+                        class="mb-6"
                       />
-                    </span>
-                    <v-card
-                      class="mt-3"
-                      color="#334460"
-                    >
-                      <v-row>
-                        <v-col
-                          cols="12"
+                      <v-timeline-item
+                        v-for="(day, d) in month"
+                        :key="d"
+                        right
+                        color="#334460"
+                      >
+                        <span
+                          slot="opposite"
+                          class="mr-n12"
                         >
-                          <v-card
-                            class="elevation-8 mx-4"
-                            color="#334563"
-                            @click="changeText"
-                          >
-                            <v-card-title
-                              class="text-h4  white--text"
+                          <object
+                            :id="`${day[0].tag}`"
+                            type="image/svg+xml"
+                            :data="require('@/assets/date.svg')"
+                            class="mt-n3"
+                          />
+                        </span>
+                        <v-card
+                          class="mt-3"
+                          color="#334460"
+                        >
+                          <v-row>
+                            <v-col
+                              v-for="(event, index) in day"
+                              :key="index"
+                              cols="12"
                             >
-                              {{ event.title }}
-                              <v-spacer />
-                              <span
-                                class="font-weight-thin text-subtitle-2 grey--text text--secondary"
+                              <v-card
+                                class="elevation-8 mx-4"
+                                color="#334563"
+                                @click="changeText"
                               >
-                                <v-icon
-                                  v-if="event.foryou"
-                                  color="green"
+                                <v-card-title
+                                  class="text-h4  white--text"
                                 >
-                                  mdi-check-circle
-                                </v-icon>
-                                {{ event.cat }}
-                              </span>
-                            </v-card-title>
-                            <v-card-text
-                              class="text-left"
-                            >
-                              <span
-                                class="text-body-1"
-                              >
-                                {{ event.description }}
-                              </span>
-                              <br>
-                              <br>
-                              <span
-                                class="text-caption"
-                              >
-                                {{ event.caption }}
-                              </span>
-                              <br>
-                              <span
-                                class="font-weight-thin"
-                              >
-                                {{ event.datumvoll }}
-                              </span>
-                            </v-card-text>
-                          </v-card>
-                        </v-col>
-                        <v-col
-                          v-if="index == 1"
-                          cols="12"
-                          class="mt-n4"
-                        >
-                          <v-card
-                            class="elevation-8 mx-4"
-                            color="#334563"
-                          >
-                            <v-card-title
-                              class="text-h5  white--text"
-                            >
-                              Test
-                              Pist
-                            </v-card-title>
-                            <v-card-text
-                              class="text-left"
-                            >
-                              U14
-                              /
-                              U17
-                              /
-                              U20
-                              in
-                              Biel
-                            </v-card-text>
-                          </v-card>
-                        </v-col>
-                      </v-row>
-                    </v-card>
-                  </v-timeline-item>
+                                  {{ event.title }}
+                                  <v-spacer />
+                                  <span
+                                    class="font-weight-thin text-subtitle-2 grey--text text--secondary"
+                                  >
+                                    <v-icon
+                                      v-if="event.foryou"
+                                      color="green"
+                                    >
+                                      mdi-check-circle
+                                    </v-icon>
+                                    {{ event.cat }}
+                                  </span>
+                                </v-card-title>
+                                <v-card-text
+                                  class="text-left"
+                                >
+                                  <span
+                                    class="text-body-1"
+                                  >
+                                    {{ event.description }}
+                                  </span>
+                                  <br>
+                                  <br>
+                                  <span
+                                    class="text-caption"
+                                  >
+                                    {{ event.caption }}
+                                  </span>
+                                  <br>
+                                  <span
+                                    class="font-weight-thin"
+                                  >
+                                    {{ event.datumvoll }}
+                                  </span>
+                                </v-card-text>
+                              </v-card>
+                            </v-col>
+                          </v-row>
+                        </v-card>
+                      </v-timeline-item>
+                    </div>
+                  </div>
                 </v-timeline>
                 <div
                   v-if="events1.length == 0"
@@ -468,8 +458,32 @@
         end: '',
       },
       my: false,
+      eventsOrderd: {},
       events1: [],
       events2: [],
+      monthNames: [
+        'January',
+        'February',
+        'March',
+        'April',
+        'May',
+        'June',
+        'July',
+        'August',
+        'September',
+        'October',
+        'November',
+        'December',
+      ],
+      weekDayNames: [
+        'SON',
+        'MON',
+        'DIE',
+        'MIT',
+        'DON',
+        'FRE',
+        'SAM',
+      ],
       filters: [
         {
           type: 'cat',
@@ -547,31 +561,89 @@
       this.storeEvents()
       this.$nextTick(function () {
         setTimeout(() => {
+          this.forceupdate++
           this.changeText()
         }, 1000)
       })
     },
 
     methods: {
-      /*  ArrangeArrays (array, criteria, filters, name) {
-        var item = criteria(array[0]).toString()
-        var criteriaMatchs = [item]
-        for (var i = 0; i < array.length; i++) {
-          if (criteria(array[i]).toString() !== item) {
-            criteriaMatchs[criteriaMatchs.length] = criteria(array[i]).toString()
-            item = criteria(array[i]).toString()
+      storeEvents () {
+        this.events1 = []
+        for (let i = 0; i < this.events2.length; i++) {
+          const element = this.events2[i]
+          var cat = ''
+
+          element.filter.cat.forEach(element2 => {
+            cat += element2 + ' / '
+          })
+
+          var datumvoll = ''
+
+          if (element.Datum[0].seconds === element.Datum[1].seconds) {
+            datumvoll = this.convertDate(element.Datum[0])
+          } else {
+            datumvoll = this.convertDate(element.Datum[0]) + ' - ' + this.convertDate(element.Datum[1])
+          }
+
+          if (!this.my) {
+            this.events1[i] = {
+              type: element.filter.event,
+              title: element.Title,
+              cat: cat,
+              foryou: element.filter.cat.find(ca => ca === this.categorie(this.infos.privat.geburtsdatum)),
+              caption: 'in ' + element.ort,
+              description: element.beschreibung,
+              to: '/',
+              datumvoll: datumvoll,
+              date: element.Datum[0].toDate().getDate() + '',
+              day: this.weekDayNames[element.Datum[0].toDate().getDay()],
+              datum: element.Datum[0].toDate(),
+              tag: `_date-${element.Datum[0].toDate().getDate()}-${element.Datum[0].toDate().getMonth()}-${element.Datum[0].toDate().getFullYear()}`,
+            }
+          } else if (element.filter.cat.find(ca => ca === this.categorie(this.infos.privat.geburtsdatum))) {
+            this.events1[this.events1.length] = {
+              type: element.filter.event,
+              title: element.Title,
+              cat: cat,
+              foryou: element.filter.cat.find(ca => ca === this.categorie(this.infos.privat.geburtsdatum)),
+              caption: 'in ' + element.ort,
+              description: element.beschreibung,
+              to: '/',
+              date: element.Datum[0].toDate().getDate() + '',
+              day: this.weekDayNames[element.Datum[0].toDate().getDay()],
+              datum: element.Datum[0].toDate(),
+              tag: `_date-${element.Datum[0].toDate().getDate()}-${element.Datum[0].toDate().getMonth()}-${element.Datum[0].toDate().getFullYear()}`,
+            }
           }
         }
-        console.log(criteriaMatchs)
-        var arrangeArray = []
-        for (let i = 0; i < criteriaMatchs.length; i++) {
-          this.matches = criteriaMatchs[i]
-          arrangeArray[i] = { [name]: this.matches, items: this.filterArray(array, filters) }
-          console.log(this.filterArray(array, filters))
-          console.log(arrangeArray)
+        this.eventsOrderd = this.rightOrder()
+        console.log('this is the order: ', this.rightOrder())
+        this.forcereload()
+      },
+      rightOrder () {
+        var item
+        var i = 0
+        var groups = {}
+        var year = ''
+        var month = ''
+        var day = ''
+        console.log('Array: ', this.events1)
+        while (this.events1[i]) {
+          item = this.events1[i]
+          item = item.datum
+          console.log('Item: ', item)
+          year = item.getFullYear()
+          month = item.getMonth()
+          day = item.getDate()
+          groups[year] || (groups[year] = {}) // exists OR create {}
+          groups[year][month] || (groups[year][month] = {}) // exists OR create {}
+          groups[year][month][day] || (groups[year][month][day] = []) // exists OR create []
+          groups[year][month][day].push(this.events1[i])
+          i++
         }
-        return arrangeArray
-      }, */
+        return groups
+      },
       compare (a, b) {
         // Use toUpperCase() to ignore character casing
         const datumA = a.Datum[0].toDate()
@@ -642,56 +714,21 @@
           this.$nextTick(function () {
             setTimeout(() => {
               this.changeText()
-            }, 1000)
+            }, 200)
           })
         }, 1000)
+      },
+      update () {
+        this.loading = true
+        this.$store.commit({ type: 'userfirebase/updateEvents' })
+        setTimeout(() => {
+          this.loading = false
+          this.forceupdate++
+        }, 2000)
       },
       convertDate (date) {
         const options = { weekday: 'long', year: 'numeric', month: 'numeric', day: 'numeric' }
         return date.toDate().toLocaleDateString('de-DE', options)
-      },
-      storeEvents () {
-        this.events1 = []
-        for (let i = 0; i < this.events2.length; i++) {
-          const element = this.events2[i]
-          var cat = ''
-          element.filter.cat.forEach(element2 => {
-            cat += element2 + ' / '
-          })
-          var datumvoll = ''
-          if (element.Datum[0].seconds === element.Datum[1].seconds) {
-            datumvoll = this.convertDate(element.Datum[0])
-          } else {
-            datumvoll = this.convertDate(element.Datum[0]) + ' - ' + this.convertDate(element.Datum[1])
-          }
-          if (!this.my) {
-            this.events1[i] = {
-              type: element.filter.event,
-              title: element.Title,
-              cat: cat,
-              foryou: element.filter.cat.find(ca => ca === this.categorie(this.infos.privat.geburtsdatum)),
-              caption: 'in ' + element.ort,
-              description: element.beschreibung,
-              to: '/',
-              datumvoll: datumvoll,
-              date: element.Datum[0].toDate().getDate() + '',
-              day: 'TUE',
-            }
-          } else if (element.filter.cat.find(ca => ca === this.categorie(this.infos.privat.geburtsdatum))) {
-            this.events1[i] = {
-              type: element.filter.event,
-              title: element.Title,
-              cat: cat,
-              foryou: element.filter.cat.find(ca => ca === this.categorie(this.infos.privat.geburtsdatum)),
-              caption: 'in ' + element.ort,
-              description: element.beschreibung,
-              to: '/',
-              date: element.Datum[0].toDate().getDate() + '',
-              day: 'TUE',
-            }
-          }
-        }
-        this.forcereload()
       },
       filterArray (array, filters) {
         const filterKeys = Object.keys(filters)
@@ -763,7 +800,7 @@
       },
       changeText () {
         for (var i = 0; i < this.events1.length; i++) {
-          var svgObject = document.getElementById(`_date-${i}`).contentDocument
+          var svgObject = document.getElementById(`${this.events1[i].tag}`).contentDocument
           var date = svgObject.getElementById('date')
           var day = svgObject.getElementById('day')
           date.textContent = this.events1[i].date
@@ -777,6 +814,7 @@
 <style
   lang="sass"
 >
+
   .pointer
     cursor: pointer
 

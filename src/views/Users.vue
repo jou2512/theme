@@ -181,7 +181,7 @@
                 <v-btn
                   color="blue darken-1"
                   text
-                  @click="deleteItemConfirm"
+                  @click="deleteUserConfirm"
                 >OK</v-btn>
                 <v-spacer></v-spacer>
               </v-card-actions>
@@ -210,7 +210,7 @@
         <v-icon
           small
           class="mr-2"
-          @click="deleteItem(item)"
+          @click="deleteUser(item)"
         >
           mdi-delete
         </v-icon>
@@ -255,7 +255,7 @@
               >Account Entblockieren</v-list-item-title>
             </v-list-item>
             <v-list-item
-              @click="addAdminRole(item, !item.adim)"
+              @click="addAdminRole(item, !item.admin)"
             >
               <v-list-item-avatar
                 style="height: inherit;"
@@ -297,9 +297,7 @@
   import firebase from 'firebase/app'
   import 'firebase/functions'
   import { get } from 'vuex-pathify'
-  import db, { useUsers } from '../Firebase/init'
-
-  const { users } = useUsers()
+  import db from '../Firebase/init'
 
   export default {
     name: 'RegularTablesView',
@@ -412,15 +410,24 @@
         this.dialog = true
       },
 
-      deleteItem (item) {
-        db.collection('users').doc(item.uid).delete()
-        this.$store.commit({ type: 'userfirebase/updateAllData' })
+      deleteUser (item) {
         this.dialogDelete = true
+        this.editedItem = Object.assign({}, item)
       },
 
-      deleteItemConfirm () {
-        this.mitglieder.splice(this.editedIndex, 1)
-        this.closeDelete()
+      deleteUserConfirm () {
+        this.loading = true
+        const deleteUser = firebase.functions().httpsCallable('deleteUser')
+        deleteUser({ uid: this.editedItem.uid }).then(result => {
+          console.log(result)
+          this.closeDelete()
+          setTimeout(() => {
+            this.update()
+          }, 2000)
+        }).catch((error) => {
+          console.log(error)
+          this.loading = false
+        })
       },
 
       close () {

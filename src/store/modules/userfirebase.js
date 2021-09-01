@@ -181,6 +181,8 @@ const mutations = {
         }
       }
       const events = values[2].docs.map(doc => ({ uid: doc.id, ...doc.data() }))
+      state.events = []
+      console.log(events)
       for (let i = 0; i < values[2].docs.length; i++) {
         state.events[i] = { ID: i, ...events[i] }
       }
