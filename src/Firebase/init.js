@@ -132,8 +132,27 @@ export function useChat () {
       }
     })
   }
+
+  const clearChats = () => {
+    var userIds
+    usersCollection.get().then((docs) => {
+      userIds = docs.docs.map(doc => (doc.id))
+      console.log(userIds)
+    })
+    var chatPartner
+    chatCollection.get().then((docs) => {
+      chatPartner = docs.docs.map(doc => ({ id: doc.id, users: doc.data().users }))
+      console.log(chatPartner)
+      chatPartner.forEach(element => {
+        if (!(userIds.includes(element.users[0]) && userIds.includes(element.users[1]))) {
+          chatCollection.doc(element.id).delete()
+        }
+      })
+    })
+  }
+
   const getChats = () => {
-    console.log(authService.user.uid)
+    clearChats()
     chatCollection.where('users', 'array-contains', authService.user.uid).orderBy('lastMessage', 'asc').limit(100).onSnapshot(snapshot => {
       console.log('Alle Chats: ', snapshot)
       chats.value = snapshot.docs

@@ -69,13 +69,17 @@
                     v-for="(year, y) in eventsOrderd"
                     :key="y"
                   >
-                    <p class="mb-n1 font-weight-black text-h3">{{ y }}</p>
+                    <p class="mb-n1 font-weight-black text-h3">
+                      {{ y }}
+                    </p>
                     <div
-                      class="py-2"
                       v-for="(month, m) in year"
                       :key="m"
+                      class="py-2"
                     >
-                      <p class="mb-0 font-weight-medium text-h4">{{ monthNames[m] }}</p>
+                      <p class="mb-0 font-weight-medium text-h4">
+                        {{ monthNames[m] }}
+                      </p>
                       <v-divider
                         class="mb-6"
                       />
@@ -227,6 +231,12 @@
                   Datum
                 </v-subheader>
                 <v-container>
+                  <default-turnier-info
+                    title="Testen"
+                    event="Turnier"
+                    ort="Zürich"
+                    datum="02.05.21 - 03.05.21 (SA/SO)"
+                  />
                   <v-row
                     justify="center"
                     no-gutters
@@ -317,8 +327,8 @@
                             clearable
                             dense
                             readonly
-                            @click:clear="FilterIt()"
                             v-bind="attrs"
+                            @click:clear="FilterIt()"
                             v-on="on"
                           />
                         </template>
@@ -439,6 +449,13 @@
   import firebase from 'firebase/app'
   export default {
     name: 'NotificationsView',
+
+    components: {
+      DefaultTurnierInfo: () => import(
+        /* webpackChunkName: "default-account" */
+        '../layouts/default/widgets/TurnierDialog.vue'
+      ),
+    },
 
     data: () => ({
       loading: false,

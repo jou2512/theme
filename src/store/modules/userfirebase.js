@@ -3,6 +3,7 @@ import { make } from 'vuex-pathify'
 import firebase from 'firebase/app'
 import 'firebase/auth'
 import db, { authService } from '../../Firebase/init'
+import store from '../index'
 const age = (createdAt) => {
   var startTime = createdAt
   var endTime = firebase.firestore.Timestamp.fromDate(new Date())
@@ -148,7 +149,7 @@ const mutations = {
 
     return Promise.all([promise1, promise2, promise3, promise4, promise5]).then((values) => {
       state.infos = values[0].data()
-      this.$store.state.notifications.notifications = values[4].docs.map(doc => ({ id: doc.id, ...doc.data() }))
+      store.state.notifications.notifications = values[4].docs.map(doc => ({ id: doc.id, ...doc.data() }))
       const user = values[1].docs.map(doc => ({ id: doc.id, ...doc.data() }))
       for (let i = 0; i < values[1].docs.length; i++) {
         state.mitglieder[i] = {

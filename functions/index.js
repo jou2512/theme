@@ -37,7 +37,7 @@ exports.deactivateUser = functions
     });
 exports.deleteUser = functions
     .https.onCall((data, context) => {
-      return admin.auth().deleteUsers(data.uid).then(() => {
+      return admin.auth().deleteUsers([data.uid]).then(() => {
         return {
           message:
             `Success! ${data.uid} has been Deleted`,

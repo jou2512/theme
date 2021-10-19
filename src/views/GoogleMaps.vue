@@ -38,7 +38,7 @@
           <v-toolbar-title v-if="$refs.calendar">
             {{ $refs.calendar.title }}
           </v-toolbar-title>
-          <v-spacer></v-spacer>
+          <v-spacer />
           <v-menu
             bottom
             right
@@ -85,7 +85,7 @@
           @click:more="viewDay"
           @click:date="viewDay"
           @change="updateRange"
-        ></v-calendar>
+        />
         <v-menu
           v-model="selectedOpen"
           :close-on-content-click="false"
@@ -104,8 +104,8 @@
               <v-btn icon>
                 <v-icon>mdi-pencil</v-icon>
               </v-btn>
-              <v-toolbar-title v-html="selectedEvent.name"></v-toolbar-title>
-              <v-spacer></v-spacer>
+              <v-toolbar-title v-html="selectedEvent.name" />
+              <v-spacer />
               <v-btn icon>
                 <v-icon>mdi-heart</v-icon>
               </v-btn>
@@ -114,7 +114,7 @@
               </v-btn>
             </v-toolbar>
             <v-card-text>
-              <span v-html="selectedEvent.details"></span>
+              <span v-html="selectedEvent.details" />
             </v-card-text>
             <v-card-actions>
               <v-btn

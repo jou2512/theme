@@ -19,7 +19,6 @@
           <v-card
             :key="key"
           >
-
             <v-app-bar
               flat
               color="rgba(0,0,0,0)"
@@ -30,7 +29,7 @@
                 Chat
               </v-toolbar-title>
 
-              <v-spacer></v-spacer>
+              <v-spacer />
               <v-btn
                 icon
               >
@@ -63,8 +62,10 @@
                       <img :src="data.item.avatar">
                     </v-list-item-avatar>
                     <v-list-item-content>
-                      <v-list-item-title v-html="data.item.title"></v-list-item-title>
-                      <v-list-item-subtitle v-html="data.item.funktionen"></v-list-item-subtitle>
+                      <v-list-item-title v-html="data.item.title" />
+                      <v-list-item-subtitle>
+                        {{ data.item.funktionen.toString() }}
+                      </v-list-item-subtitle>
                     </v-list-item-content>
                   </template>
                 </template>
@@ -103,7 +104,7 @@
                       <v-list-item-avatar>
                         <v-img
                           :src="getAvatar(item)"
-                        ></v-img>
+                        />
                       </v-list-item-avatar>
                     </v-badge>
                     <template>
@@ -111,15 +112,15 @@
                         <v-list-item-title
                           v-if="item.type === 'chat'"
                           v-text="getTitle(item)"
-                        ></v-list-item-title>
+                        />
                         <v-list-item-title
                           v-else
                           v-text="item.title"
-                        ></v-list-item-title>
+                        />
 
                         <v-list-item-subtitle
                           v-text="item.lastMessage === null ? '' : 'Last Message ' + convertTime(item.lastMessage) + ' ago'"
-                        ></v-list-item-subtitle>
+                        />
                       </v-list-item-content>
                     </template>
                   </v-list-item>
@@ -127,13 +128,15 @@
                   <v-divider
                     v-if="index < mitgliederkeineKinder.length - 1"
                     :key="index"
-                  ></v-divider>
+                  />
                 </template>
               </v-list-item-group>
               <template
                 v-else
               >
-                <h3 class="text-center red--text font-weight-thin py-5">Du hast momentan noch keine Chats</h3>
+                <h3 class="text-center red--text font-weight-thin py-5">
+                  Du hast momentan noch keine Chats
+                </h3>
               </template>
             </v-list>
           </v-card>
@@ -166,7 +169,7 @@
                 >
                   <img
                     :src="getAvatar(chats[selected])"
-                  />
+                  >
                 </v-avatar>
               </v-badge>
               <v-toolbar-title
@@ -174,53 +177,53 @@
               >
                 {{ getTitle(chats[selected]) }}
               </v-toolbar-title>
-              <v-spacer></v-spacer>
-                <v-toolbar-title
-                  v-if="chats[selected].type === 'chat' ? false : true"
-                  class="text-h6 pl-0 mr-2 mt-n4"
+              <v-spacer />
+              <v-toolbar-title
+                v-if="chats[selected].type === 'chat' ? false : true"
+                class="text-h6 pl-0 mr-2 mt-n4"
+              >
+                Members
+                :
+              </v-toolbar-title>
+              <template
+                v-if="chats[selected].type === 'chat' ? false : true"
+              >
+                <v-btn
+                  color="blue"
+                  icon
+                  class="mt-n5 mr-n2"
+                  outlined
+                  max-height="35"
+                  max-width="35"
                 >
-                  Members
-                  :
-                </v-toolbar-title>
-                <template
-                  v-if="chats[selected].type === 'chat' ? false : true"
+                  <v-icon>
+                    mdi-plus
+                  </v-icon>
+                </v-btn>
+                <v-avatar
+                  class="mt-n5 mr-2"
+                  size="30"
+                  elevation="10"
                 >
-                  <v-btn
-                    color="blue"
-                    icon
-                    class="mt-n5 mr-n2"
-                    outlined
-                    max-height="35"
-                    max-width="35"
+                  <img
+                    src="https://cdn.vuetifyjs.com/images/lists/5.jpg"
                   >
-                    <v-icon>
-                      mdi-plus
-                    </v-icon>
-                  </v-btn>
-                  <v-avatar
-                    class="mt-n5 mr-2"
-                    size="30"
-                    elevation="10"
-                  >
-                    <img
-                      src="https://cdn.vuetifyjs.com/images/lists/5.jpg"
-                    />
-                  </v-avatar>
-                  <v-divider
-                    vertical
-                    inset
-                    class="mt-n1"
-                  ></v-divider>
-                  <v-btn
-                    color="black"
-                    icon
-                    class="mt-n5"
-                  >
-                    <v-icon>
-                      mdi-cog
-                    </v-icon>
-                  </v-btn>
-                </template>
+                </v-avatar>
+                <v-divider
+                  vertical
+                  inset
+                  class="mt-n1"
+                />
+                <v-btn
+                  color="black"
+                  icon
+                  class="mt-n5"
+                >
+                  <v-icon>
+                    mdi-cog
+                  </v-icon>
+                </v-btn>
+              </template>
             </v-app-bar>
 
             <v-divider />
@@ -241,7 +244,7 @@
                   flat
                   class="mb-16"
                 >
-                  <v-spacer></v-spacer>
+                  <v-spacer />
                   <v-btn
                     color="black"
                     icon
@@ -290,7 +293,7 @@
                     >
                       <img
                         :src="avatar"
-                      />
+                      >
                     </v-avatar>
                   </v-badge>
                 </v-app-bar>
@@ -315,7 +318,7 @@
                     >
                       <img
                         :src="getAvatar(chats[selected])"
-                      />
+                      >
                     </v-avatar>
                   </v-badge>
                   <v-card
@@ -418,7 +421,7 @@
                 >
                   <img
                     :src="getAvatar(chats[selected])"
-                  />
+                  >
                 </v-avatar>
               </v-badge>
               <v-card-title
@@ -431,11 +434,11 @@
               >
                 {{ getFunktionen(chats[selected]).toString() }}
               </v-card-subtitle>
-              <v-list></v-list>
+              <v-list />
             </v-card>
             <v-expansion-panels
-              class="px-3"
               v-model="panel"
+              class="px-3"
               multiple
             >
               <v-expansion-panel
@@ -482,15 +485,15 @@
                       <v-btn
                         color="red lighten-2"
                         dark
-                        @click="dialog=false"
                         max-width="100"
                         right
+                        @click="dialog=false"
                       >
                         close
                       </v-btn>
                       <embed
                         src="https://firebasestorage.googleapis.com/v0/b/fechtgesellschaft-1.appspot.com/o/Fragebogen%20PISTE-Test_DE3.pdf?alt=media&token=4edfa7b1-66d4-4a3e-95e8-39343bfb3f21#view=FitH"
-                      />
+                      >
                     </v-dialog>
                   </div>
                 </v-expansion-panel-content>
@@ -569,14 +572,14 @@
                       >
                         <v-list-item-icon>
                           <v-icon
-                            v-text="item.icon"
                             color="green"
-                          ></v-icon>
+                            v-text="item.icon"
+                          />
                         </v-list-item-icon>
                         <v-list-item-content>
                           <v-list-item-title
                             v-text="item.text"
-                          ></v-list-item-title>
+                          />
                         </v-list-item-content>
                       </v-list-item>
                     </v-list-item-group>
@@ -767,8 +770,6 @@
       getAvatar (selected) {
         const userIndex = selected.users.indexOf(authService.user.uid)
         const uid = selected.users[1 - userIndex]
-        console.log(uid)
-        console.log(this.mitgliederkeineKinder)
         const inf = this.mitgliederkeineKinder.find(mitglied => mitglied.uid === uid)
         return inf.avatar
       },

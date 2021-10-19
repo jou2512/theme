@@ -12,8 +12,8 @@
         min-width="0"
         text
         v-bind="attrs"
-        v-on="on"
         :disabled="notificationsLength===0"
+        v-on="on"
       >
         <v-badge
           v-if="notificationsLength>0"

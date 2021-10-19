@@ -10,11 +10,11 @@
       style="height: 200px"
     />
     <v-data-table
+      :key="forceupdate"
       :headers="headers"
       :items="mitglieder"
       :search="search"
       :loading="loading"
-      :key="forceupdate"
       show-group-by
       class="elevation-1 rounded-lg"
     >
@@ -65,7 +65,7 @@
             class="mx-4"
             inset
             vertical
-          ></v-divider>
+          />
           <v-btn
             icon
             small
@@ -77,7 +77,7 @@
               mdi-refresh
             </v-icon>
           </v-btn>
-          <v-spacer></v-spacer>
+          <v-spacer />
           <v-dialog
             v-model="dialog"
             max-width="500px"
@@ -110,7 +110,7 @@
                       <v-text-field
                         v-model="editedItem.title"
                         label="Name"
-                      ></v-text-field>
+                      />
                     </v-col>
                     <v-col
                       cols="12"
@@ -120,7 +120,7 @@
                       <v-text-field
                         v-model="editedItem.email"
                         label="Emailaddresse"
-                      ></v-text-field>
+                      />
                     </v-col>
                     <v-col
                       cols="12"
@@ -130,7 +130,7 @@
                       <v-text-field
                         v-model="editedItem.subtitle"
                         label="Alter"
-                      ></v-text-field>
+                      />
                     </v-col>
                     <v-col
                       cols="12"
@@ -140,14 +140,14 @@
                       <v-text-field
                         v-model="editedItem.tag"
                         label="Categorie"
-                      ></v-text-field>
+                      />
                     </v-col>
                   </v-row>
                 </v-container>
               </v-card-text>
 
               <v-card-actions>
-                <v-spacer></v-spacer>
+                <v-spacer />
                 <v-btn
                   color="blue darken-1"
                   text
@@ -170,20 +170,26 @@
             max-width="500px"
           >
             <v-card>
-              <v-card-title class="text-h5">Are you sure you want to delete this User?</v-card-title>
+              <v-card-title class="text-h5">
+                Are you sure you want to delete this User?
+              </v-card-title>
               <v-card-actions>
-                <v-spacer></v-spacer>
+                <v-spacer />
                 <v-btn
                   color="blue darken-1"
                   text
                   @click="closeDelete"
-                >Cancel</v-btn>
+                >
+                  Cancel
+                </v-btn>
                 <v-btn
                   color="blue darken-1"
                   text
                   @click="deleteUserConfirm"
-                >OK</v-btn>
-                <v-spacer></v-spacer>
+                >
+                  OK
+                </v-btn>
+                <v-spacer />
               </v-card-actions>
             </v-card>
           </v-dialog>
@@ -192,7 +198,7 @@
           v-model="search"
           label="Search"
           class="mx-4"
-        ></v-text-field>
+        />
       </template>
       <template v-slot:item.actions="{ item }">
         <v-icon
@@ -249,10 +255,14 @@
               </v-list-item-avatar>
               <v-list-item-title
                 v-if="!item.gesperrt"
-              >Account Blockieren</v-list-item-title>
+              >
+                Account Blockieren
+              </v-list-item-title>
               <v-list-item-title
                 v-else
-              >Account Entblockieren</v-list-item-title>
+              >
+                Account Entblockieren
+              </v-list-item-title>
             </v-list-item>
             <v-list-item
               @click="addAdminRole(item, !item.admin)"
@@ -273,10 +283,14 @@
               </v-list-item-avatar>
               <v-list-item-title
                 v-if="!item.admin"
-              >Zum Admin machen</v-list-item-title>
+              >
+                Zum Admin machen
+              </v-list-item-title>
               <v-list-item-title
                 v-else
-              >Admin Rolle Entfernen</v-list-item-title>
+              >
+                Admin Rolle Entfernen
+              </v-list-item-title>
             </v-list-item>
           </v-list>
         </v-menu>
@@ -417,17 +431,27 @@
 
       deleteUserConfirm () {
         this.loading = true
-        const deleteUser = firebase.functions().httpsCallable('deleteUser')
-        deleteUser({ uid: this.editedItem.uid }).then(result => {
-          console.log(result)
+        if (this.editedItem.uid.length > 20) {
+          this.dialogDelete = false
+          const deleteUser = firebase.functions().httpsCallable('deleteUser')
+          deleteUser({ uid: this.editedItem.uid }).then(result => {
+            console.log(result)
+            db.collection('users').doc(this.editedItem.uid).delete()
+            this.closeDelete()
+            setTimeout(() => {
+              this.update()
+            }, 2000)
+          }).catch((error) => {
+            console.log(error)
+            this.loading = false
+          })
+        } else {
+          db.collection('users').doc(this.editedItem.uid).delete()
           this.closeDelete()
           setTimeout(() => {
             this.update()
           }, 2000)
-        }).catch((error) => {
-          console.log(error)
-          this.loading = false
-        })
+        }
       },
 
       close () {

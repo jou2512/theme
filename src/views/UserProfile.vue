@@ -97,7 +97,9 @@
                 class="mb-1 text-center white--text"
                 color="red"
                 @click="vKonntoback()"
-              >Zurück</v-btn>
+              >
+                Zurück
+              </v-btn>
             </v-card-title>
             <v-card-subtitle>
               <v-divider />
@@ -137,14 +139,14 @@
                           <v-icon
                             class="mx-2"
                             color="black"
-                            v-text="icons[1]"
                             @click="vKonntoBearbeiten(index)"
+                            v-text="icons[1]"
                           />
                           <v-icon
                             class="mx-2"
                             color="black"
-                            v-text="icons[2]"
                             @click="vKonntoLöschen(index)"
+                            v-text="icons[2]"
                           />
                         </v-list-item-icon>
                       </v-list-item>
@@ -159,7 +161,9 @@
             <div
               v-if="userVerküpfteKonnten.length === 0"
               class="font-weight-black"
-            >Keine Konten Verknüpft</div>
+            >
+              Keine Konten Verknüpft
+            </div>
           </v-card>
         </v-col>
         <v-col
@@ -264,7 +268,7 @@
                       disabled
                       label="Funktionen"
                       multiple
-                    ></v-select>
+                    />
                   </v-col>
 
                   <v-col
@@ -461,7 +465,7 @@
             >
               <v-progress-circular
                 indeterminate
-              ></v-progress-circular>
+              />
             </v-overlay>
           </material-card>
         </v-col>

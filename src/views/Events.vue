@@ -10,10 +10,10 @@
       style="height: 200px"
     />
     <v-data-table
+      :key="forceupdate"
       :headers="headers"
       :items="events"
       item-key="Title"
-      :key="forceupdate"
       :search="search"
       :loading="loading"
       :expanded="expanded"
@@ -30,7 +30,7 @@
           <v-container>
             <v-row>
               <v-col>
-                  <h3> Info about {{ item.Title }} </h3>
+                <h3> Info about {{ item.Title }} </h3>
               </v-col>
             </v-row>
             <v-row
@@ -57,8 +57,12 @@
                   item-text="title"
                   item-value="link"
                   solo
-                ></v-select>
+                />
                 <div class="text-center">
+                  <default-event-dialog
+                    :dialog="dialog3"
+                    :dokument="item.turnierausschreibung"
+                  />
                   <v-dialog
                     v-model="dialog3"
                     height="50vh"
@@ -76,16 +80,16 @@
                     <v-btn
                       color="red lighten-2"
                       dark
-                      @click="dialog3=false"
                       max-width="100"
                       right
+                      @click="dialog3=false"
                     >
                       close
                     </v-btn>
                     <embed
                       :key="item.turnierausschreibung"
                       :src="item.turnierausschreibung"
-                    />
+                    >
                   </v-dialog>
                 </div>
               </v-col>
@@ -117,7 +121,7 @@
             class="mx-4"
             inset
             vertical
-          ></v-divider>
+          />
           <v-btn
             icon
             small
@@ -129,7 +133,7 @@
               mdi-refresh
             </v-icon>
           </v-btn>
-          <v-spacer></v-spacer>
+          <v-spacer />
           <v-dialog
             v-model="dialog2"
             max-width="500px"
@@ -154,7 +158,7 @@
                   label="Search"
                   single-line
                   hide-details
-                ></v-text-field>
+                />
               </v-card-title>
               <v-card-text>
                 <v-container>
@@ -182,46 +186,46 @@
                 <v-card-actions
                   class="d-flex justify-center"
                 >
-                    <v-row
-                      no-gutters
+                  <v-row
+                    no-gutters
+                  >
+                    <v-col
+                      cols="6"
                     >
-                      <v-col
-                        cols="6"
+                      <v-file-input
+                        v-model="files"
+                        dense
+                        outlined
+                        accept=".pdf"
+                        label="File input"
+                        placeholder="Select your files"
+                        prepend-icon="mdi-paperclip"
+                        color="blue"
+                      />
+                    </v-col>
+                    <v-col
+                      cols="3"
+                      class="d-flex justify-end"
+                    >
+                      <v-btn
+                        color="green darken-1"
+                        type="submit"
                       >
-                        <v-file-input
-                          v-model="files"
-                          dense
-                          outlined
-                          accept=".pdf"
-                          label="File input"
-                          placeholder="Select your files"
-                          prepend-icon="mdi-paperclip"
-                          color="blue"
-                        ></v-file-input>
-                      </v-col>
-                      <v-col
-                        cols="3"
-                        class="d-flex justify-end"
+                        Upload
+                      </v-btn>
+                    </v-col>
+                    <v-col
+                      cols="3"
+                      class="d-flex justify-end"
+                    >
+                      <v-btn
+                        color="red darken-1"
+                        @click="dialog2 = false, files = []"
                       >
-                        <v-btn
-                          color="green darken-1"
-                          type="submit"
-                        >
-                          Upload
-                        </v-btn>
-                      </v-col>
-                      <v-col
-                        cols="3"
-                        class="d-flex justify-end"
-                      >
-                        <v-btn
-                          color="red darken-1"
-                          @click="dialog2 = false, files = []"
-                        >
-                          Close
-                        </v-btn>
-                      </v-col>
-                    </v-row>
+                        Close
+                      </v-btn>
+                    </v-col>
+                  </v-row>
                 </v-card-actions>
               </form>
             </v-card>
@@ -267,12 +271,12 @@
                         item-value="tag"
                         label="Event Yype"
                         solo
-                      ></v-select>
+                      />
                     </v-col>
                   </v-row>
                   <v-divider
                     class="mb-5"
-                  ></v-divider>
+                  />
                   <template>
                     <v-row>
                       <v-col
@@ -285,12 +289,12 @@
                           outlined
                           hide-details
                           label="Event Title"
-                        ></v-text-field>
+                        />
                       </v-col>
                     </v-row>
                     <v-divider
                       class="my-5"
-                    ></v-divider>
+                    />
                     <v-row>
                       <v-col
                         cols="12"
@@ -446,12 +450,12 @@
                           item-text="title"
                           item-value="link"
                           solo
-                        ></v-select>
+                        />
                       </v-col>
                     </v-row>
                     <v-divider
                       class="my-5"
-                    ></v-divider>
+                    />
                     <v-row>
                       <v-col
                         v-if="GetBool[newEvent.type].categorie"
@@ -486,7 +490,7 @@
                                 </v-list-item-title>
                               </v-list-item-content>
                             </v-list-item>
-                            <v-divider class="mt-2"></v-divider>
+                            <v-divider class="mt-2" />
                           </template>
                         </v-select>
                       </v-col>
@@ -502,7 +506,7 @@
                           item-text="name"
                           item-value="tag"
                           label="Region"
-                        ></v-select>
+                        />
                       </v-col>
                       <v-col
                         v-if="GetBool[newEvent.type].nationalität"
@@ -555,7 +559,7 @@
                     </v-row>
                     <v-divider
                       class="my-5"
-                    ></v-divider>
+                    />
                     <v-row>
                       <v-col
                         v-if="GetBool[newEvent.type].relevanz"
@@ -568,12 +572,12 @@
                           outlined
                           hide-details
                           label="Ort"
-                        ></v-text-field>
+                        />
                       </v-col>
                     </v-row>
                     <v-divider
                       class="my-5"
-                    ></v-divider>
+                    />
                     <v-row>
                       <v-col
                         v-if="GetBool[newEvent.type].starttime"
@@ -628,14 +632,14 @@
                                   outlined
                                   hide-details
                                   label="time"
-                                ></v-text-field>
+                                />
                               </template>
                             </v-edit-dialog>
                           </template>
                           <template v-slot:footer>
                             <v-divider
                               class="my-3"
-                            ></v-divider>
+                            />
                             <div class="d-flex justify-center">
                               <v-btn
                                 class="mb-3"
@@ -662,7 +666,7 @@
                 </v-container>
               </v-card-text>
               <v-card-actions>
-                <v-spacer></v-spacer>
+                <v-spacer />
                 <v-btn
                   color="blue darken-1"
                   text
@@ -685,20 +689,26 @@
             max-width="500px"
           >
             <v-card>
-              <v-card-title class="text-h5">Are you sure you want to delete this User?</v-card-title>
+              <v-card-title class="text-h5">
+                Are you sure you want to delete this User?
+              </v-card-title>
               <v-card-actions>
-                <v-spacer></v-spacer>
+                <v-spacer />
                 <v-btn
                   color="blue darken-1"
                   text
                   @click="closeDelete"
-                >Cancel</v-btn>
+                >
+                  Cancel
+                </v-btn>
                 <v-btn
                   color="blue darken-1"
                   text
                   @click="deleteItemConfirm"
-                >OK</v-btn>
-                <v-spacer></v-spacer>
+                >
+                  OK
+                </v-btn>
+                <v-spacer />
               </v-card-actions>
             </v-card>
           </v-dialog>
@@ -707,7 +717,7 @@
           v-model="search"
           label="Search"
           class="mx-4"
-        ></v-text-field>
+        />
       </template>
       <template v-slot:item.actions="{ item }">
         <v-icon
@@ -773,6 +783,13 @@
 
   export default {
     name: 'RegularTablesView',
+
+    components: {
+      DefaultEventDialog: () => import(
+        /* webpackChunkName: "default-account" */
+        '../layouts/default/widgets/EventDialog.vue'
+      ),
+    },
 
     data () {
       return {
@@ -1158,11 +1175,4 @@
   }
 </script>
 <style>
-  .v-dialog {
-    height: 100% !important;
-  }
-  .v-dialog > * {
-    width: 100% !important;
-    height: 100%;
-  }
 </style>
