@@ -63,34 +63,6 @@
                     :dialog="dialog3"
                     :dokument="item.turnierausschreibung"
                   />
-                  <v-dialog
-                    v-model="dialog3"
-                    height="50vh"
-                  >
-                    <template v-slot:activator="{ on, attrs }">
-                      <v-btn
-                        color="red lighten-2"
-                        dark
-                        v-bind="attrs"
-                        v-on="on"
-                      >
-                        Öffne Turnierbeschreibung
-                      </v-btn>
-                    </template>
-                    <v-btn
-                      color="red lighten-2"
-                      dark
-                      max-width="100"
-                      right
-                      @click="dialog3=false"
-                    >
-                      close
-                    </v-btn>
-                    <embed
-                      :key="item.turnierausschreibung"
-                      :src="item.turnierausschreibung"
-                    >
-                  </v-dialog>
                 </div>
               </v-col>
               <v-col
@@ -690,7 +662,7 @@
           >
             <v-card>
               <v-card-title class="text-h5">
-                Are you sure you want to delete this User?
+                Are you sure you want to delete this Event?
               </v-card-title>
               <v-card-actions>
                 <v-spacer />
