@@ -232,10 +232,7 @@
                 </v-subheader>
                 <v-container>
                   <default-turnier-info
-                    title="Testen"
-                    event="Turnier"
-                    ort="Zürich"
-                    datum="02.05.21 - 03.05.21 (SA/SO)"
+                    :event="events[0]"
                   />
                   <v-row
                     justify="center"

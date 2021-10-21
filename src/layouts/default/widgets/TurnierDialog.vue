@@ -24,7 +24,7 @@
       max-height="100vh"
     >
       <v-card-title>
-        <span class="text-h3 white--text">{{ title }}</span>
+        <span class="text-h3 white--text">{{ event.title }}</span>
       </v-card-title>
       <v-card-text>
         <v-row>
@@ -62,7 +62,7 @@
                           <v-container
                             class="d-flex justify-center pa-0"
                           >
-                            <span class="text-h4 font-weight-bold">Informationen - {{ event }} {{ ort }}</span>
+                            <span class="text-h4 font-weight-bold">Informationen - {{ event.filter.event }} {{ event.ort }}</span>
                           </v-container>
                         </v-col>
                       </v-row>
@@ -75,7 +75,7 @@
                           <v-container
                             class="d-flex justify-center pa-0"
                           >
-                            <span class="text-subtitle-1">{{ datum }}</span>
+                            <span class="text-subtitle-1">{{ makedatetitle(event.Datum) }}</span>
                           </v-container>
                         </v-col>
                       </v-row>
@@ -101,45 +101,148 @@
                           <v-subheader>Dokument</v-subheader>
                           <default-event-dialog
                             :dialog="dialog2"
-                            dokument="https://firebasestorage.googleapis.com/v0/b/fechtgesellschaft-1.appspot.com/o/Turnierausschreibungen%2FPROGRAMM%20BASLER%20MEISTERSCHAFTEN%202021.pdf?alt=media&token=3c2aa649-a60d-4506-a5d1-65384a6d8084"
+                            :dokument="event.turnierausschreibung"
                           />
                         </v-col>
                       </v-row>
                       <v-row>
                         <v-col>
                           <v-subheader>Details</v-subheader>
-                          <v-card>
-                            Hey Ich wollte Vorschlagen sich um etwa 6:30 bei der Fechtgesellschaft zu treffen.
-                            Ich würde die Kinder hinfahren und dann in der Stadt noch ein wenig Shoppen gehen, während die Trainer auf sie Aufpassen.
-                            Und sie Danach wieder nach hause fahren, ich werde euch dann hier Bescheid geben wenn wir alle fertig sind.
-                            Währe dies für alle in Ordnung?
+                          <v-card
+                            elevation="4"
+                            class="pa-2"
+                          >
+                            {{ event.beschreibung }}
                           </v-card>
                         </v-col>
                       </v-row>
                       <v-row>
                         <v-col>
                           <v-subheader>Karte</v-subheader>
-                          <iframe
-                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2701.746727715511!2d8.538133915875122!3d47.37786151174394!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47900a08cc0e6e41%3A0xf5c698b65f8c52a7!2sZ%C3%BCrich%20Hauptbahnhof!5e0!3m2!1sde!2sch!4v1631024969155!5m2!1sde!2sch"
+                          <v-card
+                            elevation="4"
+                            class="pa-0"
                             width="400"
                             height="300"
-                            style="border:0;"
-                            allowfullscreen=""
-                            loading="lazy"
                           >
+                            <iframe
+                              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2701.746727715511!2d8.538133915875122!3d47.37786151174394!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47900a08cc0e6e41%3A0xf5c698b65f8c52a7!2sZ%C3%BCrich%20Hauptbahnhof!5e0!3m2!1sde!2sch!4v1631024969155!5m2!1sde!2sch"
+                              width="400"
+                              height="300"
+                              style="border:0;"
+                              allowfullscreen=""
+                              loading="lazy"
+                            >
                           </iframe>
+                          </v-card>
                         </v-col>
                       </v-row>
                     </v-col>
                     <v-col>
                       <v-row>
                         <v-col>
+                          <v-card
+                            elevation="4"
+                            class="mt-4 text-center"
+                            min-height="100px"
+                          >
+                            <v-card-text
+                              class="py-0"
+                            >
+                              <v-row>
+                                <v-col
+                                  class="pa-0"
+                                >
+                                  <v-list
+                                    class="pa-0"
+                                  >
+                                    <template v-for="(chat, index) in userVerküpfteKonnten">
+                                      <v-list-item
+                                        :key="index"
+                                      >
+                                        <v-list-item-avatar>
+                                          <v-img
+                                            :alt="`${chat.login.avatar} avatar`"
+                                            :src="chat.login.avatar"
+                                          />
+                                        </v-list-item-avatar>
 
+                                        <v-list-item-content
+                                          class="text-left"
+                                        >
+                                          <v-list-item-title
+                                            v-text="chat.privat.firstName + ' ' + chat.privat.nachName"
+                                          />
+                                        </v-list-item-content>
+
+                                        <v-list-item-action>
+                                          <v-list-item-action-text
+                                            class="text-right"
+                                            :key="index"
+                                          >
+                                            {{ getcategorieandsize(chat) }}
+                                          </v-list-item-action-text>
+                                        </v-list-item-action>
+                                      </v-list-item>
+                                      <v-divider
+                                        :key="chat.privat.firstName"
+                                        v-if="!(index+1 === userVerküpfteKonnten.length)"
+                                      />
+                                    </template>
+                                  </v-list>
+                                </v-col>
+                              </v-row>
+                            </v-card-text>
+                            <div
+                              v-if="userVerküpfteKonnten.length === 0"
+                              class="font-weight-black"
+                            >
+                              Keine Konten Verknüpft
+                            </div>
+                          </v-card>
                         </v-col>
                       </v-row>
                       <v-row>
                         <v-col>
-
+                          <template
+                            v-for="i in event.days.length"
+                          >
+                            <v-subheader
+                              :key="event.days[i-1]"
+                            >
+                              {{ event.days[i-1] }}
+                            </v-subheader>
+                            <v-simple-table
+                              :key="i"
+                              dense
+                            >
+                              <template v-slot:default>
+                                <thead>
+                                  <tr>
+                                    <th class="text-left">
+                                      Kategorie
+                                    </th>
+                                    <th class="text-left">
+                                      Scratch
+                                    </th>
+                                    <th class="text-left">
+                                      Start
+                                    </th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  <tr
+                                    v-for="(item, index) in filterddays(i-1)"
+                                    :key="index"
+                                  >
+                                    <td>{{ item.cat }}</td>
+                                    <td>{{ item.time }}</td>
+                                    <td>{{ item.time }}</td>
+                                  </tr>
+                                </tbody>
+                              </template>
+                            </v-simple-table>
+                          </template>
                         </v-col>
                       </v-row>
                     </v-col>
@@ -147,6 +250,19 @@
                 </v-container>
               </v-card-text>
             </v-card>
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col
+            class="d-flex justify-center"
+          >
+            <v-btn
+              outline
+              color="primary"
+              dark
+            >
+              Anmelden
+            </v-btn>
           </v-col>
         </v-row>
       </v-card-text>
@@ -165,14 +281,16 @@
 </template>
 
 <script>
+  import { sync } from 'vuex-pathify'
+  import { useUsers } from '../../../Firebase/init'
+  import { categorie, weaponsize, convertDate } from '../../../util/helpers'
+  const { getInfUser } = useUsers()
+
   export default {
     name: 'TurnierDialog',
 
     props: {
-      title: String,
-      event: String,
-      ort: String,
-      datum: String,
+      event: Object,
     },
 
     components: {
@@ -186,7 +304,40 @@
       return {
         dialog: false,
         dialog2: false,
+        userVerküpfteKonnten: [],
+        updaterID: 0,
       }
+    },
+
+    computed: {
+      ...sync('userfirebase', [
+        'infos',
+      ]),
+    },
+
+    mounted () {
+      this.storeKonten()
+    },
+
+    methods: {
+      async storeKonten () {
+        this.userVerküpfteKonnten = []
+        for (let i = 0; i < this.infos.kinder.length; i++) {
+          this.userVerküpfteKonnten[i] = await getInfUser(this.infos.kinder[i])
+        }
+      },
+
+      getcategorieandsize (kind) {
+        return categorie(kind.privat.geburtsdatum) + ' || ' + weaponsize(kind.privat.geburtsdatum)
+      },
+
+      filterddays (day) {
+        return this.event.startzeiten.filter(v => v.day === this.event.days[day])
+      },
+
+      makedatetitle (date) {
+        return convertDate(date[0]) + ' - ' + convertDate(date[1])
+      },
     },
   }
 </script>

@@ -4,67 +4,7 @@ import firebase from 'firebase/app'
 import 'firebase/auth'
 import db, { authService } from '../../Firebase/init'
 import store from '../index'
-const age = (createdAt) => {
-  var startTime = createdAt
-  var endTime = firebase.firestore.Timestamp.fromDate(new Date())
-  var differenceInSeconds = endTime - startTime
-  var age = Math.floor(differenceInSeconds / 31536000)
-  console.log(startTime.toDate().getFullYear())
-  return age
-}
-const categorie = (geburtstag) => {
-  var year = geburtstag.toDate().getFullYear()
-  var thisyear = new Date().getFullYear()
-  var date1 = new Date('June 30, ' + thisyear)
-  var age = thisyear - year
-  console.log(age)
-  if (new Date() > date1) {
-    if (year > thisyear - 8) {
-      return 'Poussins / U8'
-    } else if (year > thisyear - 10) {
-      return 'Pupilles / U10'
-    } else if (year > thisyear - 12) {
-      return 'Benjamins / U12'
-    } else if (year > thisyear - 14) {
-      return 'Minimes / U14'
-    } else if (year > thisyear - 17) {
-      return 'Cadets / U17'
-    } else if (year > thisyear - 20) {
-      return 'Junioren / U20'
-    } else if (year > thisyear - 45) {
-      if (year >= thisyear - 23) {
-        return 'Senioren (U23)'
-      } else {
-        return 'Senioren'
-      }
-    } else {
-      return 'Veteranen'
-    }
-  } else {
-    thisyear--
-    if (year > thisyear - 8) {
-      return 'Poussins / U8'
-    } else if (year > thisyear - 10) {
-      return 'Pupilles / U10'
-    } else if (year > thisyear - 12) {
-      return 'Benjamins / U12'
-    } else if (year > thisyear - 14) {
-      return 'Minimes / U14'
-    } else if (year > thisyear - 17) {
-      return 'Cadets / U17'
-    } else if (year > thisyear - 20) {
-      return 'Junioren / U20'
-    } else if (year > thisyear - 45) {
-      if (year >= thisyear - 23) {
-        return 'Senioren (U23)'
-      } else {
-        return 'Senioren'
-      }
-    } else {
-      return 'Veteranen'
-    }
-  }
-}
+import { age, categorie } from '../../util/helpers'
 const state = {
   get: 0,
   infos: {
@@ -207,13 +147,7 @@ const mutations = {
 }
 
 const actions = {
-  age ({ state }, createdAt) {
-    var startTime = createdAt.createdAt
-    var endTime = firebase.firestore.Timestamp.fromDate(new Date())
-    var differenceInSeconds = endTime - startTime
-    var age = Math.floor(differenceInSeconds / 31536000)
-    return age
-  },
+//
 }
 
 const getters = {}

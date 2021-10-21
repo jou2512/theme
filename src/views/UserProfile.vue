@@ -84,7 +84,7 @@
             min-height="100px"
           >
             <v-card-title>
-              <strong>Verknüpte Konnten -</strong>
+              <strong>Verknüpte Konten -</strong>
               <v-icon
                 color="black"
                 v-text="'mdi-account-group'"
