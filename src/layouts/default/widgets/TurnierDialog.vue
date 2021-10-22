@@ -4,20 +4,6 @@
     fullscreen
     hide-overlay
   >
-    <template
-      v-slot:activator="{ on, attrs }"
-    >
-      <v-btn
-        color="primary"
-        dark
-        class="mb-2"
-        v-bind="attrs"
-        v-on="on"
-      >
-        Open
-        Turnament
-      </v-btn>
-    </template>
     <v-card
       class="overflow-y-auto"
       color="#313260"
@@ -257,7 +243,7 @@
             class="d-flex justify-center"
           >
             <v-btn
-              outline
+              outlined
               color="primary"
               dark
             >
@@ -271,7 +257,7 @@
         <v-btn
           color="blue darken-1"
           text
-          @click="dialog = false"
+          @click.native="close"
         >
           Cancel
         </v-btn>
@@ -291,6 +277,7 @@
 
     props: {
       event: Object,
+      dialog: Boolean,
     },
 
     components: {
@@ -302,7 +289,6 @@
 
     data () {
       return {
-        dialog: false,
         dialog2: false,
         userVerküpfteKonnten: [],
         updaterID: 0,
@@ -337,6 +323,10 @@
 
       makedatetitle (date) {
         return convertDate(date[0]) + ' - ' + convertDate(date[1])
+      },
+
+      close () {
+        this.$emit('update:dialog', false)
       },
     },
   }

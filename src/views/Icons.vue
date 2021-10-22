@@ -113,7 +113,7 @@
                               <v-card
                                 class="elevation-8 mx-4"
                                 color="#334563"
-                                @click="changeText"
+                                @click="openeventdialog(event)"
                               >
                                 <v-card-title
                                   class="text-h4  white--text"
@@ -225,15 +225,16 @@
                 color="transparent"
                 max-height="500px"
               >
+                <default-turnier-info
+                  :event="SelectedEvent"
+                  :dialog.sync="dialog"
+                />
                 <v-subheader
                   :inset="inset"
                 >
                   Datum
                 </v-subheader>
                 <v-container>
-                  <default-turnier-info
-                    :event="events[0]"
-                  />
                   <v-row
                     justify="center"
                     no-gutters
@@ -455,6 +456,8 @@
     },
 
     data: () => ({
+      dialog: false,
+      SelectedEvent: {},
       loading: false,
       model: {
         cat: [],
@@ -572,6 +575,9 @@
     mounted () {
       this.events2 = this.events
       this.events2.sort(this.compare)
+      if (this.events.length !== 0) {
+        this.SelectedEvent = this.events[0]
+      }
       this.storeEvents()
       this.$nextTick(function () {
         setTimeout(() => {
@@ -602,6 +608,7 @@
 
           if (!this.my) {
             this.events1[i] = {
+              ID: element.ID,
               type: element.filter.event,
               title: element.Title,
               cat: cat,
@@ -617,6 +624,7 @@
             }
           } else if (element.filter.cat.find(ca => ca === this.categorie(this.infos.privat.geburtsdatum))) {
             this.events1[this.events1.length] = {
+              ID: element.ID,
               type: element.filter.event,
               title: element.Title,
               cat: cat,
@@ -820,6 +828,11 @@
           date.textContent = this.events1[i].date
           day.textContent = this.events1[i].day
         }
+      },
+      openeventdialog (event) {
+        this.dialog = false
+        this.SelectedEvent = this.events[event.ID]
+        this.dialog = true
       },
     },
   }
