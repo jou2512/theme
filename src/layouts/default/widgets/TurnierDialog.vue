@@ -80,7 +80,9 @@
                 class="pt-10"
               >
                 <v-container>
-                  <v-row>
+                  <v-row
+                    v-if="!AnmeldungsPanel"
+                  >
                     <v-col>
                       <v-row>
                         <v-col>
@@ -128,6 +130,7 @@
                       <v-row>
                         <v-col>
                           <v-card
+                            v-if="userVerküpfteKonnten.length !== 0"
                             elevation="4"
                             class="mt-4 text-center"
                             min-height="100px"
@@ -176,15 +179,15 @@
                                       />
                                     </template>
                                   </v-list>
+                                  <div
+                                    v-if="userVerküpfteKonnten.length === 0"
+                                    class="font-weight-black text-center"
+                                  >
+                                    Keine Konten Verknüpft
+                                  </div>
                                 </v-col>
                               </v-row>
                             </v-card-text>
-                            <div
-                              v-if="userVerküpfteKonnten.length === 0"
-                              class="font-weight-black"
-                            >
-                              Keine Konten Verknüpft
-                            </div>
                           </v-card>
                         </v-col>
                       </v-row>
@@ -233,6 +236,93 @@
                       </v-row>
                     </v-col>
                   </v-row>
+                  <v-row
+                    v-else
+                  >
+                    <v-expansion-panels focusable>
+                      <v-expansion-panel>
+                        <v-expansion-panel-header>
+                          <v-list-item
+                            :key="i"
+                          >
+                            <v-list-item-avatar>
+                              <v-img
+                                :alt="`${chat.login.avatar} avatar`"
+                                :src="chat.login.avatar"
+                              />
+                            </v-list-item-avatar>
+
+                            <v-list-item-content
+                              class="text-left"
+                            >
+                              <v-list-item-title
+                                v-text="chat.privat.firstName + ' ' + chat.privat.nachName"
+                              />
+                            </v-list-item-content>
+
+                            <v-list-item-action>
+                              <v-list-item-action-text
+                                class="text-right"
+                                :key="index"
+                              >
+                                {{ getcategorieandsize(chat) }}
+                              </v-list-item-action-text>
+                            </v-list-item-action>
+                          </v-list-item>
+                          <template v-slot:actions>
+                            <v-icon color="primary">
+                              $expand
+                            </v-icon>
+                          </template>
+                        </v-expansion-panel-header>
+                        <v-expansion-panel-content>
+                          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                        </v-expansion-panel-content>
+                      </v-expansion-panel>
+                      <v-expansion-panel
+                        v-for="(item, i) in userVerküpfteKonnten.length + 1"
+                        :key="i"
+                      >
+                        <v-expansion-panel-header>
+                          <v-list-item
+                            :key="i"
+                          >
+                            <v-list-item-avatar>
+                              <v-img
+                                :alt="`${chat.login.avatar} avatar`"
+                                :src="chat.login.avatar"
+                              />
+                            </v-list-item-avatar>
+
+                            <v-list-item-content
+                              class="text-left"
+                            >
+                              <v-list-item-title
+                                v-text="chat.privat.firstName + ' ' + chat.privat.nachName"
+                              />
+                            </v-list-item-content>
+
+                            <v-list-item-action>
+                              <v-list-item-action-text
+                                class="text-right"
+                                :key="index"
+                              >
+                                {{ getcategorieandsize(chat) }}
+                              </v-list-item-action-text>
+                            </v-list-item-action>
+                          </v-list-item>
+                          <template v-slot:actions>
+                            <v-icon color="primary">
+                              $expand
+                            </v-icon>
+                          </template>
+                        </v-expansion-panel-header>
+                        <v-expansion-panel-content>
+                          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                        </v-expansion-panel-content>
+                      </v-expansion-panel>
+                    </v-expansion-panels>
+                  </v-row>
                 </v-container>
               </v-card-text>
             </v-card>
@@ -246,6 +336,7 @@
               outlined
               color="primary"
               dark
+              @click="AnmeldungsPanel = AnmeldungsPanel ? false : true"
             >
               Anmelden
             </v-btn>
@@ -292,6 +383,7 @@
         dialog2: false,
         userVerküpfteKonnten: [],
         updaterID: 0,
+        AnmeldungsPanel: false,
       }
     },
 
