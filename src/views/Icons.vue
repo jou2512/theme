@@ -512,8 +512,8 @@
             { name: 'Minims / U14', tag: 'u14', tooltip: '2007/08' },
             { name: 'Cadets / U17', tag: 'u17', tooltip: '2004/05/06' },
             { name: 'Junioren / U20', tag: 'u20', tooltip: '2001/02/03' },
-            { name: 'Senioren / Ü20', tag: 'ü20', tooltip: '2000 - 1977' },
-            { name: 'Senioren / U23', tag: 'ü23', tooltip: '2000 - 1997' },
+            { name: 'Senioren / U23', tag: 'u23', tooltip: '2000 - 1997' },
+            { name: 'Senioren / Ü23', tag: 'ü23', tooltip: '1996 - 1977' },
             { name: 'Veteranen / Ü45', tag: 'ü45', tooltip: '1976 und älter' },
           ],
         },
@@ -767,51 +767,27 @@
         var year = geburtstag.toDate().getFullYear()
         var thisyear = new Date().getFullYear()
         var date1 = new Date('June 30, ' + thisyear)
-        if (new Date() > date1) {
-          if (year > thisyear - 8) {
-            return 'u8'
-          } else if (year > thisyear - 10) {
-            return 'u10'
-          } else if (year > thisyear - 12) {
-            return 'u12'
-          } else if (year > thisyear - 14) {
-            return 'u14'
-          } else if (year > thisyear - 17) {
-            return 'u17'
-          } else if (year > thisyear - 20) {
-            return 'u20'
-          } else if (year > thisyear - 45) {
-            if (year >= thisyear - 23) {
-              return 'u23)'
-            } else {
-              return 'ü23'
-            }
+        if (!(new Date() > date1)) thisyear--
+        if (year > thisyear - 8) {
+          return 'u8'
+        } else if (year > thisyear - 10) {
+          return 'u10'
+        } else if (year > thisyear - 12) {
+          return 'u12'
+        } else if (year > thisyear - 14) {
+          return 'u14'
+        } else if (year > thisyear - 17) {
+          return 'u17'
+        } else if (year > thisyear - 20) {
+          return 'u20'
+        } else if (year > thisyear - 45) {
+          if (year >= thisyear - 23) {
+            return 'u23)'
           } else {
-            return 'ü45'
+            return 'ü23'
           }
         } else {
-          thisyear--
-          if (year > thisyear - 8) {
-            return 'u8'
-          } else if (year > thisyear - 10) {
-            return 'u10'
-          } else if (year > thisyear - 12) {
-            return 'u12'
-          } else if (year > thisyear - 14) {
-            return 'u14'
-          } else if (year > thisyear - 17) {
-            return 'u17'
-          } else if (year > thisyear - 20) {
-            return 'u20'
-          } else if (year > thisyear - 45) {
-            if (year >= thisyear - 23) {
-              return 'u23)'
-            } else {
-              return 'ü23'
-            }
-          } else {
-            return 'ü45'
-          }
+          return 'ü45'
         }
       },
       to (to) {

@@ -838,8 +838,8 @@
           { name: 'Minims / U14', tag: 'u14', tooltip: '2007/08' },
           { name: 'Cadets / U17', tag: 'u17', tooltip: '2004/05/06' },
           { name: 'Junioren / U20', tag: 'u20', tooltip: '2001/02/03' },
-          { name: 'Senioren / Ü20', tag: 'ü20', tooltip: '2000 - 1977' },
-          { name: 'Senioren / U23', tag: 'ü23', tooltip: '2000 - 1997' },
+          { name: 'Senioren / U23', tag: 'u23', tooltip: '2000 - 1997' },
+          { name: 'Senioren / Ü23', tag: 'ü23', tooltip: '1996 - 1977' },
           { name: 'Veteranen / Ü45', tag: 'ü45', tooltip: '1976 und älter' },
         ],
         eventtype: [

@@ -241,14 +241,16 @@
                   >
                     <v-expansion-panels focusable>
                       <v-expansion-panel>
-                        <v-expansion-panel-header>
+                        <v-expansion-panel-header
+                          class="py-0"
+                        >
                           <v-list-item
-                            :key="i"
+                            :key="1"
                           >
                             <v-list-item-avatar>
                               <v-img
-                                :alt="`${chat.login.avatar} avatar`"
-                                :src="chat.login.avatar"
+                                :alt="`${infos.login.avatar} avatar`"
+                                :src="infos.login.avatar"
                               />
                             </v-list-item-avatar>
 
@@ -256,16 +258,17 @@
                               class="text-left"
                             >
                               <v-list-item-title
-                                v-text="chat.privat.firstName + ' ' + chat.privat.nachName"
+                                v-text="infos.privat.firstName + ' ' + infos.privat.nachName"
                               />
                             </v-list-item-content>
 
                             <v-list-item-action>
                               <v-list-item-action-text
+                                v-if="infos.privat.fechten"
                                 class="text-right"
-                                :key="index"
+                                :key="1"
                               >
-                                {{ getcategorieandsize(chat) }}
+                                {{ getcategorieandsize(infos) }}
                               </v-list-item-action-text>
                             </v-list-item-action>
                           </v-list-item>
@@ -276,21 +279,26 @@
                           </template>
                         </v-expansion-panel-header>
                         <v-expansion-panel-content>
-                          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                          <default-anmelde-infos
+                            :geb='infos.privat.geburtsdatum'
+                            :available="testTurnierforYou(infos.privat.geburtsdatum, event)"
+                          />
                         </v-expansion-panel-content>
                       </v-expansion-panel>
                       <v-expansion-panel
-                        v-for="(item, i) in userVerküpfteKonnten.length + 1"
+                        v-for="(item, i) in userVerküpfteKonnten"
                         :key="i"
                       >
-                        <v-expansion-panel-header>
+                        <v-expansion-panel-header
+                          class="py-0"
+                        >
                           <v-list-item
                             :key="i"
                           >
                             <v-list-item-avatar>
                               <v-img
-                                :alt="`${chat.login.avatar} avatar`"
-                                :src="chat.login.avatar"
+                                :alt="`${item.login.avatar} avatar`"
+                                :src="item.login.avatar"
                               />
                             </v-list-item-avatar>
 
@@ -298,16 +306,16 @@
                               class="text-left"
                             >
                               <v-list-item-title
-                                v-text="chat.privat.firstName + ' ' + chat.privat.nachName"
+                                v-text="item.privat.firstName + ' ' + item.privat.nachName"
                               />
                             </v-list-item-content>
 
                             <v-list-item-action>
                               <v-list-item-action-text
                                 class="text-right"
-                                :key="index"
+                                :key="i"
                               >
-                                {{ getcategorieandsize(chat) }}
+                                {{ getcategorieandsize(item) }}
                               </v-list-item-action-text>
                             </v-list-item-action>
                           </v-list-item>
@@ -318,7 +326,10 @@
                           </template>
                         </v-expansion-panel-header>
                         <v-expansion-panel-content>
-                          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                          <default-anmelde-infos
+                            :geb='item.privat.geburtsdatum'
+                            :available="testTurnierforYou(item.privat.geburtsdatum, event)"
+                          />
                         </v-expansion-panel-content>
                       </v-expansion-panel>
                     </v-expansion-panels>
@@ -344,6 +355,14 @@
         </v-row>
       </v-card-text>
       <v-card-actions>
+        <v-btn
+          v-if="AnmeldungsPanel"
+          color="blue darken-1"
+          text
+          @click="AnmeldungsPanel = false"
+        >
+          back
+        </v-btn>
         <v-spacer />
         <v-btn
           color="blue darken-1"
@@ -375,6 +394,10 @@
       DefaultEventDialog: () => import(
         /* webpackChunkName: "default-account" */
         './EventDialog.vue'
+      ),
+      DefaultAnmeldeInfos: () => import(
+        /* webpackChunkName: "default-account" */
+        './AnmeldeInfos.vue'
       ),
     },
 
@@ -417,7 +440,15 @@
         return convertDate(date[0]) + ' - ' + convertDate(date[1])
       },
 
+      testTurnierforYou (geburtsdatum, event) {
+        var tag = categorie(geburtsdatum, 'tag')
+        console.log(tag)
+        console.log(event.filter.cat.find(x => x === tag))
+        return event.filter.cat.find(x => x === tag)
+      },
+
       close () {
+        this.AnmeldungsPanel = false
         this.$emit('update:dialog', false)
       },
     },
