@@ -442,9 +442,11 @@
 
       testTurnierforYou (geburtsdatum, event) {
         var tag = categorie(geburtsdatum, 'tag')
-        console.log(tag)
-        console.log(event.filter.cat.find(x => x === tag))
-        return event.filter.cat.find(x => x === tag)
+
+        var valid = true
+        var cat = event.filter.cat.find(x => x === tag)
+        if (cat === undefined) valid = false
+        return valid
       },
 
       close () {

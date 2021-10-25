@@ -152,7 +152,7 @@
           align-self="center"
         >
           <div>
-            <span class="red--text text-h4 font-weight-black">! Leider ist dieses Turnier nicht für dich !</span>
+            <span class="red--text text-h4 font-weight-black">! Leider ist dieses Event nicht für dich !</span>
           </div>
         </v-col>
       </v-row>
