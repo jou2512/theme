@@ -55,6 +55,21 @@
           </v-list-item-icon>
         </v-list-item>
       </template>
+      <template v-slot:item.funktionen="{ item }">
+        <v-edit-dialog
+          :return-value.sync="item.privat.funktionen"
+          large
+        >
+          {{ item.privat.funktionen }}
+          <template v-slot:input>
+            <v-select
+              v-model="item.privat.funktionen"
+              :items="funktions"
+              label="funktionen"
+            />
+          </template>
+        </v-edit-dialog>
+      </template>
       <template v-slot:top>
         <v-toolbar
           flat
@@ -202,12 +217,14 @@
       </template>
       <template v-slot:item.actions="{ item }">
         <v-icon
+          v-if="false"
           small
           class="mr-2"
         >
           mdi-message-text
         </v-icon>
         <v-icon
+          v-if="false"
           small
           class="mr-2"
         >
@@ -364,6 +381,9 @@
       },
       ...get('userfirebase', [
         'mitglieder',
+      ]),
+      ...get('start', [
+        'funktions',
       ]),
       formTitle () {
         return this.editedIndex === -1 ? 'New User' : 'Edit User'
