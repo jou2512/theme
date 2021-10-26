@@ -32,7 +32,7 @@
       <v-row>
         <v-col
           v-if="angemeldet"
-          class="py-9 text-center"
+          class="pt-10 pb-7 text-center"
           align-self="center"
         >
           <div>
@@ -44,12 +44,12 @@
         </v-col>
         <v-col
           v-else
-          class="pt-9 pb-9 text-center"
+          class="pt-10 pb-7 text-center"
           align-self="center"
         >
           <div>
             <span
-              class="red--text text-h4 font-weight-black"
+              class="red--text font-weight-black"
               style="font-size: 1.6em"
             >! Du nimmst damit nicht am Event teil !</span>
           </div>
@@ -194,10 +194,10 @@
       needsmaterial: {
         default: true,
       },
+      angemeldet: Boolean,
     },
     data () {
       return {
-        angemeldet: true,
         numberofPlaces: 0,
         tab: null,
         selected: [],

@@ -9,10 +9,9 @@
       color="#313260"
       max-height="100vh"
     >
-      <v-card-title>
-        <span class="text-h3 white--text">{{ event.title }}</span>
-      </v-card-title>
-      <v-card-text>
+      <v-card-text
+        class="mt-15"
+      >
         <v-row>
           <v-col
             offset-md="3"
@@ -53,6 +52,19 @@
                         </v-col>
                       </v-row>
                       <v-row
+                        class="pa-0 ma-0 pt-2 pb-1"
+                      >
+                        <v-col
+                          class="pa-0 ma-0"
+                        >
+                          <v-container
+                            class="d-flex justify-center pa-0 ma-0"
+                          >
+                            <span class="text-h5 font-weight-medium text-decoration-underline text-uppercase">{{ event.Title }}</span>
+                          </v-container>
+                        </v-col>
+                      </v-row>
+                      <v-row
                         class="pa-0 ma-0"
                       >
                         <v-col
@@ -61,7 +73,7 @@
                           <v-container
                             class="d-flex justify-center pa-0"
                           >
-                            <span class="text-subtitle-1">{{ makedatetitle(event.Datum) }}</span>
+                            <span class="text-subtitle-2">{{ makedatetitle(event.Datum) }}</span>
                           </v-container>
                         </v-col>
                       </v-row>
@@ -253,6 +265,13 @@
                                 :src="infos.login.avatar"
                               />
                             </v-list-item-avatar>
+                            <v-list-item-avatar>
+                              <v-icon
+                                :color="angemeldet ? 'green' : 'red'"
+                              >
+                                {{angemeldet ? 'mdi-check-bold' : 'mdi-close-thick'}}
+                              </v-icon>
+                            </v-list-item-avatar>
 
                             <v-list-item-content
                               class="text-left"
@@ -282,7 +301,7 @@
                           <default-anmelde-infos
                             :geb='infos.privat.geburtsdatum'
                             :available="testTurnierforYou(infos.privat.geburtsdatum, event)"
-                            :needsmaterial="GetBool[event.filter.event].material"
+                            :needsmaterial="GetBool[event.filter.event].material && infos.privat.fechten"
                           />
                         </v-expansion-panel-content>
                       </v-expansion-panel>
@@ -301,6 +320,13 @@
                                 :alt="`${item.login.avatar} avatar`"
                                 :src="item.login.avatar"
                               />
+                            </v-list-item-avatar>
+                            <v-list-item-avatar>
+                              <v-icon
+                                :color="item.angemeldet ? 'green' : 'red'"
+                              >
+                                {{item.angemeldet ? 'mdi-check-bold' : 'mdi-close-thick'}}
+                              </v-icon>
                             </v-list-item-avatar>
 
                             <v-list-item-content
@@ -332,6 +358,7 @@
                             :geb='item.privat.geburtsdatum'
                             :available="testTurnierforYou(item.privat.geburtsdatum, event)"
                             :needsmaterial="GetBool[event.filter.event].material"
+                            :angemeldet.sync="item.angemeldet"
                           />
                         </v-expansion-panel-content>
                       </v-expansion-panel>
@@ -407,6 +434,7 @@
 
     data () {
       return {
+        angemeldet: false,
         dialog2: false,
         userVerküpfteKonnten: [],
         updaterID: 0,
@@ -438,6 +466,7 @@
         this.userVerküpfteKonnten = []
         for (let i = 0; i < this.infos.kinder.length; i++) {
           this.userVerküpfteKonnten[i] = await getInfUser(this.infos.kinder[i])
+          this.userVerküpfteKonnten[i].angemeldet = false
         }
       },
 
