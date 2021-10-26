@@ -215,7 +215,7 @@
                 class="mb-2"
                 v-bind="attrs"
                 v-on="on"
-                @click="newEvent = defaultnewEvent"
+                @click="reset"
               >
                 New Event
               </v-btn>
@@ -958,7 +958,11 @@
           if (this.selectedAllCategories) {
             this.newEvent.selectedCategories = []
           } else {
-            this.cat.forEach((e) => this.newEvent.selectedCategories.push(e.tag))
+            this.cat.forEach((e) => {
+              if (!(this.newEvent.selectedCategories.includes(e.tag))) {
+                this.newEvent.selectedCategories.push(e.tag)
+              }
+            })
           }
         })
       },

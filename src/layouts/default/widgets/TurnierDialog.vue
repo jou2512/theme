@@ -280,8 +280,10 @@
                         </v-expansion-panel-header>
                         <v-expansion-panel-content>
                           <default-anmelde-infos
+                            v-if="infos.privat.fechten"
                             :geb='infos.privat.geburtsdatum'
                             :available="testTurnierforYou(infos.privat.geburtsdatum, event)"
+                            :needsmaterial="GetBool[event.filter.event].material"
                           />
                         </v-expansion-panel-content>
                       </v-expansion-panel>
@@ -312,6 +314,7 @@
 
                             <v-list-item-action>
                               <v-list-item-action-text
+                                v-if="testTurnierforYou(item.privat.geburtsdatum, event)"
                                 class="text-right"
                                 :key="i"
                               >
@@ -329,6 +332,7 @@
                           <default-anmelde-infos
                             :geb='item.privat.geburtsdatum'
                             :available="testTurnierforYou(item.privat.geburtsdatum, event)"
+                            :needsmaterial="GetBool[event.filter.event].material"
                           />
                         </v-expansion-panel-content>
                       </v-expansion-panel>
@@ -344,6 +348,7 @@
             class="d-flex justify-center"
           >
             <v-btn
+              v-if="GetBool[event.filter.event].anmelden"
               outlined
               color="primary"
               dark
@@ -407,6 +412,15 @@
         userVerküpfteKonnten: [],
         updaterID: 0,
         AnmeldungsPanel: false,
+        GetBool: {
+          turnier: { driving: true, anmelden: true, material: true },
+          lager: { driving: false, anmelden: true, material: true },
+          test: { driving: true, anmelden: true, material: false },
+          brassard: { driving: false, anmelden: false, material: false },
+          anlass: { driving: false, anmelden: true, material: false },
+          ferien: { driving: false, anmelden: false, material: false },
+          anderes: { driving: true, anmelden: true, material: false },
+        },
       }
     },
 

@@ -28,8 +28,12 @@
           </v-card>
         </v-col>
       </v-row>
-      <v-divider />
-      <v-row>
+      <v-divider
+        v-if="needsmaterial"
+      />
+      <v-row
+        v-if="needsmaterial"
+      >
         <v-col
           v-if="angemeldet"
           class="d-flex justify-center text-center pt-0"
@@ -169,6 +173,9 @@
         default: null,
       },
       available: {
+        default: true,
+      },
+      needsmaterial: {
         default: true,
       },
     },

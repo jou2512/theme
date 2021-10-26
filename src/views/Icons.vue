@@ -736,7 +736,7 @@
           this.$nextTick(function () {
             setTimeout(() => {
               this.changeText()
-            }, 200)
+            }, 500)
           })
         }, 1000)
       },
@@ -807,7 +807,9 @@
       },
       openeventdialog (event) {
         this.dialog = false
-        this.SelectedEvent = this.events[event.ID]
+        this.SelectedEvent = this.events.find((x) => {
+          return x.ID === event.ID
+        })
         this.dialog = true
       },
     },
