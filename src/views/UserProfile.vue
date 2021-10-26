@@ -262,7 +262,7 @@
                     cols="12"
                   >
                     <v-select
-                      v-model="currentUserData.privat.funktionen"
+                      v-model="funktions"
                       :items="currentUserData.privat.funktionen"
                       chips
                       disabled
@@ -475,7 +475,7 @@
 </template>
 
 <script>
-  import { sync } from 'vuex-pathify'
+  import { sync, get } from 'vuex-pathify'
   import MaterialCard from '../components/MaterialCard.vue'
   import 'firebase/auth'
   import db, { authService, useUsers } from '../Firebase/init'
@@ -576,6 +576,9 @@
     computed: {
       ...sync('userfirebase', [
         'infos',
+      ]),
+      ...get('start', [
+        'funktions',
       ]),
     },
 

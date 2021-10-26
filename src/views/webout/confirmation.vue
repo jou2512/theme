@@ -673,7 +673,7 @@
           }
           const dataBase = db.collection('users').doc(this.$route.params.id)
           const fechten = this.checkboxPersoenlich || this.tab === 1
-          
+
           var funktionen = []
           if (fechten) funktionen.push('fechter/in')
           if (this.anzkinder > 0) funktionen.push('elternteil')
