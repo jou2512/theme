@@ -28,124 +28,140 @@
           </v-card>
         </v-col>
       </v-row>
-      <v-divider
-        v-if="needsmaterial"
-      />
-      <v-row
-        v-if="needsmaterial"
-      >
+      <v-divider />
+      <v-row>
+        <v-col
+          v-if="angemeldet"
+          class="py-9 text-center"
+          align-self="center"
+        >
+          <div>
+            <span
+              class="green--text font-weight-black"
+              style="font-size: 1.6em"
+            >! Du nimmst damit am Event teil !</span>
+          </div>
+        </v-col>
+        <v-col
+          v-else
+          class="pt-9 pb-9 text-center"
+          align-self="center"
+        >
+          <div>
+            <span
+              class="red--text text-h4 font-weight-black"
+              style="font-size: 1.6em"
+            >! Du nimmst damit nicht am Event teil !</span>
+          </div>
+        </v-col>
+      </v-row>
+      <v-row no-gutters>
         <v-col
           v-if="angemeldet"
           class="d-flex justify-center text-center pt-0"
           align-self="center"
         >
-          <v-container
-            class="d-flex justify-center text-center"
-          >
-            <v-card
-              class="text-center"
-              flat
-              max-width="70%"
+          <v-row>
+            <v-col
+              v-if="needsmaterial"
+              class="d-flex justify-center text-center"
             >
-              <v-divider />
-              <v-container>
-                <v-row>
-                  <v-col>
-                    <v-row>
-                      <v-col
-                        class="pb-0 text-h5 font-weight-black"
-                      >
-                        In der Kategorie {{ categorie(geb, 'shortend') }} benötigst du:
-                      </v-col>
-                    </v-row>
-                    <v-row>
-                      <v-col
-                        class="pt-0 red--text font-weight-light text--secondary"
-                        style="font-size: 0.7rem; letter-spacing: 0.03rem"
-                      >
-                        Wenn du etwas untengennanntes
-                        <span class="font-weight-black red--text"> nicht </span>
-                        in der Anzahl
-                        <span class="font-weight-black red--text"> besitzt</span>,
-                        <span class="font-weight-black red--text"> setzte kein Hacken</span>
-                      </v-col>
-                    </v-row>
-                  </v-col>
-                </v-row>
-                <v-row>
-                  <v-col class="d-flex justify-center">
-                    <v-container>
-                      <v-checkbox
-                        v-model="selected"
-                        value="Degen"
-                        color="green darken-3"
-                        hide-details
-                        dense
-                      >
-                        <template v-slot:label>
-                          <div>
-                            min. 2 Degen der Grösse {{weaponsize(geb)}}
-                          </div>
-                        </template>
-                      </v-checkbox>
+              <v-card
+                class="text-center"
+                flat
+                max-width="70%"
+              >
+                <v-divider />
+                <v-container>
+                  <v-row>
+                    <v-col>
+                      <v-row>
+                        <v-col
+                          class="pb-0 text-h5 font-weight-black"
+                        >
+                          In der Kategorie {{ categorie(geb, 'shortend') }} benötigst du:
+                        </v-col>
+                      </v-row>
+                      <v-row>
+                        <v-col
+                          class="pt-0 red--text font-weight-light text--secondary"
+                          style="font-size: 0.7rem; letter-spacing: 0.03rem"
+                        >
+                          Wenn du etwas untengennanntes
+                          <span class="font-weight-black red--text"> nicht </span>
+                          in der Anzahl
+                          <span class="font-weight-black red--text"> besitzt</span>,
+                          <span class="font-weight-black red--text"> setzte kein Hacken</span>
+                        </v-col>
+                      </v-row>
+                    </v-col>
+                  </v-row>
+                  <v-row>
+                    <v-col class="d-flex justify-center">
+                      <v-container>
+                        <v-checkbox
+                          v-model="selected"
+                          value="Degen"
+                          color="green darken-3"
+                          hide-details
+                          dense
+                        >
+                          <template v-slot:label>
+                            <div>
+                              min. 2 Degen der Grösse {{weaponsize(geb)}}
+                            </div>
+                          </template>
+                        </v-checkbox>
 
-                      <v-checkbox
-                        v-model="selected"
-                        value="Kabel"
-                        color="green darken-3"
-                        hide-details
-                        dense
-                      >
-                        <template v-slot:label>
-                          <div>
-                            min. 2 Körperkabel
-                          </div>
-                        </template>
-                      </v-checkbox>
+                        <v-checkbox
+                          v-model="selected"
+                          value="Kabel"
+                          color="green darken-3"
+                          hide-details
+                          dense
+                        >
+                          <template v-slot:label>
+                            <div>
+                              min. 2 Körperkabel
+                            </div>
+                          </template>
+                        </v-checkbox>
 
-                      <v-checkbox
-                        v-for="(item, i) in meterialien"
-                        :key="i"
-                        v-model="selected"
-                        :label="item"
-                        :value="item"
-                        color="green darken-3"
-                        hide-details
-                        dense
-                      />
+                        <v-checkbox
+                          v-for="(item, i) in meterialien"
+                          :key="i"
+                          v-model="selected"
+                          :label="item"
+                          :value="item"
+                          color="green darken-3"
+                          hide-details
+                          dense
+                        />
 
-                      <v-checkbox
-                        v-model="selected"
-                        value="Reparatur"
-                        color="green darken-3"
-                        hide-details
-                        dense
-                      >
-                        <template v-slot:label>
-                          <div>
-                            <v-text-field
-                              v-model="reparaturen"
-                              label="Reparaturen..."
-                              name="reparaturen"
-                            />
-                          </div>
-                        </template>
-                      </v-checkbox>
-                    </v-container>
-                  </v-col>
-                </v-row>
-              </v-container>
-            </v-card>
-          </v-container>
-        </v-col>
-        <v-col
-          v-else
-          class="pt-9 pb-5 text-h5 font-weight-black text-center"
-          align-self="center"
-        >
-          <div>
-            <span class="red--text text-h4 font-weight-black">! Du nimmst damit nicht am Turnier teil !</span>
-          </div>
+                        <v-checkbox
+                          v-model="selected"
+                          value="Reparatur"
+                          color="green darken-3"
+                          hide-details
+                          dense
+                        >
+                          <template v-slot:label>
+                            <div>
+                              <v-text-field
+                                v-model="reparaturen"
+                                label="Reparaturen..."
+                                name="reparaturen"
+                              />
+                            </div>
+                          </template>
+                        </v-checkbox>
+                      </v-container>
+                    </v-col>
+                  </v-row>
+                </v-container>
+              </v-card>
+            </v-col>
+          </v-row>
         </v-col>
       </v-row>
     </template>

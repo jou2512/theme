@@ -280,7 +280,6 @@
                         </v-expansion-panel-header>
                         <v-expansion-panel-content>
                           <default-anmelde-infos
-                            v-if="infos.privat.fechten"
                             :geb='infos.privat.geburtsdatum'
                             :available="testTurnierforYou(infos.privat.geburtsdatum, event)"
                             :needsmaterial="GetBool[event.filter.event].material"
