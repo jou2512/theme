@@ -302,6 +302,8 @@
                             :geb='infos.privat.geburtsdatum'
                             :available="testTurnierforYou(infos.privat.geburtsdatum, event)"
                             :needsmaterial="GetBool[event.filter.event].material && infos.privat.fechten"
+                            :angemeldet="angemeldet"
+                            @updateangemeldet="angemeldet = !(angemeldet)"
                           />
                         </v-expansion-panel-content>
                       </v-expansion-panel>
@@ -321,7 +323,9 @@
                                 :src="item.login.avatar"
                               />
                             </v-list-item-avatar>
-                            <v-list-item-avatar>
+                            <v-list-item-avatar
+                              :key="updaterID"
+                            >
                               <v-icon
                                 :color="item.angemeldet ? 'green' : 'red'"
                               >
@@ -358,7 +362,8 @@
                             :geb='item.privat.geburtsdatum'
                             :available="testTurnierforYou(item.privat.geburtsdatum, event)"
                             :needsmaterial="GetBool[event.filter.event].material"
-                            :angemeldet.sync="item.angemeldet"
+                            :angemeldet="item.angemeldet"
+                            @updateangemeldet="changeAnmeldeState(item)"
                           />
                         </v-expansion-panel-content>
                       </v-expansion-panel>
@@ -462,11 +467,17 @@
     },
 
     methods: {
+      changeAnmeldeState (item) {
+        item.angemeldet = !item.angemeldet
+        this.$nextTick(() => {
+          this.updaterID++
+        })
+      },
       async storeKonten () {
         this.userVerküpfteKonnten = []
         for (let i = 0; i < this.infos.kinder.length; i++) {
           this.userVerküpfteKonnten[i] = await getInfUser(this.infos.kinder[i])
-          this.userVerküpfteKonnten[i].angemeldet = false
+          this.userVerküpfteKonnten[i].angemeldet = true
         }
       },
 

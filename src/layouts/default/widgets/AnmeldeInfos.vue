@@ -14,14 +14,14 @@
             <v-btn
               class="rounded-l rounded-r-0 elevation-3"
               :disabled="angemeldet"
-              @click="angemeldet = !angemeldet"
+              @click="changeAnmeldeState"
             >
               Anmelden
             </v-btn>
             <v-btn
               class="rounded-r rounded-l-0 elevation-3"
               :disabled="!angemeldet"
-              @click="angemeldet = !angemeldet"
+              @click="changeAnmeldeState"
             >
               Abmelden
             </v-btn>
@@ -216,6 +216,9 @@
     methods: {
       categorie,
       weaponsize,
+      changeAnmeldeState () {
+        console.log(this.$emit('updateangemeldet'))
+      },
     },
   }
 </script>
