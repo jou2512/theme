@@ -55,21 +55,6 @@
           </v-list-item-icon>
         </v-list-item>
       </template>
-      <template v-slot:item.funktionen="{ item }">
-        <v-edit-dialog
-          :return-value.sync="item.privat.funktionen"
-          large
-        >
-          {{ item.privat.funktionen }}
-          <template v-slot:input>
-            <v-select
-              v-model="item.privat.funktionen"
-              :items="funktions"
-              label="funktionen"
-            />
-          </template>
-        </v-edit-dialog>
-      </template>
       <template v-slot:top>
         <v-toolbar
           flat
@@ -214,6 +199,29 @@
           label="Search"
           class="mx-4"
         />
+      </template>
+      <template v-slot:item.funktionen="{ item }">
+        <v-edit-dialog
+          :return-value.sync="item.funktionen"
+          large
+        >
+          <template
+            v-for="(func, index) in item.funktionen"
+          >
+            {{ func }}
+            <span
+              v-if="(index+1) !== item.funktionen.length"
+              :key="index"
+            > | </span>
+          </template>
+          <template v-slot:input>
+            <v-select
+              v-model="item.funktionen"
+              :items="funktions"
+              label="funktionen"
+            />
+          </template>
+        </v-edit-dialog>
       </template>
       <template v-slot:item.actions="{ item }">
         <v-icon
@@ -400,6 +408,10 @@
       users (val) {
         console.log(val)
       },
+    },
+
+    mounted () {
+      console.log(this.mitglieder)
     },
 
     methods: {
