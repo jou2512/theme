@@ -108,7 +108,7 @@
                         >
                           <template v-slot:label>
                             <div>
-                              min. 2 Degen der Grösse {{weaponsize(geb)}}
+                              min. 2 Degen der Grösse {{ weaponsize(geb) }}
                             </div>
                           </template>
                         </v-checkbox>
@@ -185,13 +185,16 @@
 
   export default {
     props: {
+      // eslint-disable-next-line vue/require-prop-types
       geb: {
         default: null,
       },
       available: {
+        type: Boolean,
         default: true,
       },
       needsmaterial: {
+        type: Boolean,
         default: true,
       },
       angemeldet: Boolean,

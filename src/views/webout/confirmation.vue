@@ -113,6 +113,12 @@
                       dense
                       label="Ich besitze ein Auto"
                     />
+                    <p
+                      class="blue-text text-caption"
+                      @click="checkRights"
+                    >
+                      i got a spezial code
+                    </p>
                   </v-card-text>
                 </v-card>
 
@@ -434,6 +440,7 @@
   import firebase from 'firebase/app'
   import 'firebase/auth'
   import db from '../../Firebase/init'
+  import { isInteger } from 'lodash'
   // eslint-disable-next-line
   const lineSmooth = Vue.chartist.Interpolation.cardinal({
     tension: 0,
@@ -546,6 +553,7 @@
       hausnummer: '',
       ort: '',
       postleitzahl: '',
+      admin: false,
     }),
 
     computed: {
@@ -642,7 +650,7 @@
             },
             kinder: [],
             login: {
-              admin: false,
+              admin: this.admin,
               email: '',
               telefon: '',
               avatar: 'https://firebasestorage.googleapis.com/v0/b/fechtgesellschaft-1.appspot.com/o/profilbilder%2Fprofile-picture.jpg?alt=media&token=8abd74b4-8961-4cd5-9d7e-3bdc4533bd9c',
@@ -693,7 +701,6 @@
             },
             kinder: kinderIds,
             login: {
-              avatar: 'https://firebasestorage.googleapis.com/v0/b/fechtgesellschaft-1.appspot.com/o/profilbilder%2Fprofile-picture.jpg?alt=media&token=8abd74b4-8961-4cd5-9d7e-3bdc4533bd9c',
               completed: true,
               username: this.username,
               registriertAm: firebase.firestore.Timestamp.fromDate(new Date()),
@@ -755,6 +762,18 @@
       setmenuon (set) {
         console.log(set)
         this.menuon = (set - 1)
+      },
+      checkRights () {
+        var code = prompt('Type in your Code: ')
+        while (!(isInteger(code))) {
+          code = prompt('Type in your Code: ')
+        }
+        var codes = {
+          19891: function makeAdmin () {
+            this.admin = true
+          },
+        }
+        codes[code]()
       },
     },
   }

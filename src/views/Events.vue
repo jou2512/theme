@@ -561,6 +561,21 @@
                           :headers="headersTime"
                           :items="startTimeItems"
                         >
+                          <template v-slot:item.gen="props">
+                            <v-edit-dialog
+                              :return-value.sync="props.item.gen"
+                              large
+                            >
+                              {{ props.item.gen }}
+                              <template v-slot:input>
+                                <v-select
+                                  v-model="props.item.gen"
+                                  :items="['m', 'w', 'a']"
+                                  label="Categorie"
+                                />
+                              </template>
+                            </v-edit-dialog>
+                          </template>
                           <template v-slot:item.cat="props">
                             <v-edit-dialog
                               :return-value.sync="props.item.cat"
@@ -785,11 +800,12 @@
         headersTime: [
           { text: 'Day', value: 'day', groupable: false, sortable: false },
           { text: 'Categorie', value: 'cat', groupable: false, sortable: false },
+          { text: 'Gender', value: 'gen', groupable: false, sortable: false },
           { text: 'Time', value: 'time', sortable: false, groupable: false },
           { text: '', align: 'end', value: 'actions', sortable: false, groupable: false },
         ],
         startTimeItems: [
-          { day: '', cat: '', time: '' },
+          { day: '', cat: '', gen: '', time: '' },
         ],
         defaultstartTimeItems: [
           { day: '', cat: '', time: '' },
@@ -1008,7 +1024,7 @@
       },
 
       addRow () {
-        this.startTimeItems.push({ day: '', cat: '', time: '' })
+        this.startTimeItems.push({ day: '', cat: '', gen: '', time: '' })
         console.log(this.startTimeItems)
       },
 

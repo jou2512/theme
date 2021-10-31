@@ -298,8 +298,10 @@
               gender: '',
               geburtsdatum: firebase.firestore.Timestamp.fromDate(new Date('January 1, 2000')),
               auto: false,
+              funktionen: [],
             },
             login: {
+              avatar: 'https://firebasestorage.googleapis.com/v0/b/fechtgesellschaft-1.appspot.com/o/profilbilder%2Fprofile-picture.jpg?alt=media&token=8abd74b4-8961-4cd5-9d7e-3bdc4533bd9c',
               gesperrt: false,
               admin: false,
               completed: false,

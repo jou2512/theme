@@ -203,7 +203,9 @@
       <template v-slot:item.funktionen="{ item }">
         <v-edit-dialog
           :return-value.sync="item.funktionen"
+          persistent
           large
+          @save="saveUser(item)"
         >
           <template
             v-for="(func, index) in item.funktionen"
@@ -217,6 +219,10 @@
           <template v-slot:input>
             <v-select
               v-model="item.funktionen"
+              small-chips
+              clearable
+              deletable-chips
+              multiple
               :items="funktions"
               label="funktionen"
             />
@@ -509,6 +515,19 @@
           this.mitglieder.push(this.editedItem)
         }
         this.close()
+      },
+
+      async saveUser (user) {
+        this.loading = true
+        const washingtonRef = db.collection('users').doc(user.uid)
+        console.log(user)
+        await washingtonRef.update({
+          privat: {
+            funktionen: user.funktionen,
+          },
+        })
+        await this.$store.commit({ type: 'userfirebase/updateAllData' })
+        this.update()
       },
     },
   }
