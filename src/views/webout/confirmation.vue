@@ -35,7 +35,7 @@
             <v-stepper-step
               :rules="[() => tab === 0 ? valid2 : valid22]"
               :complete="e2 >= 2"
-              :editable="e2 >= 2"
+              :editable="e2 >= 2 && !(Administartion)"
               step="2"
             >
               Elternteil / Fechter
@@ -65,7 +65,7 @@
               >
                 <v-card
                   class="mb-12"
-                  max-height="200px"
+                  max-height="400px"
                 >
                   <v-card-text>
                     <v-row
@@ -107,6 +107,52 @@
                         />
                       </v-col>
                     </v-row>
+                    <v-row
+                      v-if="Administartion"
+                      class="height=100%"
+                    >
+                      <v-col>
+                        <v-menu
+                          ref="privat"
+                          v-model="menu"
+                          :close-on-content-click="false"
+                          transition="scale-transition"
+                          offset-y
+                          min-width="auto"
+                        >
+                          <template v-slot:activator="{ on, attrs }">
+                            <v-text-field
+                              v-model="date"
+                              color="blue"
+                              label="Birthday date"
+                              prepend-icon="mdi-calendar"
+                              readonly
+                              v-bind="attrs"
+                              required
+                              v-on="on"
+                            />
+                          </template>
+                          <v-date-picker
+                            v-model="date"
+                            color="#2E7D32"
+                            first-day-of-week="1"
+                            locale="de-DE"
+                            :max="(new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10)"
+                            min="1900-01-01"
+                            @change="save2"
+                          />
+                        </v-menu>
+                      </v-col>
+                      <v-col>
+                        <v-select
+                          v-model="gender"
+                          :items="geschlechter"
+                          hide-details="auto"
+                          required
+                          outlined
+                        />
+                      </v-col>
+                    </v-row>
                     <v-checkbox
                       v-model="checkboxAuto"
                       class="mt-1 "
@@ -114,7 +160,7 @@
                       label="Ich besitze ein Auto"
                     />
                     <p
-                      class="blue-text text-caption"
+                      class="blue-text text-caption pointer"
                       @click="checkRights"
                     >
                       i got a spezial code
@@ -239,7 +285,6 @@
                               label="Ich fechte auch Persönlich"
                             />
                             <v-row
-                              v-if="checkboxPersoenlich"
                               class="height=100%"
                             >
                               <v-col>
@@ -554,6 +599,8 @@
       ort: '',
       postleitzahl: '',
       admin: false,
+      Administartion: false,
+      funktionen: [],
     }),
 
     computed: {
@@ -592,7 +639,7 @@
         this.validate3()
         if (!this.valid1) {
           this.e1 = 1
-        } else if (this.tab === 0 ? !this.valid2 : !this.valid22) {
+        } else if ((this.tab === 0 ? !this.valid2 : !this.valid22) && !(this.Administartion)) {
           this.e1 = 2
         } else if (!this.valid3) {
           this.e1 = 3
@@ -603,7 +650,11 @@
         }
       },
       validate1 () {
-        this.$refs.form1.validate() ? console.log('form1 okay') : this.$refs.form1.validate()
+        if (this.date === '' && this.Administartion) {
+          this.valid1 = false
+        } else {
+          this.$refs.form1.validate() ? console.log('form1 okay') : this.$refs.form1.validate()
+        }
       },
       validate2 () {
         if (this.tab === 0) {
@@ -613,6 +664,9 @@
               if (this.info[index].date === '') {
                 bool = false
               }
+            }
+            if (this.date === '') {
+              bool = false
             }
             console.log(bool)
             bool ? this.$refs.form2.validate() : this.valid2 = false
@@ -676,24 +730,25 @@
       async datatodatabase () {
         try {
           const kinderIds = []
-          for (let i = 0; i < this.anzkinder; i++) {
-            kinderIds[i] = await this.createChildrenLogin(this.kinder[i], i)
+          if (!(this.Administartion)) {
+            for (let i = 0; i < this.anzkinder; i++) {
+              kinderIds[i] = await this.createChildrenLogin(this.kinder[i], i)
+            }
           }
           const dataBase = db.collection('users').doc(this.$route.params.id)
-          const fechten = this.checkboxPersoenlich || this.tab === 1
+          const fechten = (this.checkboxPersoenlich || this.tab === 1) && !(this.Administartion)
 
-          var funktionen = []
-          if (fechten) funktionen.push('fechter/in')
-          if (this.anzkinder > 0) funktionen.push('elternteil')
+          if (fechten) this.funktionen.push('fechter/in')
+          if (this.anzkinder > 0 && !(this.Administartion)) this.funktionen.push('elternteil')
 
           await dataBase.set({
             privat: {
-              funktionen: funktionen,
+              funktionen: this.funktionen,
               fechten: fechten,
               firstName: this.vorname,
               nachName: this.familienname,
-              gender: fechten ? this.gender : '',
-              geburtsdatum: fechten ? firebase.firestore.Timestamp.fromDate(new Date(this.date)) : firebase.firestore.Timestamp.fromDate(new Date('January 1, 2000')),
+              gender: this.gender,
+              geburtsdatum: firebase.firestore.Timestamp.fromDate(new Date(this.date)),
               auto: this.checkboxAuto,
             },
             events: {
@@ -727,11 +782,22 @@
         this.$refs.form.resetValidation()
       },
       nextstep (e) {
-        if (this.e2 < e) {
-          this.e2 = e
-          this.e1 = e
+        if (e === 2 && this.Administartion === true) {
+          if (this.e2 < e) {
+            this.e2 = 3
+            this.e1 = 3
+            this.tab = 2
+          } else {
+            this.tab = 2
+            this.e1 = 3
+          }
         } else {
-          this.e1 = e
+          if (this.e2 < e) {
+            this.e2 = e
+            this.e1 = e
+          } else {
+            this.e1 = e
+          }
         }
       },
       update () {
@@ -764,17 +830,51 @@
         this.menuon = (set - 1)
       },
       checkRights () {
-        var code = prompt('Type in your Code: ')
-        while (!(isInteger(code))) {
-          code = prompt('Type in your Code: ')
+        var code = parseInt(prompt('Type in your Code: '))
+        if (isInteger(code)) {
+          var codes = {
+            19891: function makeAdmin () {
+              alert('Successfully added Admin Role')
+              return { admin: true }
+            },
+            19892: function makeVorstandsmitglied () {
+              alert('Successfully added `Vorstandsmitglied` Role')
+              return { role: 'vorstandsmitglied' }
+            },
+            19893: function makeMaître () {
+              alert('Successfully added `Maître` Role')
+              return { role: 'maître' }
+            },
+            19894: function makeErwachsenenTrainer () {
+              alert('Successfully added `Erwachsenen Trainer` Role')
+              return { role: 'erwachsenen trainer' }
+            },
+            19895: function makeJugendTrainer () {
+              alert('Successfully added `Jugend Trainer` Role')
+              return { role: 'jugend trainer' }
+            },
+          }
+          if (codes.hasOwnProperty(code)) {
+            var code2 = parseInt(prompt('Type 1 for Administartion Member, 2 for Fencer / Parent: '))
+            if (isInteger(code2) && (code2 === 1 || code2 === 2)) {
+              var results = codes[code]()
+              if (results.admin) this.admin = results.admin
+              this.Administartion = code2 === 1
+              if (results.role && !(this.funktionen.includes(results.role))) this.funktionen.push(results.role)
+              console.log(this.funktionen)
+            } else {
+              alert('This Input is not a valid')
+            }
+          } else {
+            alert('This Code is not a valid')
+          }
         }
-        var codes = {
-          19891: function makeAdmin () {
-            this.admin = true
-          },
-        }
-        codes[code]()
       },
     },
   }
 </script>
+
+<style lang="sass" scoped>
+  .pointer
+    cursor: pointer
+</style>
