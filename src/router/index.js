@@ -121,6 +121,9 @@ router.beforeEach((to, from, next) => {
     })
   }
   if (to.path) {
+    if (to.path === '/start' || to.path === '/start/') {
+      to.path.endsWith('/') ? next() : next(trailingSlash(to.path))
+    }
     if (to.path === '/start/confirmation/') {
       next('/start/')
     } else {
@@ -139,34 +142,30 @@ router.beforeEach((to, from, next) => {
             to.path.endsWith('/') ? next() : next(trailingSlash(to.path))
           }
         } else {
-          if (to.path === '/start/') {
-            to.path.endsWith('/') ? next() : next(trailingSlash(to.path))
-          } else {
-            authService.authenticated().then(() => {
-              if (authService.user) {
-                if (store.state.userfirebase.get === 0) {
-                  calldata().then(() => {
-                    if (to.path === '/resultate/' || to.path === '/dokumente' | to.path === '/shop' | to.path === '/einstellungen') {
-                      next(from.path)
-                    } else {
-                      to.path.endsWith('/') ? next() : next(trailingSlash(to.path))
-                    }
-                  })
-                } else {
-                  if (to.path === '/resultate/' | to.path === '/dokumente' | to.path === '/shop' | to.path === '/einstellungen') {
+          authService.authenticated().then(() => {
+            if (authService.user) {
+              if (store.state.userfirebase.get === 0) {
+                calldata().then(() => {
+                  if (to.path === '/resultate/' || to.path === '/dokumente' | to.path === '/shop' | to.path === '/einstellungen') {
                     next(from.path)
                   } else {
                     to.path.endsWith('/') ? next() : next(trailingSlash(to.path))
                   }
-                }
+                })
               } else {
-                next('/start/')
+                if (to.path === '/resultate/' | to.path === '/dokumente' | to.path === '/shop' | to.path === '/einstellungen') {
+                  next(from.path)
+                } else {
+                  to.path.endsWith('/') ? next() : next(trailingSlash(to.path))
+                }
               }
-            })
-            .catch((err) => {
-              console.log(err)
-            })
-          }
+            } else {
+              next('/start/')
+            }
+          })
+          .catch((err) => {
+            console.log(err)
+          })
         }
       } catch (error) {
         console.log(error)

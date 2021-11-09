@@ -337,9 +337,9 @@
           })
           .then((doc) => {
             if (doc.data().login.completed) {
-              this.$router.push('/')
+              this.$router.push('/').catch(() => {})
             } else {
-              this.$router.push('/start/confirmation/' + firebase.auth().currentUser.uid)
+              this.$router.push('/start/confirmation/' + firebase.auth().currentUser.uid).catch(() => {})
             }
           })
           .catch((error) => {

@@ -114,7 +114,7 @@
                       <v-col>
                         <v-menu
                           ref="privat"
-                          v-model="menu"
+                          v-model="menu1"
                           :close-on-content-click="false"
                           transition="scale-transition"
                           offset-y
@@ -506,6 +506,7 @@
       }),
       menuon: 0,
       menu: false,
+      menu1: false,
       menu2: false,
       valid: true,
       valid1: true,
@@ -854,7 +855,7 @@
               return { role: 'jugend trainer' }
             },
           }
-          if (codes.hasOwnProperty(code)) {
+          if (Object.prototype.hasOwnProperty.call(codes, code)) {
             var code2 = parseInt(prompt('Type 1 for Administartion Member, 2 for Fencer / Parent: '))
             if (isInteger(code2) && (code2 === 1 || code2 === 2)) {
               var results = codes[code]()

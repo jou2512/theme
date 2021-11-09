@@ -36,20 +36,73 @@
           md="4"
         >
           <v-card
-            class="mt-4 text-center"
+            class="mt-4 text-center "
           >
             <v-img
               :src="
                 require('@/assets/proil.svg')"
               class="pa-0"
             />
-            <v-img
-              class="rounded-circle d-inline-block"
-              style="margin-top: -100px"
-              :src="infos.login.avatar"
-              width="8vw"
-            />
-
+            <v-hover
+              v-slot="{ hover }"
+            >
+              <v-card
+                class="pa-0 text-center rounded-circle d-inline-block"
+                style="margin-top: -100px"
+                width="8vw"
+              >
+                <v-img
+                  :class="['hoverimg', 'rounded-circle', 'elevation-10']"
+                  :src="infos.login.avatar"
+                  :aspect-ratio="1/1"
+                  :loading="true"
+                  width="8vw"
+                >
+                  <template
+                    v-if="true"
+                    v-slot:placeholder
+                  >
+                    <v-row
+                      class="fill-height ma-0"
+                      align="center"
+                      justify="center"
+                    >
+                      <v-progress-circular
+                        indeterminate
+                        color="black"
+                      />
+                    </v-row>
+                  </template>
+                </v-img>
+                <v-fade-transition>
+                  <v-overlay
+                    v-if="hover"
+                    class="pa-0 text-center rounded-circle"
+                    absolute
+                    style="opacity: 0.8;"
+                    color="black"
+                    width="8vw"
+                  >
+                    <v-btn
+                      class="text-h6 white--text"
+                      color="transparent"
+                      elevation="0"
+                      @click="UploadUserImg"
+                    >
+                      edit
+                    </v-btn>
+                    <v-file-input
+                      id="uploadUserImg"
+                      v-model="files"
+                      accept="image/*"
+                      label="File input"
+                      style="display: none;"
+                      @change="uploadFile"
+                    />
+                  </v-overlay>
+                </v-fade-transition>
+              </v-card>
+            </v-hover>
             <v-card-text class="text-center">
               <h4 class="text-h4 mb-3 text--primary">
                 {{ infos.privat.firstName }} {{ infos.privat.nachName }}
@@ -487,6 +540,8 @@
     components: { MaterialCard },
     data () {
       return {
+        files: [],
+        profilepicloading: false,
         vloading: false,
         loading: false,
         disabled: true,
@@ -592,6 +647,54 @@
     },
 
     methods: {
+      uploadFile () {
+        console.log(this.files)
+        if (this.files.length !== 0 && !(this.profilepicloading)) {
+          this.profilepicloading = true
+          console.log('this.files')
+          if (this.SelectedAccount === -1) {
+            firebase.storage().ref().child('profilbilder/' + authService.user.uid).put(this.files)
+            const starsRef = firebase.storage().ref().child('profilbilder/' + authService.user.uid)
+
+            // Get the download URL
+            starsRef.getDownloadURL()
+              .then((url) => {
+                // Insert url into an <img> tag to "download"
+                console.log(url)
+                const dataBase = db.collection('users').doc(authService.user.uid)
+                dataBase.set({
+                  login: {
+                    avatar: url,
+                  },
+                }, { merge: true })
+                setTimeout(() => {
+                  this.$store.commit({ type: 'userfirebase/updateAllData' })
+                  this.profilepicloading = false
+                }, 1000)
+              })
+          } else {
+            firebase.storage().ref().child('profilbilder/' + this.infos.kinder[this.SelectedAccount]).put(this.files)
+            const starsRef = firebase.storage().ref().child('profilbilder/' + this.infos.kinder[this.SelectedAccount])
+
+            // Get the download URL
+            starsRef.getDownloadURL()
+              .then((url) => {
+                // Insert url into an <img> tag to "download"
+                const dataBase = db.collection('users').doc(this.infos.kinder[this.SelectedAccount])
+                dataBase.set({
+                  login: {
+                    avatar: url,
+                  },
+                }, { merge: true })
+                setTimeout(() => {
+                  this.$store.commit({ type: 'userfirebase/updateAllData' })
+                  this.profilepicloading = false
+                }, 1000)
+              })
+          }
+          this.files = []
+        }
+      },
       vKonntoback () {
         this.SelectedAccount = -1
         this.originalUserData = this.currentUserData = this.infos
@@ -702,6 +805,14 @@
           }
         }
         return obj
+      },
+      UploadUserImg () {
+        console.log('hey')
+        const fileUpload = this.$el.querySelector('#uploadUserImg')
+        if (fileUpload != null) {
+          fileUpload.click()
+        }
+        console.log(fileUpload.files)
       },
     },
   }

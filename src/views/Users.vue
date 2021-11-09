@@ -521,13 +521,12 @@
         this.loading = true
         const washingtonRef = db.collection('users').doc(user.uid)
         console.log(user)
-        await washingtonRef.update({
+        await washingtonRef.set({
           privat: {
             funktionen: user.funktionen,
           },
-        })
-        await this.$store.commit({ type: 'userfirebase/updateAllData' })
-        this.update()
+        }, { merge: true })
+        await this.update()
       },
     },
   }
