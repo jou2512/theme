@@ -606,13 +606,20 @@
             datumvoll = this.convertDate(element.Datum[0]) + ' - ' + this.convertDate(element.Datum[1])
           }
 
+          var foryou = element.filter.cat.find(ca => {
+            var bool = true
+            if (!(ca === this.categorie(this.infos.privat.geburtsdatum))) { bool = false }
+            if (!(element.filter.event === 'anlass' | element.filter.event === 'ferien' | element.filter.event === 'anderes') && !(this.infos.privat.fechten)) { bool = false }
+            return bool
+          })
+
           if (!this.my) {
             this.events1[i] = {
               ID: element.ID,
               type: element.filter.event,
               title: element.Title,
               cat: cat,
-              foryou: element.filter.cat.find(ca => ca === this.categorie(this.infos.privat.geburtsdatum)),
+              foryou: foryou,
               caption: 'in ' + element.ort,
               description: element.beschreibung,
               to: '/',
@@ -622,13 +629,13 @@
               datum: element.Datum[0].toDate(),
               tag: `_date-${element.Datum[0].toDate().getDate()}-${element.Datum[0].toDate().getMonth()}-${element.Datum[0].toDate().getFullYear()}`,
             }
-          } else if (element.filter.cat.find(ca => ca === this.categorie(this.infos.privat.geburtsdatum))) {
+          } else if (foryou) {
             this.events1[this.events1.length] = {
               ID: element.ID,
               type: element.filter.event,
               title: element.Title,
               cat: cat,
-              foryou: element.filter.cat.find(ca => ca === this.categorie(this.infos.privat.geburtsdatum)),
+              foryou: foryou,
               caption: 'in ' + element.ort,
               description: element.beschreibung,
               to: '/',

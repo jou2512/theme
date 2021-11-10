@@ -520,10 +520,15 @@
       async saveUser (user) {
         this.loading = true
         const washingtonRef = db.collection('users').doc(user.uid)
+        var fechtenloc = false
+        if (user.funktionen.includes('fechter/in')) {
+          fechtenloc = true
+        }
         console.log(user)
         await washingtonRef.set({
           privat: {
             funktionen: user.funktionen,
+            fechten: fechtenloc,
           },
         }, { merge: true })
         await this.update()

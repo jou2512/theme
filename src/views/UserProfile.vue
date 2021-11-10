@@ -26,6 +26,11 @@
             @click="disabled ? disabled=false : updateProfile()"
             v-text="getTitle()"
           />
+          <v-btn
+            v-if="!disabled"
+            @click="cancelupdateProfile"
+            v-text="'cancel'"
+          />
         </v-card-actions>
       </v-card>
     </v-container>
@@ -55,25 +60,8 @@
                   :class="['hoverimg', 'rounded-circle', 'elevation-10']"
                   :src="infos.login.avatar"
                   :aspect-ratio="1/1"
-                  :loading="true"
                   width="8vw"
-                >
-                  <template
-                    v-if="true"
-                    v-slot:placeholder
-                  >
-                    <v-row
-                      class="fill-height ma-0"
-                      align="center"
-                      justify="center"
-                    >
-                      <v-progress-circular
-                        indeterminate
-                        color="black"
-                      />
-                    </v-row>
-                  </template>
-                </v-img>
+                />
                 <v-fade-transition>
                   <v-overlay
                     v-if="hover"
@@ -100,6 +88,23 @@
                       @change="uploadFile"
                     />
                   </v-overlay>
+                  <v-snackbar
+                    v-model="profilepicloading"
+                    timeout="2000"
+                  >
+                    Profilbild wird hochgeladen!
+
+                    <template v-slot:action="{ attrs }">
+                      <v-btn
+                        color="blue"
+                        text
+                        v-bind="attrs"
+                        @click="profilepicloading = false"
+                      >
+                        Close
+                      </v-btn>
+                    </template>
+                  </v-snackbar>
                 </v-fade-transition>
               </v-card>
             </v-hover>
@@ -375,6 +380,7 @@
                       :rules="nameRules"
                       color="purple"
                       label="Last Name"
+                      @input="cancelupdateProfile"
                       outlined
                     />
                   </v-col>
@@ -508,6 +514,13 @@
                     >
                       {{ getTitle() }}
                     </v-btn>
+                    <v-btn
+                      v-if="!disabled"
+                      color="primary"
+                      class="ml-3"
+                      @click="cancelupdateProfile"
+                      v-text="'cancel'"
+                    />
                   </v-col>
                 </v-row>
               </v-container>
@@ -638,7 +651,8 @@
     },
 
     mounted () {
-      this.originalUserData = this.currentUserData = this.infos
+      Object.assign(this.originalUserData, this.infos)
+      Object.assign(this.currentUserData, this.infos)
       const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }
       this.registriertAm = this.originalUserData.login.registriertAm.toDate().toLocaleDateString('de-DE', options)
       const options2 = { year: 'numeric', month: 'numeric', day: 'numeric' }
@@ -669,7 +683,6 @@
                 }, { merge: true })
                 setTimeout(() => {
                   this.$store.commit({ type: 'userfirebase/updateAllData' })
-                  this.profilepicloading = false
                 }, 1000)
               })
           } else {
@@ -688,7 +701,6 @@
                 }, { merge: true })
                 setTimeout(() => {
                   this.$store.commit({ type: 'userfirebase/updateAllData' })
-                  this.profilepicloading = false
                 }, 1000)
               })
           }
@@ -697,7 +709,8 @@
       },
       vKonntoback () {
         this.SelectedAccount = -1
-        this.originalUserData = this.currentUserData = this.infos
+        Object.assign(this.currentUserData, this.infos)
+        Object.assign(this.originalUserData, this.infos)
         const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }
         this.registriertAm = this.originalUserData.login.registriertAm.toDate().toLocaleDateString('de-DE', options)
         const options2 = { year: 'numeric', month: 'numeric', day: 'numeric' }
@@ -705,7 +718,8 @@
       },
       vKonntoSelect (index) {
         this.SelectedAccount = index
-        this.originalUserData = this.currentUserData = this.userVerküpfteKonnten[index]
+        Object.assign(this.currentUserData, this.userVerküpfteKonnten[index])
+        Object.assign(this.originalUserData, this.userVerküpfteKonnten[index])
         const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }
         this.registriertAm = this.originalUserData.login.registriertAm.toDate().toLocaleDateString('de-DE', options)
         const options2 = { year: 'numeric', month: 'numeric', day: 'numeric' }
@@ -756,8 +770,16 @@
           this.loading = true
           setTimeout(() => {
             this.update(this.originalUserData, this.currentUserData)
+            if (this.originalUserData.privat.fechten) {
+              if (!(this.originalUserData.privat.funktionen.includes('fechter/in'))) this.originalUserData.privat.funktionen.push('fechter/in')
+            } else {
+              if (this.originalUserData.privat.funktionen.includes('fechter/in')) {
+                console.log(this.originalUserData.privat.funktionen.indexOf('fechter/in'))
+                this.originalUserData.privat.funktionen.splice(this.originalUserData.privat.funktionen.indexOf('fechter/in'), 1)
+              }
+            }
             if (this.SelectedAccount === -1) {
-              this.infos = this.originalUserData
+              Object.assign(this.infos, this.originalUserData)
               this.pushProfileData()
               this.loading = false
             } else {
@@ -766,6 +788,15 @@
             }
             this.$store.commit({ type: 'userfirebase/updateAllData' })
           }, 2000)
+        }
+      },
+      cancelupdateProfile () {
+        if (this.SelectedAccount === -1) {
+          console.log(this.infos)
+          console.log(this.originalUserData)
+          console.log(this.currentUserData)
+        } else {
+          this.vKonntoSelect(this.SelectedAccount)
         }
       },
       async pushProfileData () {

@@ -1043,11 +1043,13 @@
           selectedDays: item.days,
           ort: item.ort,
         }
+        var startdatearray = item.Datum[0].toDate().toLocaleDateString('us-US').split('.')
+        var enddatearray = item.Datum[0].toDate().toLocaleDateString('us-US').split('.')
         this.daterange = {
           menu1: false,
           menu: false,
-          start: item.Datum[0].toDate().toLocaleDateString('us-US'),
-          end: item.Datum[1].toDate().toLocaleDateString('us-US'),
+          start: startdatearray[2] + '-' + startdatearray[1] + '-' + startdatearray[0],
+          end: enddatearray[2] + '-' + enddatearray[1] + '-' + enddatearray[0],
         }
         this.startTimeItems = item.startzeiten
         this.dialog = true
