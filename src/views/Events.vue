@@ -22,7 +22,7 @@
       show-group-by
       class="elevation-1 rounded-lg"
     >
-      <template v-slot:expanded-item="{ headers, item }">
+      <template v-slot:expanded-item="{ item }">
         <td
           :colspan="headers.length"
           class="pa-0"

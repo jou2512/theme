@@ -88,24 +88,24 @@
                       @change="uploadFile"
                     />
                   </v-overlay>
-                  <v-snackbar
-                    v-model="profilepicloading"
-                    timeout="2000"
-                  >
-                    Profilbild wird hochgeladen!
-
-                    <template v-slot:action="{ attrs }">
-                      <v-btn
-                        color="blue"
-                        text
-                        v-bind="attrs"
-                        @click="profilepicloading = false"
-                      >
-                        Close
-                      </v-btn>
-                    </template>
-                  </v-snackbar>
                 </v-fade-transition>
+                <v-snackbar
+                  v-model="profilepicloading"
+                  timeout="2000"
+                >
+                  Profilbild wird hochgeladen!
+
+                  <template v-slot:action="{ attrs }">
+                    <v-btn
+                      color="blue"
+                      text
+                      v-bind="attrs"
+                      @click="profilepicloading = false"
+                    >
+                      Close
+                    </v-btn>
+                  </template>
+                </v-snackbar>
               </v-card>
             </v-hover>
             <v-card-text class="text-center">
@@ -380,7 +380,6 @@
                       :rules="nameRules"
                       color="purple"
                       label="Last Name"
-                      @input="cancelupdateProfile"
                       outlined
                     />
                   </v-col>
@@ -651,8 +650,12 @@
     },
 
     mounted () {
-      Object.assign(this.originalUserData, this.infos)
-      Object.assign(this.currentUserData, this.infos)
+      // Object.assign(this.originalUserData, this.infos)
+      // Object.assign(this.currentUserData, this.infos)
+      this.update(this.originalUserData, this.infos)
+      this.update(this.currentUserData, this.infos)
+      // this.originalUserData = this.clone(this.infos)
+      // this.currentUserData = this.clone(this.infos)
       const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }
       this.registriertAm = this.originalUserData.login.registriertAm.toDate().toLocaleDateString('de-DE', options)
       const options2 = { year: 'numeric', month: 'numeric', day: 'numeric' }
@@ -709,8 +712,10 @@
       },
       vKonntoback () {
         this.SelectedAccount = -1
-        Object.assign(this.currentUserData, this.infos)
-        Object.assign(this.originalUserData, this.infos)
+        // Object.assign(this.currentUserData, this.infos)
+        // Object.assign(this.originalUserData, this.infos)
+        this.update(this.currentUserData, this.infos)
+        this.update(this.originalUserData, this.infos)
         const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }
         this.registriertAm = this.originalUserData.login.registriertAm.toDate().toLocaleDateString('de-DE', options)
         const options2 = { year: 'numeric', month: 'numeric', day: 'numeric' }
@@ -718,8 +723,10 @@
       },
       vKonntoSelect (index) {
         this.SelectedAccount = index
-        Object.assign(this.currentUserData, this.userVerküpfteKonnten[index])
-        Object.assign(this.originalUserData, this.userVerküpfteKonnten[index])
+        // Object.assign(this.currentUserData, this.userVerküpfteKonnten[index])
+        // Object.assign(this.originalUserData, this.userVerküpfteKonnten[index])
+        this.update(this.currentUserData, this.userVerküpfteKonnten[index])
+        this.update(this.originalUserData, this.userVerküpfteKonnten[index])
         const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }
         this.registriertAm = this.originalUserData.login.registriertAm.toDate().toLocaleDateString('de-DE', options)
         const options2 = { year: 'numeric', month: 'numeric', day: 'numeric' }
@@ -779,7 +786,8 @@
               }
             }
             if (this.SelectedAccount === -1) {
-              Object.assign(this.infos, this.originalUserData)
+              // Object.assign(this.infos, this.originalUserData)
+              this.update(this.infos, this.originalUserData)
               this.pushProfileData()
               this.loading = false
             } else {
@@ -792,9 +800,12 @@
       },
       cancelupdateProfile () {
         if (this.SelectedAccount === -1) {
-          console.log(this.infos)
-          console.log(this.originalUserData)
-          console.log(this.currentUserData)
+          this.disabled = true
+          this.loading = true
+          setTimeout(() => {
+            this.update(this.currentUserData, this.infos)
+            this.loading = false
+          }, 2000)
         } else {
           this.vKonntoSelect(this.SelectedAccount)
         }
@@ -825,9 +836,16 @@
         for (var i = 1; i < arguments.length; i++) {
           for (var prop in arguments[i]) {
             var val = arguments[i][prop]
+            // console.log(typeof val, prop, 'Object: ' + this.isObject(val), 'Array: ' + this.isArray(val), arguments[i][prop])
             if (typeof val === 'object') { // this also applies to arrays or null!
-              if (typeof obj[prop] === 'undefined') {
-                obj[prop] = {}
+              if (this.isArray(val)) {
+                if (typeof obj[prop] === 'undefined') {
+                  obj[prop] = []
+                }
+              } else {
+                if (typeof obj[prop] === 'undefined') {
+                  obj[prop] = {}
+                }
               }
               this.update(obj[prop], val)
             } else {
@@ -836,6 +854,21 @@
           }
         }
         return obj
+      },
+      isObject (a) {
+        return (!!a) && (a.constructor === Object)
+      },
+      isArray (a) {
+        return (!!a) && (a.constructor === Array)
+      },
+      clone (obj) {
+        if (obj === null || typeof obj !== 'object') return obj
+        console.log(obj)
+        var copy = obj.constructor()
+        for (var attr in obj) {
+          if (Object.prototype.hasOwnProperty.call(obj, attr)) copy[attr] = obj[attr]
+        }
+        return copy
       },
       UploadUserImg () {
         console.log('hey')
