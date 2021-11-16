@@ -228,6 +228,7 @@
                 <default-turnier-info
                   :event="SelectedEvent"
                   :dialog.sync="dialog"
+                  :foryou="foryouPass"
                 />
                 <v-subheader
                   :inset="inset"
@@ -445,6 +446,9 @@
 <script>
   import { get } from 'vuex-pathify'
   import firebase from 'firebase/app'
+  import { useUsers, useEvent, authService } from '../Firebase/init'
+  const { checkifAngemeldet, anmelden, abmelden, getAllAnmeldungen, getAnmeldung } = useEvent()
+  const { getInfUser } = useUsers()
   export default {
     name: 'NotificationsView',
 
@@ -459,6 +463,7 @@
       dialog: false,
       SelectedEvent: {},
       loading: false,
+      userVerküpfteKonnten: [],
       model: {
         cat: [],
         event: [],
@@ -563,6 +568,7 @@
       ],
       Arranged: {},
       matches: '',
+      foryouPass: true,
     }),
 
     computed: {
@@ -588,6 +594,13 @@
     },
 
     methods: {
+      async storeKonten () {
+        this.userVerküpfteKonnten = []
+        for (let i = 0; i < this.infos.kinder.length; i++) {
+          this.userVerküpfteKonnten[i] = await getInfUser(this.infos.kinder[i])
+          this.userVerküpfteKonnten[i].angemeldet = true
+        }
+      },
       storeEvents () {
         this.events1 = []
         for (let i = 0; i < this.events2.length; i++) {
@@ -606,12 +619,23 @@
             datumvoll = this.convertDate(element.Datum[0]) + ' - ' + this.convertDate(element.Datum[1])
           }
 
-          var foryou = element.filter.cat.find(ca => {
+          var test = () => {
             var bool = true
-            if (!(ca === this.categorie(this.infos.privat.geburtsdatum))) { bool = false }
+            var normalCat = element.filter.cat.find(ca => {
+              return ca === this.categorie(this.infos.privat.geburtsdatum)
+            })
             if (!(element.filter.event === 'anlass' | element.filter.event === 'ferien' | element.filter.event === 'anderes') && !(this.infos.privat.fechten)) { bool = false }
+            var childCat = element.filter.cat.find(ca => {
+              var localvar = false
+              for (let verknüpft = 0; verknüpft < this.userVerküpfteKonnten; verknüpft++) {
+                if ((ca === this.categorie(this.userVerküpfteKonnten[i].privat.geburtsdatum))) { localvar = true }
+              }
+              return localvar
+            })
+            if (childCat === undefined && normalCat === undefined) { bool = false }
             return bool
-          })
+          }
+          var foryou = test()
 
           if (!this.my) {
             this.events1[i] = {
@@ -814,6 +838,8 @@
       },
       openeventdialog (event) {
         this.dialog = false
+        console.log(event.foryou)
+        this.foryouPass = event.foryou
         this.SelectedEvent = this.events.find((x) => {
           return x.ID === event.ID
         })

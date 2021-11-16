@@ -4,6 +4,7 @@ import 'firebase/storage'
 import db from '../Firebase/init'
 import { ref, onUnmounted, computed } from '@vue/composition-api'
 import store from '../store/index'
+import { user } from '../store/modules'
 
 var firebaseConfig = {
     apiKey: 'AIzaSyBr2xKsQQzgSxalhoDc1m9xk78M75cNZrk',
@@ -241,6 +242,109 @@ export function useChat () {
   }
 
   return { chattype, searchChats, assignChat, messages, chats, sendMessage, createChat }
+}
+
+const eventCollection = firestore.collection('events')
+
+export function useEvent () {
+  const emptyAnmelden = async (eventid) => {
+    eventCollection.doc(eventid).set({
+      anmeldungen: {
+        userids: [],
+        userinfos: {},
+      },
+    }, { merge: true })
+  }
+  const anmelden = async (uid, eventid) => {
+    checkifAngemeldet(uid, eventid).then(result => {
+      if (!(result)) {
+        eventCollection.doc(eventid).set({
+          anmeldungen: {
+            userids: firebase.firestore.FieldValue.arrayUnion(uid),
+            userinfos: {
+              [uid]: {
+                registriertAm: timestamp,
+                userRef: db.doc('users/' + uid),
+              },
+            },
+          },
+        }, { merge: true })
+      }
+    })
+  }
+  const abmelden = (uid, eventid) => {
+    checkifAngemeldet(uid, eventid).then(result => {
+      var usersUpdate = {}
+      usersUpdate['anmeldungen.userids'] = firebase.firestore.FieldValue.arrayRemove(uid)
+      usersUpdate[`anmeldungen.userinfos.${uid}`] = firebase.firestore.FieldValue.delete()
+      if (result) {
+        eventCollection.doc(eventid).update(usersUpdate)
+      }
+    })
+  }
+  const getAllAnmeldungen = async (eventid, by = 'id') => {
+    const getby = { id: 1, infos: 2, all: 3 }
+    var result = null
+
+    await eventCollection.doc(eventid).get().then(event => {
+      if (event.data().anmeldungen) {
+        result = event.data().anmeldungen
+      } else {
+        emptyAnmelden(eventid).then(() => {
+          result = {
+              userids: [],
+              userinfos: {},
+            }
+        })
+      }
+    })
+
+    switch (getby[by]) {
+      case 1:
+        result = result.userids
+        break
+      case 2:
+        result = result.userinfos
+        break
+      case 3:
+        break
+      default:
+        break
+    }
+
+    return result
+  }
+  const getAnmeldung = async (uid, eventid) => {
+    var result = null
+    var boolforlogin = false
+    await checkifAngemeldet(uid, eventid).then(bool => {
+      boolforlogin = bool
+    })
+    if (boolforlogin) {
+      await eventCollection.doc(eventid).get().then(anmeldung => {
+        if (anmeldung.data().anmeldungen) {
+          result = anmeldung.data().anmeldungen.userinfos[uid]
+        }
+      })
+    }
+    return result
+  }
+  const checkifAngemeldet = async (uid, eventid) => {
+    var result = null
+    await eventCollection.doc(eventid).get().then(event => {
+      if (event.data().anmeldungen) {
+        result = event.data().anmeldungen.userids.includes(uid)
+      } else {
+        result = false
+      }
+    })
+    return result
+  }
+  const changeAnmeldeState = (uid, event) => {
+
+  }
+
+  return { checkifAngemeldet, anmelden, abmelden, getAllAnmeldungen, getAnmeldung }
 }
 
 export { timestamp }

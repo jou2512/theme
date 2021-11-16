@@ -808,7 +808,7 @@
           { day: '', cat: '', gen: '', time: '' },
         ],
         defaultstartTimeItems: [
-          { day: '', cat: '', time: '' },
+          { day: '', cat: '', gen: '', time: '' },
         ],
         headersdokuments: [
           { text: 'ID', align: 'start', value: 'ID', groupable: false },

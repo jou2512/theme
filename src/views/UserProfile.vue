@@ -171,16 +171,48 @@
                     :key="idkey"
                   >
                     <template v-for="(chat, index) in userVerküpfteKonnten">
+                      <v-file-input
+                        :key="chat.login.username"
+                        id="uploadChildImg"
+                        v-model="files"
+                        accept="image/*"
+                        label="File input"
+                        style="display: none;"
+                        @change="uploadFile(index)"
+                      />
                       <v-list-item
                         :key="index"
                       >
-                        <v-list-item-avatar>
-                          <v-img
-                            :alt="`${chat.login.avatar} avatar`"
-                            :src="chat.login.avatar"
-                          />
-                        </v-list-item-avatar>
-
+                        <v-hover
+                          v-slot="{ hover }"
+                        >
+                          <v-list-item-avatar>
+                            <v-img
+                              :alt="`${chat.login.avatar} avatar`"
+                              :src="chat.login.avatar"
+                            >
+                            <v-fade-transition>
+                              <v-overlay
+                                v-if="hover"
+                                class="pa-0 text-center rounded-circle"
+                                absolute
+                                style="opacity: 0.8;"
+                                color="black"
+                                width="8vw"
+                              >
+                                <v-btn
+                                  class="text-h6 white--text"
+                                  color="transparent"
+                                  elevation="0"
+                                  @click="UploadUserImg(index)"
+                                >
+                                  edit
+                                </v-btn>
+                              </v-overlay>
+                            </v-fade-transition>
+                            </v-img>
+                          </v-list-item-avatar>
+                        </v-hover>
                         <v-list-item-content
                           class="pointer"
                           @click="vKonntoSelect(index)"
@@ -254,7 +286,7 @@
                       cols="12"
                     >
                       <v-container class="text-h3 white--text">
-                        <strong>{{ originalUserData.events.eventsBes }}</strong>
+                        <strong>{{ eventsBes }}</strong>
                       </v-container>
                     </v-col>
                   </v-row>
@@ -322,6 +354,7 @@
                     <v-select
                       v-model="funktions"
                       :items="currentUserData.privat.funktionen"
+                      :key="idkey"
                       chips
                       disabled
                       label="Funktionen"
@@ -565,6 +598,7 @@
         originalUserData: {},
         valid: true,
         SelectedAccount: -1,
+        eventsBes: 0,
         usernameRules: [
           v => !!v || 'Username is required',
           v => !(/[^a-zA-Z\s0-9]/.test(v)) || 'Username darf keine Sonderzeichen enthalten',
@@ -574,7 +608,7 @@
             }
             return true
           },
-          v => (v.length <= 15) || 'Maximal 15 Zeichen',
+          v => (v.length <= 15 || this.SelectedAccount !== -1) || 'Maximal 15 Zeichen',
           v => {
             if (/[A-z]/g.test(v)) {
               return (v.match(/[A-z]/g).length >= 3) || 'Username min. 3 Buchstaben enthalten'
@@ -658,18 +692,21 @@
       // this.currentUserData = this.clone(this.infos)
       const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }
       this.registriertAm = this.originalUserData.login.registriertAm.toDate().toLocaleDateString('de-DE', options)
+      this.eventsBes = this.originalUserData.events.eventsBes
       const options2 = { year: 'numeric', month: 'numeric', day: 'numeric' }
-      this.geb = this.currentUserData.privat.geburtsdatum.toDate().toLocaleDateString('de-DE', options2)
+      var gebarray = this.currentUserData.privat.geburtsdatum.toDate().toLocaleDateString('de-DE', options2).split('.')
+      this.geb = gebarray[2] + '-' + gebarray[1] + '-' + gebarray[0]
       this.storeKonnten()
     },
 
     methods: {
-      uploadFile () {
+      uploadFile (index) {
         console.log(this.files)
         if (this.files.length !== 0 && !(this.profilepicloading)) {
           this.profilepicloading = true
           console.log('this.files')
-          if (this.SelectedAccount === -1) {
+          if (isNaN(parseInt(index))) {
+            console.log('erwachsen')
             firebase.storage().ref().child('profilbilder/' + authService.user.uid).put(this.files)
             const starsRef = firebase.storage().ref().child('profilbilder/' + authService.user.uid)
 
@@ -679,58 +716,68 @@
                 // Insert url into an <img> tag to "download"
                 console.log(url)
                 const dataBase = db.collection('users').doc(authService.user.uid)
-                dataBase.set({
-                  login: {
-                    avatar: url,
-                  },
-                }, { merge: true })
-                setTimeout(() => {
+                dataBase.update({
+                  'login.avatar': url,
+                }).then(() => {
                   this.$store.commit({ type: 'userfirebase/updateAllData' })
-                }, 1000)
+                })
               })
           } else {
-            firebase.storage().ref().child('profilbilder/' + this.infos.kinder[this.SelectedAccount]).put(this.files)
-            const starsRef = firebase.storage().ref().child('profilbilder/' + this.infos.kinder[this.SelectedAccount])
+            console.log('kind')
+            firebase.storage().ref().child('profilbilder/' + this.infos.kinder[index]).put(this.files)
+            const starsRef = firebase.storage().ref().child('profilbilder/' + this.infos.kinder[index])
 
             // Get the download URL
             starsRef.getDownloadURL()
               .then((url) => {
                 // Insert url into an <img> tag to "download"
-                const dataBase = db.collection('users').doc(this.infos.kinder[this.SelectedAccount])
-                dataBase.set({
-                  login: {
-                    avatar: url,
-                  },
-                }, { merge: true })
-                setTimeout(() => {
+                const dataBase = db.collection('users').doc(this.infos.kinder[index])
+                dataBase.update({
+                  'login.avatar': url,
+                }).then(() => {
                   this.$store.commit({ type: 'userfirebase/updateAllData' })
-                }, 1000)
+                  location.reload(true)
+                })
               })
           }
           this.files = []
         }
       },
       vKonntoback () {
+        this.loading = true
         this.SelectedAccount = -1
         // Object.assign(this.currentUserData, this.infos)
         // Object.assign(this.originalUserData, this.infos)
-        this.update(this.currentUserData, this.infos)
-        this.update(this.originalUserData, this.infos)
-        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }
-        this.registriertAm = this.originalUserData.login.registriertAm.toDate().toLocaleDateString('de-DE', options)
-        const options2 = { year: 'numeric', month: 'numeric', day: 'numeric' }
-        this.geb = this.currentUserData.privat.geburtsdatum.toDate().toLocaleDateString('de-DE', options2)
+        setTimeout(() => {
+          this.update(this.currentUserData, this.infos)
+          this.update(this.originalUserData, this.infos)
+          this.idkey++
+          const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }
+          this.registriertAm = this.originalUserData.login.registriertAm.toDate().toLocaleDateString('de-DE', options)
+          this.eventsBes = this.originalUserData.events.eventsBes
+          const options2 = { year: 'numeric', month: 'numeric', day: 'numeric' }
+          var gebarray = this.currentUserData.privat.geburtsdatum.toDate().toLocaleDateString('de-DE', options2).split('.')
+          this.geb = gebarray[2] + '-' + gebarray[1] + '-' + gebarray[0]
+          this.loading = false
+        }, 1000)
       },
       vKonntoSelect (index) {
+        this.loading = true
         this.SelectedAccount = index
+        setTimeout(() => {
+          this.update(this.currentUserData, this.userVerküpfteKonnten[index])
+          this.update(this.originalUserData, this.userVerküpfteKonnten[index])
+          this.idkey++
+          const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }
+          this.registriertAm = this.originalUserData.login.registriertAm.toDate().toLocaleDateString('de-DE', options)
+          this.eventsBes = this.originalUserData.events.eventsBes
+          const options2 = { year: 'numeric', month: 'numeric', day: 'numeric' }
+          var gebarray = this.currentUserData.privat.geburtsdatum.toDate().toLocaleDateString('de-DE', options2).split('.')
+          this.geb = gebarray[2] + '-' + gebarray[1] + '-' + gebarray[0]
+          this.loading = false
+        }, 1000)
         // Object.assign(this.currentUserData, this.userVerküpfteKonnten[index])
         // Object.assign(this.originalUserData, this.userVerküpfteKonnten[index])
-        this.update(this.currentUserData, this.userVerküpfteKonnten[index])
-        this.update(this.originalUserData, this.userVerküpfteKonnten[index])
-        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }
-        this.registriertAm = this.originalUserData.login.registriertAm.toDate().toLocaleDateString('de-DE', options)
-        const options2 = { year: 'numeric', month: 'numeric', day: 'numeric' }
-        this.geb = this.currentUserData.privat.geburtsdatum.toDate().toLocaleDateString('de-DE', options2)
       },
       vKonntoBearbeiten (index) {
         this.vKonntoSelect(index)
@@ -789,12 +836,14 @@
               // Object.assign(this.infos, this.originalUserData)
               this.update(this.infos, this.originalUserData)
               this.pushProfileData()
-              this.loading = false
             } else {
               this.pushAccountData()
-              this.loading = false
             }
             this.$store.commit({ type: 'userfirebase/updateAllData' })
+            setTimeout(() => {
+              this.loading = false
+              location.reload()
+            }, 1000)
           }, 2000)
         }
       },
@@ -807,13 +856,21 @@
             this.loading = false
           }, 2000)
         } else {
-          this.vKonntoSelect(this.SelectedAccount)
+          this.disabled = true
+          this.loading = true
+          setTimeout(() => {
+            this.update(this.currentUserData, this.userVerküpfteKonnten[this.SelectedAccount])
+            this.loading = false
+          }, 2000)
         }
       },
       async pushProfileData () {
         try {
           const dataBase = db.collection('users').doc(authService.user.uid)
           await dataBase.set(this.infos, { merge: true })
+          await dataBase.update({
+            'privat.funktionen': this.originalUserData.privat.funktionen,
+          })
         } catch (error) {
           console.log(error)
         }
@@ -822,6 +879,9 @@
         try {
           const dataBase = db.collection('users').doc(this.infos.kinder[this.SelectedAccount])
           await dataBase.set(this.originalUserData, { merge: true })
+          await dataBase.update({
+            'privat.funktionen': this.originalUserData.privat.funktionen,
+          })
         } catch (error) {
           console.log(error)
         }
@@ -870,9 +930,14 @@
         }
         return copy
       },
-      UploadUserImg () {
+      UploadUserImg (index) {
         console.log('hey')
-        const fileUpload = this.$el.querySelector('#uploadUserImg')
+        var fileUpload = null
+        if (isNaN(parseInt(index))) {
+          fileUpload = this.$el.querySelector('#uploadUserImg')
+        } else {
+          fileUpload = this.$el.querySelector('#uploadChildImg')
+        }
         if (fileUpload != null) {
           fileUpload.click()
         }

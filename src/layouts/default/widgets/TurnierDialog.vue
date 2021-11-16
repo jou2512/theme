@@ -18,7 +18,9 @@
             md="6"
             cols="12"
           >
-            <v-card>
+            <v-card
+              :loading="loading"
+            >
               <v-card-title
                 class="pa-0"
               >
@@ -224,6 +226,9 @@
                                       Kategorie
                                     </th>
                                     <th class="text-left">
+                                      gender
+                                    </th>
+                                    <th class="text-left">
                                       Scratch
                                     </th>
                                     <th class="text-left">
@@ -237,7 +242,8 @@
                                     :key="index"
                                   >
                                     <td>{{ item.cat }}</td>
-                                    <td>{{ item.time }}</td>
+                                    <td>{{ item.gen }}</td>
+                                    <td>{{ claculateScratchTime(item.time) }}</td>
                                     <td>{{ item.time }}</td>
                                   </tr>
                                 </tbody>
@@ -252,7 +258,9 @@
                     v-else
                   >
                     <v-expansion-panels focusable>
-                      <v-expansion-panel>
+                      <v-expansion-panel
+                        :disabled="loading"
+                      >
                         <v-expansion-panel-header
                           class="py-0"
                         >
@@ -300,7 +308,7 @@
                         <v-expansion-panel-content>
                           <default-anmelde-infos
                             :geb='infos.privat.geburtsdatum'
-                            :available="testTurnierforYou(infos.privat.geburtsdatum, event)"
+                            :available="testTurnierforYou(infos.privat.geburtsdatum)"
                             :needsmaterial="GetBool[event.filter.event].material && infos.privat.fechten"
                             :angemeldet="angemeldet"
                             @updateangemeldet="angemeldet = !(angemeldet)"
@@ -310,6 +318,7 @@
                       <v-expansion-panel
                         v-for="(item, i) in userVerküpfteKonnten"
                         :key="i"
+                        :disabled="loading"
                       >
                         <v-expansion-panel-header
                           class="py-0"
@@ -327,9 +336,9 @@
                               :key="updaterID"
                             >
                               <v-icon
-                                :color="item.angemeldet ? 'green' : 'red'"
+                                :color="(item.angemeldet) ? 'green' : 'red'"
                               >
-                                {{item.angemeldet ? 'mdi-check-bold' : 'mdi-close-thick'}}
+                                {{(item.angemeldet) ? 'mdi-check-bold' : 'mdi-close-thick'}}
                               </v-icon>
                             </v-list-item-avatar>
 
@@ -343,7 +352,7 @@
 
                             <v-list-item-action>
                               <v-list-item-action-text
-                                v-if="testTurnierforYou(item.privat.geburtsdatum, event)"
+                                v-if="testTurnierforYou(item.privat.geburtsdatum)"
                                 class="text-right"
                                 :key="i"
                               >
@@ -360,7 +369,7 @@
                         <v-expansion-panel-content>
                           <default-anmelde-infos
                             :geb='item.privat.geburtsdatum'
-                            :available="testTurnierforYou(item.privat.geburtsdatum, event)"
+                            :available="testTurnierforYou(item.privat.geburtsdatum)"
                             :needsmaterial="GetBool[event.filter.event].material"
                             :angemeldet="item.angemeldet"
                             @updateangemeldet="changeAnmeldeState(item)"
@@ -379,13 +388,14 @@
             class="d-flex justify-center"
           >
             <v-btn
-              v-if="GetBool[event.filter.event].anmelden"
+              v-if="GetBool[event.filter.event].anmelden && foryou"
+              :disabled="loading"
               outlined
               color="primary"
               dark
-              @click="AnmeldungsPanel = AnmeldungsPanel ? false : true"
+              @click="submitAnmeldung"
             >
-              Anmelden
+              {{AnmeldungsPanel ? 'Bestätigen' : 'Anmelden'}}
             </v-btn>
           </v-col>
         </v-row>
@@ -393,6 +403,7 @@
       <v-card-actions>
         <v-btn
           v-if="AnmeldungsPanel"
+          :disabled="loading"
           color="blue darken-1"
           text
           @click="AnmeldungsPanel = false"
@@ -402,6 +413,7 @@
         <v-spacer />
         <v-btn
           color="blue darken-1"
+          :disabled="loading"
           text
           @click.native="close"
         >
@@ -414,8 +426,9 @@
 
 <script>
   import { sync } from 'vuex-pathify'
-  import { useUsers } from '../../../Firebase/init'
+  import { useUsers, useEvent, authService } from '../../../Firebase/init'
   import { categorie, weaponsize, convertDate } from '../../../util/helpers'
+  const { checkifAngemeldet, anmelden, abmelden, getAllAnmeldungen, getAnmeldung } = useEvent()
   const { getInfUser } = useUsers()
 
   export default {
@@ -424,6 +437,7 @@
     props: {
       event: Object,
       dialog: Boolean,
+      foryou: Boolean,
     },
 
     components: {
@@ -439,6 +453,7 @@
 
     data () {
       return {
+        loading: false,
         angemeldet: false,
         dialog2: false,
         userVerküpfteKonnten: [],
@@ -467,6 +482,37 @@
     },
 
     methods: {
+      async submitAnmeldung () {
+        if (this.AnmeldungsPanel) {
+          this.loading = true
+          for (let i = 0; i < this.userVerküpfteKonnten.length; i++) {
+            if (this.testTurnierforYou(this.userVerküpfteKonnten[i].privat.geburtsdatum)) {
+              this.userVerküpfteKonnten[i].angemeldet ? await anmelden(this.userVerküpfteKonnten[i].uid, this.event.uid) : await abmelden(this.userVerküpfteKonnten[i].uid, this.event.uid)
+            }
+          }
+          if (this.testTurnierforYou(this.infos.privat.geburtsdatum)) {
+            this.angemeldet ? await anmelden(authService.user.uid, this.event.uid) : abmelden(authService.user.uid, this.event.uid)
+          }
+          setTimeout(() => {
+            this.loading = false
+            this.AnmeldungsPanel = !this.AnmeldungsPanel
+          }, 2000)
+        } else {
+          this.AnmeldungsPanel = !this.AnmeldungsPanel
+        }
+      },
+      claculateScratchTime (time) {
+        var ArrayParts = time.split(':')
+        var hours = parseInt(ArrayParts[0])
+        var minutes = parseInt(ArrayParts[1])
+        minutes += 30
+        if (minutes >= 60) {
+          minutes -= 60
+          return (hours < 10 ? '0' + hours : hours) + ':' + (minutes < 10 ? '0' + minutes : minutes)
+        }
+        hours -= 1
+        return (hours < 10 ? '0' + hours : hours) + ':' + (minutes < 10 ? '0' + minutes : minutes)
+      },
       changeAnmeldeState (item) {
         item.angemeldet = !item.angemeldet
         this.$nextTick(() => {
@@ -477,8 +523,10 @@
         this.userVerküpfteKonnten = []
         for (let i = 0; i < this.infos.kinder.length; i++) {
           this.userVerküpfteKonnten[i] = await getInfUser(this.infos.kinder[i])
-          this.userVerküpfteKonnten[i].angemeldet = true
+          this.userVerküpfteKonnten[i].uid = this.infos.kinder[i]
+          this.userVerküpfteKonnten[i].angemeldet = (await checkifAngemeldet(this.infos.kinder[i], this.event.uid) && this.testTurnierforYou(this.userVerküpfteKonnten[i].privat.geburtsdatum))
         }
+        this.angemeldet = (await checkifAngemeldet(authService.user.uid, this.event.uid) && this.testTurnierforYou(this.infos.privat.geburtsdatum))
       },
 
       getcategorieandsize (kind) {
@@ -493,11 +541,11 @@
         return convertDate(date[0]) + ' - ' + convertDate(date[1])
       },
 
-      testTurnierforYou (geburtsdatum, event) {
+      testTurnierforYou (geburtsdatum) {
         var tag = categorie(geburtsdatum, 'tag')
 
         var valid = true
-        var cat = event.filter.cat.find(x => x === tag)
+        var cat = this.event.filter.cat.find(x => x === tag)
         if (cat === undefined) valid = false
         return valid
       },
