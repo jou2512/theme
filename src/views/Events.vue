@@ -64,6 +64,12 @@
                     :dokument="item.turnierausschreibung"
                   />
                 </div>
+                <div
+                  v-if="GetBool[item.filter.event].anmeldung"
+                  class="text-center mt-5 text-h4 font-weight-bold"
+                >
+                  <router-link :to="{ name: 'Teilnehmer', params: { eventid: item.uid }}"> Anmeldungen </router-link>
+                </div>
               </v-col>
               <v-col
                 cols="12"
@@ -919,13 +925,13 @@
           'Sonntag',
         ],
         GetBool: {
-          turnier: { dokument: true, categorie: true, region: true, nationalität: true, relevanz: true, days: true, starttime: true },
-          lager: { dokument: true, categorie: true, region: true, nationalität: true, relevanz: false, days: false, starttime: false },
-          test: { dokument: true, categorie: true, region: false, nationalität: false, relevanz: false, days: false, starttime: false },
-          brassard: { dokument: true, categorie: true, region: false, nationalität: false, relevanz: false, days: true, starttime: true },
-          anlass: { dokument: true, categorie: true, region: false, nationalität: false, relevanz: false, days: false, starttime: false },
-          ferien: { dokument: false, categorie: false, region: false, nationalität: false, relevanz: false, days: false, starttime: false },
-          anderes: { dokument: false, categorie: true, region: false, nationalität: false, relevanz: false, days: false, starttime: false },
+          turnier: { dokument: true, categorie: true, region: true, nationalität: true, relevanz: true, days: true, starttime: true, anmeldung: true },
+          lager: { dokument: true, categorie: true, region: true, nationalität: true, relevanz: false, days: false, starttime: false, anmeldung: true },
+          test: { dokument: true, categorie: true, region: false, nationalität: false, relevanz: false, days: false, starttime: false, anmeldung: true },
+          brassard: { dokument: true, categorie: true, region: false, nationalität: false, relevanz: false, days: true, starttime: true, anmeldung: true },
+          anlass: { dokument: true, categorie: true, region: false, nationalität: false, relevanz: false, days: false, starttime: false, anmeldung: true },
+          ferien: { dokument: false, categorie: false, region: false, nationalität: false, relevanz: false, days: false, starttime: false, anmeldung: false },
+          anderes: { dokument: false, categorie: true, region: false, nationalität: false, relevanz: false, days: false, starttime: false, anmeldung: true },
         },
       }
     },
@@ -1151,7 +1157,7 @@
             days: this.newEvent.selectedDays,
             startzeiten: this.startTimeItems,
             turnierausschreibung: this.newEvent.dokument,
-          })
+          }, { merge: true })
         } catch (error) {
           console.log(error)
           this.error = error.message

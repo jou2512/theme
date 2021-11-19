@@ -310,8 +310,9 @@
                             :geb='infos.privat.geburtsdatum'
                             :available="testTurnierforYou(infos.privat.geburtsdatum)"
                             :needsmaterial="GetBool[event.filter.event].material && infos.privat.fechten"
-                            :angemeldet="angemeldet"
-                            @updateangemeldet="angemeldet = !(angemeldet)"
+                            :selected1.sync="selected"
+                            :angemeldet1.sync="angemeldet"
+                            :reparaturen1.sync="reparaturen"
                           />
                         </v-expansion-panel-content>
                       </v-expansion-panel>
@@ -371,8 +372,9 @@
                             :geb='item.privat.geburtsdatum'
                             :available="testTurnierforYou(item.privat.geburtsdatum)"
                             :needsmaterial="GetBool[event.filter.event].material"
-                            :angemeldet="item.angemeldet"
-                            @updateangemeldet="changeAnmeldeState(item)"
+                            :selected1.sync="item.selected"
+                            :angemeldet1.sync="item.angemeldet"
+                            :reparaturen1.sync="item.reparaturen"
                           />
                         </v-expansion-panel-content>
                       </v-expansion-panel>
@@ -455,6 +457,8 @@
       return {
         loading: false,
         angemeldet: false,
+        selected: [],
+        reparaturen: '',
         dialog2: false,
         userVerküpfteKonnten: [],
         updaterID: 0,
@@ -485,13 +489,14 @@
       async submitAnmeldung () {
         if (this.AnmeldungsPanel) {
           this.loading = true
+          console.log(this.selected)
           for (let i = 0; i < this.userVerküpfteKonnten.length; i++) {
             if (this.testTurnierforYou(this.userVerküpfteKonnten[i].privat.geburtsdatum)) {
-              this.userVerküpfteKonnten[i].angemeldet ? await anmelden(this.userVerküpfteKonnten[i].uid, this.event.uid) : await abmelden(this.userVerküpfteKonnten[i].uid, this.event.uid)
+              this.userVerküpfteKonnten[i].angemeldet ? await anmelden(this.userVerküpfteKonnten[i].uid, this.event.uid, categorie(this.userVerküpfteKonnten[i].privat.geburtsdatum, 'tag'), { mat: this.userVerküpfteKonnten[i].selected, rep: this.userVerküpfteKonnten[i].reparaturen }) : await abmelden(this.userVerküpfteKonnten[i].uid, this.event.uid)
             }
           }
           if (this.testTurnierforYou(this.infos.privat.geburtsdatum)) {
-            this.angemeldet ? await anmelden(authService.user.uid, this.event.uid) : abmelden(authService.user.uid, this.event.uid)
+            this.angemeldet ? await anmelden(authService.user.uid, this.event.uid, categorie(this.infos.privat.geburtsdatum, 'tag'), { mat: this.selected, rep: this.reparaturen }) : abmelden(authService.user.uid, this.event.uid)
           }
           setTimeout(() => {
             this.loading = false
@@ -524,8 +529,18 @@
         for (let i = 0; i < this.infos.kinder.length; i++) {
           this.userVerküpfteKonnten[i] = await getInfUser(this.infos.kinder[i])
           this.userVerküpfteKonnten[i].uid = this.infos.kinder[i]
+          await getAnmeldung(this.infos.kinder[i], this.event.uid).then(result => {
+            this.userVerküpfteKonnten[i].selected = result.material.mat
+            if (result.material.rep !== '') { this.userVerküpfteKonnten[i].selected.push('Reparatur') }
+            this.userVerküpfteKonnten[i].reparaturen = result.material.rep
+          })
           this.userVerküpfteKonnten[i].angemeldet = (await checkifAngemeldet(this.infos.kinder[i], this.event.uid) && this.testTurnierforYou(this.userVerküpfteKonnten[i].privat.geburtsdatum))
         }
+        await getAnmeldung(authService.user.uid, this.event.uid).then(result => {
+          this.selected = result.material.mat
+          if (result.material.rep !== '') { this.selected.push('Reparatur') }
+          this.reparaturen = result.material.rep
+        })
         this.angemeldet = (await checkifAngemeldet(authService.user.uid, this.event.uid) && this.testTurnierforYou(this.infos.privat.geburtsdatum))
       },
 

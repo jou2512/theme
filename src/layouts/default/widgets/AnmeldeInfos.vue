@@ -14,14 +14,14 @@
             <v-btn
               class="rounded-l rounded-r-0 elevation-3"
               :disabled="angemeldet"
-              @click="changeAnmeldeState"
+              @click="angemeldet = !angemeldet"
             >
               Anmelden
             </v-btn>
             <v-btn
               class="rounded-r rounded-l-0 elevation-3"
               :disabled="!angemeldet"
-              @click="changeAnmeldeState"
+              @click="angemeldet = !angemeldet"
             >
               Abmelden
             </v-btn>
@@ -91,7 +91,7 @@
                           <span class="font-weight-black red--text"> nicht </span>
                           in der Anzahl
                           <span class="font-weight-black red--text"> besitzt</span>,
-                          <span class="font-weight-black red--text"> setzte kein Hacken</span>
+                          <span class="font-weight-black red--text"> setzte ein Kreuz</span>
                         </v-col>
                       </v-row>
                     </v-col>
@@ -102,7 +102,9 @@
                         <v-checkbox
                           v-model="selected"
                           value="Degen"
-                          color="green darken-3"
+                          on-icon="mdi-close-box"
+                          off-icon="mdi-checkbox-marked"
+                          color="pink darken-4"
                           hide-details
                           dense
                         >
@@ -116,7 +118,9 @@
                         <v-checkbox
                           v-model="selected"
                           value="Kabel"
-                          color="green darken-3"
+                          on-icon="mdi-close-box"
+                          off-icon="mdi-checkbox-marked"
+                          color="pink darken-4"
                           hide-details
                           dense
                         >
@@ -133,7 +137,9 @@
                           v-model="selected"
                           :label="item"
                           :value="item"
-                          color="green darken-3"
+                          on-icon="mdi-close-box"
+                          off-icon="mdi-checkbox-marked"
+                          color="pink darken-4"
                           hide-details
                           dense
                         />
@@ -141,7 +147,7 @@
                         <v-checkbox
                           v-model="selected"
                           value="Reparatur"
-                          color="green darken-3"
+                          color="green darken-4"
                           hide-details
                           dense
                         >
@@ -197,13 +203,16 @@
         type: Boolean,
         default: true,
       },
-      angemeldet: Boolean,
+      angemeldet1: Boolean,
+      selected1: Array,
+      reparaturen1: String,
     },
     data () {
       return {
         numberofPlaces: 0,
         tab: null,
-        selected: [],
+        angemeldet: this.angemeldet1,
+        selected: this.selected1,
         meterialien: [
           'Maske',
           'Jacke',
@@ -212,16 +221,32 @@
           'Hose',
           'Fechtsocken',
         ],
-        reparaturen: '',
+        reparaturen: this.reparaturen1,
       }
+    },
+
+    watch: {
+      selected (val, oldval) {
+        this.$emit('update:selected1', val)
+      },
+      angemeldet (val, oldval) {
+        this.$emit('update:angemeldet1', val)
+      },
+      reparaturen (val, oldval) {
+        this.$emit('update:reparaturen1', val)
+      },
+
+    },
+
+    mounted () {
+      // if (this.selected1 !== undefined) {
+      //   this.selected = Array.from(this.selected1)
+      // }
     },
 
     methods: {
       categorie,
       weaponsize,
-      changeAnmeldeState () {
-        console.log(this.$emit('updateangemeldet'))
-      },
     },
   }
 </script>

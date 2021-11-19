@@ -4,7 +4,7 @@
   >
     <v-container
       fluid
-      class="bg"
+      :class="[background.includes($route.name) ? '' : 'bg']"
     >
       <router-view :key="$route.path" />
     </v-container>
@@ -14,6 +14,12 @@
 <script>
   export default {
     name: 'DefaultView',
+
+    data () {
+      return {
+        background: ['Teilnehmer'],
+      }
+    },
   }
 </script>
 

@@ -252,12 +252,30 @@ export function useEvent () {
       anmeldungen: {
         userids: [],
         userinfos: {},
+        cat: '',
+        status: '',
+        material: {
+          mat: [],
+          rep: '',
+        },
       },
     }, { merge: true })
   }
-  const anmelden = async (uid, eventid) => {
+  const anmelden = async (uid, eventid, cat, material) => {
+    var status = null
     checkifAngemeldet(uid, eventid).then(result => {
       if (!(result)) {
+        console.log(material.mat)
+        if (material.mat.length === 1 && material.mat[0] === 'Reparatur') { material.mat = [] }
+        if (material.mat.length === 0 && material.rep === '') {
+          status = 'Hatt Alles'
+        } else if (material.mat.length !== 0 && material.rep === '') {
+          status = 'Es fehlt Material'
+        } else if (material.mat.length === 0 && material.rep !== '') {
+          status = 'Material Reparatur'
+        } else if (material.mat.length !== 0 && material.rep !== '') {
+          status = 'Reparatur und Material'
+        }
         eventCollection.doc(eventid).set({
           anmeldungen: {
             userids: firebase.firestore.FieldValue.arrayUnion(uid),
@@ -265,6 +283,9 @@ export function useEvent () {
               [uid]: {
                 registriertAm: timestamp,
                 userRef: db.doc('users/' + uid),
+                cat: cat,
+                status: status,
+                material: material,
               },
             },
           },
@@ -294,6 +315,12 @@ export function useEvent () {
           result = {
               userids: [],
               userinfos: {},
+              cat: '',
+              status: '',
+              material: {
+                mat: [],
+                rep: '',
+              },
             }
         })
       }
@@ -326,6 +353,17 @@ export function useEvent () {
           result = anmeldung.data().anmeldungen.userinfos[uid]
         }
       })
+    } else {
+      result = {
+        userids: [],
+        userinfos: {},
+        cat: '',
+        status: '',
+        material: {
+          mat: [],
+          rep: '',
+        },
+      }
     }
     return result
   }

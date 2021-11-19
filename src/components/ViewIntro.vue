@@ -1,5 +1,5 @@
 <template>
-  <section class="mb-12 text-center white--text">
+  <section :class="['mb-12', 'text-center', color,]">
     <h1
       class="mb-2 text-h3"
       v-text="heading"
@@ -30,6 +30,10 @@
     name: 'ViewIntro',
 
     props: {
+      color: {
+        type: String,
+        default: 'white--text',
+      },
       heading: String,
       link: String,
     },

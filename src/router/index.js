@@ -43,6 +43,7 @@ const router = new Router({
 
       defaultroute('Users', null, 'users'),
       defaultroute('Events', null, 'events'),
+      defaultroute('Teilnehmer', null, 'events/teilnehmer/:eventid'),
       defaultroute('Chats', null, 'chats'),
     ]), layout('webout', [
       weboutroute('Start'),
@@ -128,7 +129,7 @@ router.beforeEach((to, from, next) => {
       next('/start/')
     } else {
       try {
-        if (to.matched[1].path === '/start/confirmation/:id') {
+        if (to.matched[1] && to.matched[1].path === '/start/confirmation/:id') {
           if (to.params.id != null) {
             const cityRef = db.collection('users').doc(to.params.id)
             cityRef.get().then((doc) => {

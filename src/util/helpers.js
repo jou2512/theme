@@ -21,6 +21,14 @@ export function age (createdAt) {
   return age
 }
 
+export function stringDatetoTimestamp (str) {
+  var charList = str.split('')
+  var number = parseInt((charList.length === 2 ? charList[1] : charList[1] + '' + charList[2]))
+  var date = new Date()
+  var thisyear = date.getFullYear() - number + 1
+  return firebase.firestore.Timestamp.fromDate(new Date(thisyear, 5, 30))
+}
+
 export function categorie (geburtstag, format = 'long') {
   var year = geburtstag.toDate().getFullYear()
   var thisyear = new Date().getFullYear()
@@ -63,7 +71,11 @@ export function categorie (geburtstag, format = 'long') {
     return ArrayParts[2]
   } else if (format === 'tag') {
     var charList = ArrayParts[2].split('')
-    return 'u' + (charList.length === 2 ? charList[1] : charList[1] + '' + charList[2])
+    if (charList[0] === 'U') {
+      return 'u' + (charList.length === 2 ? charList[1] : charList[1] + '' + charList[2])
+    } else {
+      return 'ü' + (charList.length === 2 ? charList[1] : charList[1] + '' + charList[2])
+    }
   }
 }
 
@@ -91,7 +103,12 @@ export function weaponsize (geburtstag) {
   }
 }
 
-export function convertDate (date) {
-  const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }
-  return date.toDate().toLocaleDateString('de-DE', options)
+export function convertDate (date, format = 1) {
+  if (format === 1) {
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }
+    return date.toDate().toLocaleDateString('de-DE', options)
+  } else if (format === 2) {
+    const options = { weekday: 'long', year: 'numeric', month: 'numeric', day: 'numeric' }
+    return date.toDate().toLocaleDateString('de-DE', options)
+  }
 }
