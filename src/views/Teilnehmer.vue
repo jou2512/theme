@@ -40,7 +40,10 @@
       v-if="GetBool[event.filter.event].all"
     >
       <div>
-        <default-teilnehmer-categorie />
+        <default-teilnehmer-categorie
+        :title="'Anmeldungen'"
+        :anmeldungen="event.anmeldungen"
+        />
       </div>
     </template>
   </v-container>

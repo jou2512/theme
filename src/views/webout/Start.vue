@@ -97,6 +97,7 @@
                   label="Confirm Password"
                   :type="showPassword1 ? '' : 'password'"
                   required
+                  :rules="passwordRulecheck"
                   :error-messages="pascheck()"
                   prepend-icon="mdi-lock"
                   :append-icon="!showPassword1 ? 'mdi-eye' : 'mdi-eye-off'"
@@ -229,10 +230,10 @@
       passwordRules: [
         (v) => !!v || 'Password is required',
         (v) => v.length > 5 || 'Password muss mindestens 6 Zeichen haben',
-        (v) => /\d/.test(v) || 'Password muss mindestens eine Nummer enthalten',
-        (v) => /[a-z]/.test(v) || 'Password muss mindestens eine Kleinbuchstabe enthalten',
-        (v) => /[A-Z]/.test(v) || 'Password muss mindestens eine Grossbuchstabe enthalten',
-        (v) => /[!@#$%^&*)(+=._-]/.test(v) || 'Password muss mindestens ein Sonderzeichen enthalten',
+        // (v) => /\d/.test(v) || 'Password muss mindestens eine Nummer enthalten',
+        (v) => /[a-z]/.test(v) || 'Password muss mindestens einen Kleinbuchstabe enthalten',
+        (v) => /[A-Z]/.test(v) || 'Password muss mindestens einen Grossbuchstabe enthalten',
+        // (v) => /[!@#$%^&*)(+=._-]/.test(v) || 'Password muss mindestens ein Sonderzeichen enthalten',
       ],
       email: '',
       password: '',

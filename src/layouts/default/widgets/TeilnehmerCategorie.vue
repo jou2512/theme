@@ -5,6 +5,11 @@
     >
         <p class="text-h2">{{ gender[gen] }} {{ getTitle(cat) }} | {{ day }}</p>
     </template>
+    <template
+      v-if="title"
+    >
+        <p class="text-h2">{{ title }}</p>
+    </template>
     <v-card
       class="elevation-0"
       color="#eff1f7"
@@ -39,6 +44,7 @@
 
   export default {
     props: {
+      title: String,
       cat: {
         type: String,
         default: '',
@@ -96,7 +102,34 @@
     },
     mounted () {
       console.log(this.anmeldungen)
-      this.filterAnmeldung()
+      if (!(this.title)) {
+        this.filterAnmeldung()
+      } else {
+        this.headers = [
+          {
+            text: 'Name',
+            align: 'start',
+            filterable: true,
+            groupable: false,
+            value: 'name',
+          },
+          {
+            text: 'Jahrgang',
+            align: 'start',
+            filterable: true,
+            groupable: true,
+            value: 'jahrgang',
+          },
+          {
+            text: 'Angemeldet Am',
+            align: 'center',
+            filterable: true,
+            groupable: true,
+            value: 'angam',
+          },
+        ]
+        this.sortAnmeldung()
+      }
     },
     methods: {
       getTitle (cat) {
@@ -125,6 +158,23 @@
               }
             })
           }
+        }
+        console.log('Items', this.items)
+      },
+      async sortAnmeldung () {
+        for (const property in this.anmeldungen.userinfos) {
+          console.log(this.anmeldungen.userinfos[property])
+          await getInfUser(property).then((doc) => {
+            var dateArray = convertDate(this.anmeldungen.userinfos[property].registriertAm, 2).split(' ')
+            console.log(dateArray)
+            var itemdata = {
+              name: doc.privat.nachName.toUpperCase() + ' ' + doc.privat.firstName.charAt(0).toUpperCase() + doc.privat.firstName.slice(1).toLowerCase(),
+              jahrgang: doc.privat.geburtsdatum.toDate().getFullYear(),
+              angam: dateArray[1],
+            }
+            console.log('Itemdata', itemdata)
+            this.items.push(itemdata)
+          })
         }
         console.log('Items', this.items)
       },
