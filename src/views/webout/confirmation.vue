@@ -76,6 +76,7 @@
                           v-model="username"
                           color="blue"
                           :rules="usernameRules"
+                          :error-messages="UsernameError"
                           :counter="15"
                           label="Username"
                           hide-details="auto"
@@ -89,6 +90,7 @@
                           v-model="vorname"
                           color="blue"
                           :rules="nameRules"
+                          :error-messages="FirstNameError"
                           label="Vorname"
                           required
                           outlined
@@ -100,6 +102,7 @@
                           v-model="familienname"
                           color="blue"
                           :rules="nameRules"
+                          :error="LastNameError"
                           label="Familienname"
                           required
                           outlined
@@ -130,6 +133,8 @@
                               v-bind="attrs"
                               required
                               v-on="on"
+                              hint="Wann hast du Geburtstag?"
+                              persistent-hint
                             />
                           </template>
                           <v-date-picker
@@ -150,14 +155,18 @@
                           hide-details="auto"
                           required
                           outlined
+                          hint="Welches Geschlecht hast du?"
+                          persistent-hint
                         />
                       </v-col>
                     </v-row>
                     <v-checkbox
                       v-model="checkboxAuto"
-                      class="mt-1 "
+                      class="mt-1 mb-5"
                       dense
                       label="Ich besitze ein Auto"
+                      hint="Hast du ein Auto mit dem du Fahren kannst?"
+                      persistent-hint
                     />
                     <p
                       class="blue-text text-caption pointer"
@@ -215,6 +224,8 @@
                                   required
                                   solo
                                   @change="update"
+                                  hint="Wie viele Kinder hast du die Fechten?"
+                                  persistent-hint
                                 />
                               </v-col>
                             </v-row>
@@ -233,6 +244,8 @@
                                   outlined
                                   hide-details="auto"
                                   prepend-icon="mdi-account-circle"
+                                  :hint="'Wie heist dein ' + i + '. Kind?'"
+                                  persistent-hint
                                 />
                               </v-col>
                               <v-col>
@@ -255,6 +268,8 @@
                                       required
                                       v-on="on"
                                       @focus="setmenuon(i)"
+                                      :hint="'Wann hat dein ' + i + '. Kind Geburtstag?'"
+                                      persistent-hint
                                     />
                                   </template>
                                   <v-date-picker
@@ -275,14 +290,21 @@
                                   hide-details="auto"
                                   required
                                   outlined
+                                  :hint="'Welches Geschlecht hat dein ' + i + '. Kind?'"
+                                  persistent-hint
                                 />
                               </v-col>
                             </v-row>
+                            <v-divider
+                              class="mt-10"
+                            />
                             <v-checkbox
                               v-model="checkboxPersoenlich"
-                              class="mt-1 "
+                              class="mt-3 "
                               dense
                               label="Ich fechte auch Persönlich"
+                              hint="Fechtest du als Vater / Mutter auch?"
+                              persistent-hint
                             />
                             <v-row
                               class="height=100%"
@@ -306,6 +328,8 @@
                                       v-bind="attrs"
                                       required
                                       v-on="on"
+                                      hint="Wann hast du Geburtstag?"
+                                      persistent-hint
                                     />
                                   </template>
                                   <v-date-picker
@@ -326,6 +350,8 @@
                                   hide-details="auto"
                                   required
                                   outlined
+                                  hint="Welches Geschlecht hast du?"
+                                  persistent-hint
                                 />
                               </v-col>
                             </v-row>
@@ -363,6 +389,8 @@
                                       readonly
                                       v-bind="attrs"
                                       v-on="on"
+                                      hint="Wann hast du Geburtstag?"
+                                      persistent-hint
                                     />
                                   </template>
                                   <v-date-picker
@@ -382,6 +410,8 @@
                                   :items="geschlechter"
                                   hide-details="auto"
                                   outlined
+                                  hint="Welches Geschlecht hast du?"
+                                  persistent-hint
                                 />
                               </v-col>
                             </v-row>
@@ -484,12 +514,13 @@
   import { sync } from 'vuex-pathify'
   import firebase from 'firebase/app'
   import 'firebase/auth'
-  import db from '../../Firebase/init'
+  import db, { useUsers } from '../../Firebase/init'
   import { isInteger } from 'lodash'
   // eslint-disable-next-line
   const lineSmooth = Vue.chartist.Interpolation.cardinal({
     tension: 0,
   })
+  const { existsUsername, existNames } = useUsers()
 
   export default {
     name: 'DashboardView',
@@ -513,6 +544,9 @@
       valid2: true,
       valid22: true,
       valid3: true,
+      UsernameError: '',
+      FirstNameError: '',
+      LastNameError: false,
       usernameRules: [
         v => !!v || 'Username is required',
         v => !(/[^a-zA-Z\s0-9]/.test(v)) || 'Username darf keine Sonderzeichen enthalten',
@@ -635,9 +669,31 @@
     methods: {
       async validate () {
         this.$refs.form.validate() ? console.log('success') : this.$refs.form.validate()
-        this.validate1()
+        await this.validate1()
         this.validate2()
         this.validate3()
+        await existsUsername(this.username).then(result => {
+          if (result) {
+            this.valid1 = false
+          } else {
+            this.UsernameError = 'Der Username existiert bereits'
+          }
+        })
+        await existNames(this.vorname, this.familienname).then(result => {
+          if (result) {
+            this.valid1 = false
+          } else {
+            this.FirstNameError = 'Dein Name Existiert bereits'
+            this.LastNameError = true
+          }
+        })
+
+        setTimeout(() => {
+          this.UsernameError = ''
+          this.FirstNameError = ''
+          this.LastNameError = false
+        }, 5000)
+
         if (!this.valid1) {
           this.e1 = 1
         } else if ((this.tab === 0 ? !this.valid2 : !this.valid22) && !(this.Administartion)) {

@@ -53,6 +53,10 @@ const router = new Router({
 })
 
 router.beforeEach((to, from, next) => {
+  const RoP = router.options.routes // RoP = Routes of Project
+  console.log(router.options.routes)
+  console.log(to)
+  console.log(authService.user)
   const calldata = () => {
     const usersCollection = db.collection('users')
     const cityRef = usersCollection.doc(authService.user.uid)
@@ -122,6 +126,11 @@ router.beforeEach((to, from, next) => {
     })
   }
   if (to.path) {
+    if (to.path === '/') {
+      if (!(authService.user)) {
+        next('/start/')
+      }
+    }
     if (to.path === '/start' || to.path === '/start/') {
       to.path.endsWith('/') ? next() : next(trailingSlash(to.path))
     }
@@ -178,7 +187,11 @@ router.beforeEach((to, from, next) => {
       }
     }
   } else {
-    next(from.path)
+    if (from.path) {
+      next(from.path)
+    } else {
+      next('/start/')
+    }
   }
 })
 

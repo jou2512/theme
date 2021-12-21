@@ -72,7 +72,7 @@
             <v-window-item :value="2">
               <v-card-text>
                 <v-text-field
-                  v-model="email"
+                  v-model="emailregis"
                   :rules="emailRules"
                   color="blue"
                   label="E-mail"
@@ -81,15 +81,15 @@
                 />
 
                 <v-text-field
-                  v-model="password"
+                  v-model="passwordregis"
                   required
                   color="blue"
                   label="Password"
-                  :type="showPassword ? '' : 'password'"
+                  :type="showPassword2 ? '' : 'password'"
                   :rules="passwordRules"
                   prepend-icon="mdi-lock"
-                  :append-icon="!showPassword ? 'mdi-eye' : 'mdi-eye-off'"
-                  @click:append="showPassword = !showPassword"
+                  :append-icon="!showPassword2 ? 'mdi-eye' : 'mdi-eye-off'"
+                  @click:append="showPassword2 = !showPassword2"
                 />
                 <v-text-field
                   v-model="passwordcheck"
@@ -97,8 +97,7 @@
                   label="Confirm Password"
                   :type="showPassword1 ? '' : 'password'"
                   required
-                  :rules="passwordRulecheck"
-                  :error-messages="pascheck()"
+                  :rules="[ pascheck ]"
                   prepend-icon="mdi-lock"
                   :append-icon="!showPassword1 ? 'mdi-eye' : 'mdi-eye-off'"
                   @click:append="showPassword1 = !showPassword1"
@@ -231,19 +230,19 @@
         (v) => !!v || 'Password is required',
         (v) => v.length > 5 || 'Password muss mindestens 6 Zeichen haben',
         // (v) => /\d/.test(v) || 'Password muss mindestens eine Nummer enthalten',
-        (v) => /[a-z]/.test(v) || 'Password muss mindestens einen Kleinbuchstabe enthalten',
-        (v) => /[A-Z]/.test(v) || 'Password muss mindestens einen Grossbuchstabe enthalten',
+        (v) => /[a-zß-öø-ÿ]/.test(v) || 'Password muss mindestens einen Kleinbuchstabe enthalten',
+        (v) => /[A-ZÀ-ÖØ-Þ]/.test(v) || 'Password muss mindestens einen Grossbuchstabe enthalten',
         // (v) => /[!@#$%^&*)(+=._-]/.test(v) || 'Password muss mindestens ein Sonderzeichen enthalten',
       ],
       email: '',
+      emailregis: '',
       password: '',
+      passwordregis: '',
       passwordcheck: '',
-      passwordRulecheck: [
-        (v) => this.pascheck(v) || 'Password muss übereinstimmen',
-      ],
       checkbox: false,
       showPassword: false,
       showPassword1: false,
+      showPassword2: false,
       isEditing: true,
       error: '',
       errorlog: '',
@@ -278,17 +277,21 @@
       resetValidation () {
         this.$refs.form.resetValidation()
       },
-      pascheck () {
-        return this.passwordcheck === this.password ? '' : 'Password muss übereinstimmen'
+      pascheck (value) {
+        if (value !== this.passwordregis) {
+          return 'Password muss übereinstimmen'
+        } else {
+          return true
+        }
       },
       async weiter () {
-        const path = '/start/confirmation/' + firebase.auth().currentUser.uid
-        this.$router.push(path)
+        const path = '/start/confirmation/' + firebase.auth().currentUser.uid + '/'
+        this.$router.push(path).catch(() => {})
       },
       async reg () {
         try {
           const firebaseAuth = await firebase.auth()
-          const createUser = await firebaseAuth.createUserWithEmailAndPassword(this.email, this.password)
+          const createUser = await firebaseAuth.createUserWithEmailAndPassword(this.emailregis, this.passwordregis)
           const result = await createUser
           const dataBase = db.collection('users').doc(result.user.uid)
           await dataBase.set({
@@ -306,7 +309,7 @@
               gesperrt: false,
               admin: false,
               completed: false,
-              email: this.email,
+              email: this.emailregis,
               telefon: '',
               username: '',
             },
@@ -340,7 +343,7 @@
             if (doc.data().login.completed) {
               this.$router.push('/').catch(() => {})
             } else {
-              this.$router.push('/start/confirmation/' + firebase.auth().currentUser.uid).catch(() => {})
+              this.$router.push('/start/confirmation/' + firebase.auth().currentUser.uid + '/').catch(() => {})
             }
           })
           .catch((error) => {

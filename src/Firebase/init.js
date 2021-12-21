@@ -82,7 +82,7 @@ export function useUsers () {
   const users = ref([])
 
   const getUsers = () => {
-    usersCollection.limit(100).onSnapshot(snapshot => {
+    usersCollection.limit(200).onSnapshot(snapshot => {
       users.value = snapshot.docs
         .map(doc => ({ id: doc.id, ...doc.data() }))
         .reverse()
@@ -100,9 +100,23 @@ export function useUsers () {
     return userData
   }
 
+  const existsUsername = async (username) => {
+    usersCollection.where('login.username', '==', username).get().then((data) => {
+      console.log(data)
+      return (data.docs.length !== 0)
+    })
+  }
+
+  const existNames = async (firstName, lastName) => {
+    usersCollection.where('privat.firstName', '==', firstName).where('privat.nachName', '==', lastName).get().then((data) => {
+      console.log(data)
+      return (data.docs.length !== 0)
+    })
+  }
+
   onUnmounted(getUsers())
 
-  return { getInfUser, users, setUserData }
+  return { getInfUser, users, setUserData, existsUsername, existNames }
 }
 
 const chatCollection = firestore.collection('messages')
