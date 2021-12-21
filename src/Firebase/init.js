@@ -103,6 +103,7 @@ export function useUsers () {
   const existsUsername = async (username) => {
     usersCollection.where('login.username', '==', username).get().then((data) => {
       console.log(data)
+      console.log(data.docs.length !== 0)
       return (data.docs.length !== 0)
     })
   }
@@ -110,6 +111,7 @@ export function useUsers () {
   const existNames = async (firstName, lastName) => {
     usersCollection.where('privat.firstName', '==', firstName).where('privat.nachName', '==', lastName).get().then((data) => {
       console.log(data)
+      console.log(data.docs.length !== 0)
       return (data.docs.length !== 0)
     })
   }

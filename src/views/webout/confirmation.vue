@@ -675,14 +675,12 @@
         await existsUsername(this.username).then(result => {
           if (result) {
             this.valid1 = false
-          } else {
             this.UsernameError = 'Der Username existiert bereits'
           }
         })
         await existNames(this.vorname, this.familienname).then(result => {
           if (result) {
             this.valid1 = false
-          } else {
             this.FirstNameError = 'Dein Name Existiert bereits'
             this.LastNameError = true
           }
