@@ -85,6 +85,7 @@
     },
     mounted () {
       console.log(this.$route)
+      this.$store.commit({ type: 'userfirebase/updateAllData' })
       this.event = this.events.find((x) => {
         return this.$route.params.eventid === x.uid
       })

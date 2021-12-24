@@ -229,7 +229,7 @@
             <v-divider />
 
             <v-card
-              class="overflow-y-auto mb-5"
+              class="overflow-y-auto"
               color="transparent"
               flat
               height="500"
@@ -359,39 +359,48 @@
                 class="mt-10"
               />
             </v-card>
-            <form
-              v-if="isLogin"
-              id="mes"
-              @submit.prevent="send"
+            <v-card
+              class=""
+              height="120"
             >
-              <v-app-bar
-                color="rgba(0,0,0,0)"
-                flat
+              <form
+                v-if="isLogin"
+                id="mes"
+                @submit.prevent="send"
               >
-                <v-text-field
-                  v-model="message"
-                  append-icon="mdi-emoticon"
-                  filled
-                  clear-icon="mdi-close-circle"
-                  clearable
-                  label="Message"
-                  type="text"
-                  @click:clear="clearMessage"
+                <v-app-bar
+                  color="rgba(0,0,0,0)"
+                  flat
+                  style="height = 120px important!;"
                 >
-                  <template v-slot:append-outer>
-                    <v-btn
-                      icon
-                      class="grey--text"
-                      type="submit"
-                    >
-                      <v-icon>
-                        mdi-send
-                      </v-icon>
-                    </v-btn>
-                  </template>
-                </v-text-field>
-              </v-app-bar>
-            </form>
+                  <v-textarea
+                    v-model="message"
+                    append-icon="mdi-emoticon"
+                    filled
+                    clear-icon="mdi-close-circle"
+                    clearable
+                    label="Message"
+                    type="text"
+                    rows="3"
+                    :counter-value="countervalue"
+                    @click:clear="clearMessage"
+                    hide-details
+                  >
+                    <template v-slot:append-outer>
+                      <v-btn
+                        icon
+                        class="grey--text"
+                        type="submit"
+                      >
+                        <v-icon>
+                          mdi-send
+                        </v-icon>
+                      </v-btn>
+                    </template>
+                  </v-textarea>
+                </v-app-bar>
+              </form>
+            </v-card>
           </v-card>
         </v-col>
         <v-col
@@ -755,6 +764,9 @@
       }, 1000)
     },
     methods: {
+      countervalue (v) {
+        //
+      },
       getFunktionen (selected) {
         const userIndex = selected.users.indexOf(authService.user.uid)
         const uid = selected.users[1 - userIndex]

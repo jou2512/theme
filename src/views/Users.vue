@@ -335,6 +335,15 @@
         </v-btn>
       </template>
     </v-data-table>
+    <sweet-modal
+      ref="modal"
+      icon="success"
+      :blocking="true"
+      :pulse-on-block="false"
+      :hide-close-button="true"
+    >
+      User {{ UserMessage }} successfully!
+    </sweet-modal>
   </v-container>
 </template>
 
@@ -343,12 +352,14 @@
   import 'firebase/functions'
   import { get } from 'vuex-pathify'
   import db from '../Firebase/init'
+  import { SweetModal, SweetModalTab } from 'sweet-modal-vue'
 
   export default {
     name: 'RegularTablesView',
 
     data () {
       return {
+        UserMessage: '',
         forceupdate: 0,
         loading: false,
         search: '',
@@ -382,6 +393,11 @@
           tag: '',
         },
       }
+    },
+
+    components: {
+      SweetModal,
+      SweetModalTab,
     },
 
     computed: {
@@ -426,6 +442,12 @@
         const addAdminRole = firebase.functions().httpsCallable('addAdminRole')
         addAdminRole({ uid: item.uid, disable: disable }).then(result => {
           console.log(result)
+          if (disable) {
+            this.UserMessage = 'promoted to Admin'
+          } else {
+            this.UserMessage = 'degradated'
+          }
+          this.$refs.modal.open()
           setTimeout(() => {
             this.update()
           }, 2000)
@@ -439,6 +461,12 @@
         const deactivateUser = firebase.functions().httpsCallable('deactivateUser')
         deactivateUser({ uid: item.uid, disable: disable }).then(result => {
           console.log(result)
+          if (disable) {
+            this.UserMessage = 'deactivated'
+          } else {
+            this.UserMessage = 'reactivated'
+          }
+          this.$refs.modal.open()
           setTimeout(() => {
             this.update()
           }, 2000)
@@ -451,6 +479,7 @@
         this.loading = true
         this.$store.commit({ type: 'userfirebase/updateAllData' })
         setTimeout(() => {
+          this.$refs.modal.close()
           this.loading = false
           this.forceupdate++
         }, 2000)
@@ -472,10 +501,13 @@
         if (this.editedItem.uid.length > 20) {
           this.dialogDelete = false
           const deleteUser = firebase.functions().httpsCallable('deleteUser')
+          db.collection('users').doc(this.editedItem.uid).delete()
+          console.log(this.editedItem.uid)
           deleteUser({ uid: this.editedItem.uid }).then(result => {
             console.log(result)
-            db.collection('users').doc(this.editedItem.uid).delete()
             this.closeDelete()
+            this.UserMessage = 'deleted'
+            this.$refs.modal.open()
             setTimeout(() => {
               this.update()
             }, 2000)
@@ -486,6 +518,8 @@
         } else {
           db.collection('users').doc(this.editedItem.uid).delete()
           this.closeDelete()
+          this.UserMessage = 'deleted'
+          this.$refs.modal.open()
           setTimeout(() => {
             this.update()
           }, 2000)
@@ -525,6 +559,8 @@
           fechtenloc = true
         }
         console.log(user)
+        this.UserMessage = 'modified Role/s'
+        this.$refs.modal.open()
         await washingtonRef.set({
           privat: {
             funktionen: user.funktionen,

@@ -45,6 +45,7 @@ const router = new Router({
       defaultroute('Events', null, 'events'),
       defaultroute('Teilnehmer', null, 'events/teilnehmer/:eventid'),
       defaultroute('Chats', null, 'chats'),
+      defaultroute('ChatTest', null, 'chattest'),
     ]), layout('webout', [
       weboutroute('Start'),
       weboutroute('confirmation', null, 'confirmation/:id'),
@@ -133,8 +134,7 @@ router.beforeEach((to, from, next) => {
     }
     if (to.path === '/start' || to.path === '/start/') {
       to.path.endsWith('/') ? next() : next(trailingSlash(to.path))
-    }
-    if (to.path === '/start/confirmation/') {
+    } else if (to.path === '/start/confirmation/') {
       next('/start/')
     } else {
       try {
@@ -170,7 +170,11 @@ router.beforeEach((to, from, next) => {
                 }
               }
             } else {
-              next('/start/')
+              if (to.path === '/start' || to.path === '/start/') {
+                next()
+              } else {
+                next('/start/')
+              }
             }
           })
           .catch((err) => {

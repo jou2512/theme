@@ -370,6 +370,7 @@
                       v-model="currentUserData.login.username"
                       :disabled="disabled"
                       :rules="usernameRules"
+                      :error-messages="UsernameError"
                       color="purple"
                       label="User Name"
                       outlined
@@ -397,6 +398,7 @@
                       v-model="currentUserData.privat.firstName"
                       :disabled="disabled"
                       :rules="nameRules"
+                      :error-messages="FirstNameError"
                       color="purple"
                       label="First Name"
                       outlined
@@ -411,6 +413,7 @@
                       v-model="currentUserData.privat.nachName"
                       :disabled="disabled"
                       :rules="nameRules"
+                      :error="LastNameError"
                       color="purple"
                       label="Last Name"
                       outlined
@@ -578,7 +581,7 @@
   import 'firebase/auth'
   import db, { authService, useUsers } from '../Firebase/init'
   import firebase from 'firebase/app'
-  const { getInfUser } = useUsers()
+  const { getInfUser, existsUsername, existNames } = useUsers()
 
   export default {
     name: 'UserProfileView',
@@ -594,7 +597,11 @@
         geb: '',
         userVerküpfteKonnten: [],
         idkey: 0,
-        currentUserData: {},
+        currentUserData: {
+          login: {},
+          privat: {},
+          addresse: {},
+        },
         originalUserData: {},
         valid: true,
         SelectedAccount: -1,
@@ -603,14 +610,19 @@
           v => !!v || 'Username is required',
           v => !(/[^a-zA-Z\s0-9]/.test(v)) || 'Username darf keine Sonderzeichen enthalten',
           v => {
-            if (/\d/g.test(v)) {
+            if (/\d/g.test(v) && !!v) {
               return (v.match(/\d/g).length <= 4 && v.match(/\d/g).length > 0) || 'Username darf maximal 4 zahlen enthalten'
             }
             return true
           },
-          v => (v.length <= 15 || this.SelectedAccount !== -1) || 'Maximal 15 Zeichen',
           v => {
-            if (/[A-z]/g.test(v)) {
+            if (v) {
+              return (v.length <= 15 || this.SelectedAccount !== -1) || 'Maximal 15 Zeichen'
+            }
+            return true
+          },
+          v => {
+            if (/[A-z]/g.test(v) && !!v) {
               return (v.match(/[A-z]/g).length >= 3) || 'Username min. 3 Buchstaben enthalten'
             }
             return 'Username muss mindestens 5 Buchstaben enthalten'
@@ -624,7 +636,7 @@
           v => !!v || 'Name is required',
           v => !(/[^a-zA-Z\s]/.test(v)) || 'Nur Buchstaben sind zugelassen',
           v => {
-            if (/[A-z]/g.test(v)) {
+            if (/[A-z]/g.test(v) && !!v) {
               return (v.match(/[A-z]/g).length >= 3) || 'mindestens 3 Buchstaben'
             }
             return true
@@ -634,7 +646,7 @@
           v => !!v || 'Street is required',
           v => !(/[^a-zA-Z\s]/.test(v)) || 'Nur Buchstaben sind zugelassen',
           v => {
-            if (/[A-z]/g.test(v)) {
+            if (/[A-z]/g.test(v) && !!v) {
               return (v.match(/[A-z]/g).length >= 3) || 'mindestens 3 Buchstaben'
             }
             return true
@@ -644,7 +656,7 @@
           v => !!v || 'Housenumber is required',
           v => !(/[^a-zA-Z\s0-9]/.test(v)) || 'Nur Zahlen und ein max. 1 Buchstabe',
           v => {
-            if (/[A-z]/g.test(v)) {
+            if (/[A-z]/g.test(v) && !!v) {
               return (v.match(/[A-z]/g).length <= 1) || 'max. 1 Buchstabe'
             }
             return true
@@ -654,7 +666,7 @@
           v => !!v || 'field is required',
           v => !(/[^a-zA-Z\s]/.test(v)) || 'Nur Buchstaben sind zugelassen',
           v => {
-            if (/[A-z]/g.test(v)) {
+            if (/[A-z]/g.test(v) && !!v) {
               return (v.match(/[A-z]/g).length >= 3) || 'mindestens 3 Buchstaben'
             }
             return true
@@ -664,13 +676,16 @@
           v => !!v || 'Postcode is required',
           v => !(/[^0-9]/.test(v)) || 'Nur Zahlen sind zugelassen',
           v => {
-            if (/\d/g.test(v)) {
+            if (/\d/g.test(v) && !!v) {
               return v.match(/\d/g).length <= 5 || 'Nur PLZ mit max 5 Ziffern'
             }
             return true
           },
         ],
         icons: ['mdi-account-cog', 'mdi-account-edit', 'mdi-account-minus'],
+        UsernameError: '',
+        FirstNameError: '',
+        LastNameError: false,
       }
     },
 
@@ -700,14 +715,14 @@
     },
 
     methods: {
-      uploadFile (index) {
+      async uploadFile (index) {
         console.log(this.files)
         if (this.files.length !== 0 && !(this.profilepicloading)) {
           this.profilepicloading = true
           console.log('this.files')
           if (isNaN(parseInt(index))) {
             console.log('erwachsen')
-            firebase.storage().ref().child('profilbilder/' + authService.user.uid).put(this.files)
+            await firebase.storage().ref().child('profilbilder/' + authService.user.uid).put(this.files)
             const starsRef = firebase.storage().ref().child('profilbilder/' + authService.user.uid)
 
             // Get the download URL
@@ -724,7 +739,7 @@
               })
           } else {
             console.log('kind')
-            firebase.storage().ref().child('profilbilder/' + this.infos.kinder[index]).put(this.files)
+            await firebase.storage().ref().child('profilbilder/' + this.infos.kinder[index]).put(this.files)
             const starsRef = firebase.storage().ref().child('profilbilder/' + this.infos.kinder[index])
 
             // Get the download URL
@@ -817,8 +832,44 @@
         }
         this.idkey++
       },
-      updateProfile () {
+      async updateProfile () {
         this.validate1()
+        if (this.valid) {
+          if (this.currentUserData.login.username !== this.originalUserData.login.username) {
+            await existsUsername(this.currentUserData.login.username).then(result => {
+              console.log('result', result)
+              if (result) {
+                this.valid = false
+                this.UsernameError = 'Der Username existiert bereits'
+              }
+            })
+          }
+          if (this.currentUserData.privat.firstName !== this.originalUserData.privat.firstName | this.currentUserData.privat.nachName !== this.originalUserData.privat.nachName) {
+            await existNames(this.currentUserData.privat.firstName, this.currentUserData.privat.nachName).then(result => {
+              console.log('result', result)
+              if (result) {
+                this.valid = false
+                this.FirstNameError = 'Dein Name Existiert bereits'
+                this.LastNameError = true
+              }
+            })
+          }
+
+          if (this.valid) {
+            if (this.currentUserData.login.username === this.currentUserData.privat.firstName | this.currentUserData.privat.nachName === this.currentUserData.login.username) {
+              this.valid = false
+              this.UsernameError = 'Der Username sollte nicht der Vorname oder Nachname sein'
+            }
+          }
+
+          if (!(this.valid)) {
+            setTimeout(() => {
+              this.UsernameError = ''
+              this.FirstNameError = ''
+              this.LastNameError = false
+            }, 5000)
+          }
+        }
         if (this.valid) {
           this.disabled = true
           this.loading = true

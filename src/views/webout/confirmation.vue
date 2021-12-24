@@ -83,6 +83,8 @@
                           required
                           outlined
                           prepend-icon="mdi-account-circle"
+                          hint="Wähle dein Username"
+                          persistent-hint
                         />
                       </v-col>
                       <v-col>
@@ -95,6 +97,8 @@
                           required
                           outlined
                           hide-details="auto"
+                          hint="Wie ist dein Vorname"
+                          persistent-hint
                         />
                       </v-col>
                       <v-col>
@@ -107,6 +111,8 @@
                           required
                           outlined
                           hide-details="auto"
+                          hint="wie ist dein Familienname"
+                          persistent-hint
                         />
                       </v-col>
                     </v-row>
@@ -672,25 +678,38 @@
         await this.validate1()
         this.validate2()
         this.validate3()
-        await existsUsername(this.username).then(result => {
-          if (result) {
-            this.valid1 = false
-            this.UsernameError = 'Der Username existiert bereits'
-          }
-        })
-        await existNames(this.vorname, this.familienname).then(result => {
-          if (result) {
-            this.valid1 = false
-            this.FirstNameError = 'Dein Name Existiert bereits'
-            this.LastNameError = true
-          }
-        })
+        if (this.valid1) {
+          await existsUsername(this.username).then(result => {
+            console.log('result', result)
+            if (result) {
+              this.valid1 = false
+              this.UsernameError = 'Der Username existiert bereits'
+            }
+          })
+          await existNames(this.vorname, this.familienname).then(result => {
+            console.log('result', result)
+            if (result) {
+              this.valid1 = false
+              this.FirstNameError = 'Dein Name Existiert bereits'
+              this.LastNameError = true
+            }
+          })
 
-        setTimeout(() => {
-          this.UsernameError = ''
-          this.FirstNameError = ''
-          this.LastNameError = false
-        }, 5000)
+          if (this.valid1) {
+            if (this.username === this.vorname | this.familienname === this.username) {
+              this.valid1 = false
+              this.UsernameError = 'Der Username sollte nicht der Vorname oder Nachname sein'
+            }
+          }
+
+          if (!(this.valid1)) {
+            setTimeout(() => {
+              this.UsernameError = ''
+              this.FirstNameError = ''
+              this.LastNameError = false
+            }, 5000)
+          }
+        }
 
         if (!this.valid1) {
           this.e1 = 1
@@ -748,8 +767,8 @@
             privat: {
               funktionen: ['fechter/in'],
               fechten: true,
-              firstName: kinder.vorname,
-              nachName: this.familienname,
+              firstName: kinder.vorname.toLowerCase(),
+              nachName: this.familienname.toLowerCase(),
               gender: kinder.gender,
               geburtsdatum: kinder.geburtsdatum,
               auto: false,
@@ -758,13 +777,14 @@
               eventsBes: 0,
             },
             kinder: [],
+            parent: this.$route.params.id,
             login: {
               admin: this.admin,
               email: '',
               telefon: '',
               avatar: 'https://firebasestorage.googleapis.com/v0/b/fechtgesellschaft-1.appspot.com/o/profilbilder%2Fprofile-picture.jpg?alt=media&token=8abd74b4-8961-4cd5-9d7e-3bdc4533bd9c',
               completed: false,
-              username: kinder.vorname + '' + index + '' + this.familienname,
+              username: kinder.vorname.toLowerCase() + '' + index + '' + this.familienname.toLowerCase(),
               registriertAm: firebase.firestore.Timestamp.fromDate(new Date()),
             },
             addresse: {
@@ -800,8 +820,8 @@
             privat: {
               funktionen: this.funktionen,
               fechten: fechten,
-              firstName: this.vorname,
-              nachName: this.familienname,
+              firstName: this.vorname.toLowerCase(),
+              nachName: this.familienname.toLowerCase(),
               gender: this.gender,
               geburtsdatum: firebase.firestore.Timestamp.fromDate(new Date(this.date)),
               auto: this.checkboxAuto,
@@ -812,7 +832,7 @@
             kinder: kinderIds,
             login: {
               completed: true,
-              username: this.username,
+              username: this.username.toLowerCase(),
               registriertAm: firebase.firestore.Timestamp.fromDate(new Date()),
             },
             addresse: {

@@ -101,17 +101,13 @@ export function useUsers () {
   }
 
   const existsUsername = async (username) => {
-    usersCollection.where('login.username', '==', username).get().then((data) => {
-      console.log(data)
-      console.log(data.docs.length !== 0)
-      return (data.docs.length !== 0)
+    return await usersCollection.where('login.username', '==', username.toLowerCase()).get().then((data) => {
+      return data.docs.length !== 0
     })
   }
 
   const existNames = async (firstName, lastName) => {
-    usersCollection.where('privat.firstName', '==', firstName).where('privat.nachName', '==', lastName).get().then((data) => {
-      console.log(data)
-      console.log(data.docs.length !== 0)
+    return await usersCollection.where('privat.firstName', '==', firstName.toLowerCase()).where('privat.nachName', '==', lastName.toLowerCase()).get().then((data) => {
       return (data.docs.length !== 0)
     })
   }
@@ -273,6 +269,7 @@ export function useEvent () {
         material: {
           mat: [],
           rep: '',
+          done: [],
         },
       },
     }, { merge: true })
@@ -291,6 +288,7 @@ export function useEvent () {
       } else if (material.mat.length !== 0 && material.rep !== '') {
         status = 'Reparatur und Material'
       }
+      material.done = []
       if (!(result)) {
         eventCollection.doc(eventid).set({
           anmeldungen: {
@@ -341,6 +339,7 @@ export function useEvent () {
               material: {
                 mat: [],
                 rep: '',
+                done: [],
               },
             }
         })
@@ -383,6 +382,7 @@ export function useEvent () {
         material: {
           mat: [],
           rep: '',
+          done: [],
         },
       }
     }
@@ -399,11 +399,26 @@ export function useEvent () {
     })
     return result
   }
-  const changeAnmeldeState = (uid, event) => {
-
+  const updateAnmeldeState = async (uid, eventid, material, done) => {
+    var status = ''
+    // if (material.length === 1 && material.mat[0] === 'Reparatur') { material.mat = [] }
+    if (material.length === 0) {
+      status = 'Hatt Alles'
+    } else if (material.length !== 0) {
+      status = 'Es fehlt Material'
+    } /* else if (material.length === 0) {
+      status = 'Material Reparatur'
+    } else if (material.length !== 0) {
+      status = 'Reparatur und Material'
+    } */
+    var usersUpdate = {}
+    usersUpdate[`anmeldungen.userinfos.${uid}.material.mat`] = material
+    usersUpdate[`anmeldungen.userinfos.${uid}.material.done`] = done
+    usersUpdate[`anmeldungen.userinfos.${uid}.status`] = status
+    await eventCollection.doc(eventid).update(usersUpdate)
   }
 
-  return { checkifAngemeldet, anmelden, abmelden, getAllAnmeldungen, getAnmeldung }
+  return { checkifAngemeldet, anmelden, abmelden, getAllAnmeldungen, getAnmeldung, updateAnmeldeState }
 }
 
 export { timestamp }
